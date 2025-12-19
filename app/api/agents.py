@@ -195,16 +195,18 @@ async def approve_proposal(
 async def reject_proposal(
     proposal_id: str,
     request: ApprovalRequest,
+    current_user: User = Depends(require_auth),
 ) -> Proposal:
     """
     Reject a proposal.
 
     Convenience endpoint that sets approved=False.
+    Fixed GAP-72: Now uses current_user from auth instead of request.user_id
     """
     try:
         proposal = await approval_tracker.approve_proposal(
             proposal_id=proposal_id,
-            user_id=request.user_id,
+            user_id=current_user.id,
             approved=False,
             reason=request.reason,
         )

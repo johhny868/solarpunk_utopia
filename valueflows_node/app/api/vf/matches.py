@@ -111,6 +111,78 @@ async def approve_match(match_id: str, agent_id: str):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.post("/{match_id}/accept", response_model=dict)
+async def accept_match(match_id: str):
+    """Accept a match - frontend compatible endpoint (GAP-65)"""
+    try:
+        db = get_database()
+        db.connect()
+        match_repo = MatchRepository(db.conn)
+
+        match = match_repo.find_by_id(match_id)
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # For now, accept from both sides (no auth yet)
+        # TODO: Use authenticated user to determine provider vs receiver
+        match.provider_approved = True
+        match.receiver_approved = True
+        match.provider_approved_at = datetime.now()
+        match.receiver_approved_at = datetime.now()
+        match.status = "accepted"
+
+        updated_match = match_repo.update(match)
+
+        publisher = VFBundlePublisher()
+        bundle = publisher.publish_vf_object(updated_match, "Match")
+
+        db.close()
+
+        return {
+            "status": "accepted",
+            "match": updated_match.to_dict(),
+            "bundle_id": bundle["bundleId"]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{match_id}/reject", response_model=dict)
+async def reject_match(match_id: str, reason: str = None):
+    """Reject a match - frontend compatible endpoint (GAP-65)"""
+    try:
+        db = get_database()
+        db.connect()
+        match_repo = MatchRepository(db.conn)
+
+        match = match_repo.find_by_id(match_id)
+        if not match:
+            raise HTTPException(status_code=404, detail="Match not found")
+
+        # TODO: Use authenticated user to verify participant
+        match.status = "rejected"
+
+        updated_match = match_repo.update(match)
+
+        publisher = VFBundlePublisher()
+        bundle = publisher.publish_vf_object(updated_match, "Match")
+
+        db.close()
+
+        return {
+            "status": "rejected",
+            "match": updated_match.to_dict(),
+            "reason": reason,
+            "bundle_id": bundle["bundleId"]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.get("/agent/{agent_id}", response_model=dict)
 async def get_agent_matches(agent_id: str):
     """Get all matches for an agent"""

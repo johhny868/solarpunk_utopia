@@ -276,7 +276,9 @@ async def delete_listing(listing_id: str):
         if not listing:
             raise HTTPException(status_code=404, detail="Listing not found")
 
-        # TODO (GAP-02): Add ownership verification when auth is implemented
+        # TODO (GAP-71): Add ownership verification when auth is implemented
+        # Auth system is being tracked in GAP-02
+        # Once auth is available, uncomment:
         # if listing.agent_id != request.state.user.id:
         #     raise HTTPException(status_code=403, detail="Not authorized to delete this listing")
 

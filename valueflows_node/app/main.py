@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from .database import initialize_database
-from .api.vf import listings, matches, exchanges, events, agents, resource_specs
+from .api.vf import listings, matches, exchanges, events, agents, resource_specs, commitments
 from .api import communities, leakage_metrics
 
 
@@ -48,6 +48,7 @@ app.add_middleware(
 app.include_router(communities.router)
 app.include_router(listings.router)
 app.include_router(matches.router)
+app.include_router(commitments.router)
 app.include_router(exchanges.router)
 app.include_router(events.router)
 app.include_router(agents.router)
