@@ -182,23 +182,46 @@ class BaseAgent(ABC):
         Query ValueFlows data from database.
 
         Args:
-            query: SQL query or ORM method
-            params: Query parameters
+            query: Query type - "offers", "needs", "matches", "exchanges", "commitments", "listings"
+            params: Query parameters (category, location_id, limit, etc.)
 
         Returns:
             List of matching records
+
+        Raises:
+            ValueError: If query type is not supported
+            Exception: If database query fails
         """
         if not self.db_client:
-            logger.warning(f"No database client configured for {self.agent_name}")
-            return []
+            # Initialize VFClient if not provided
+            from app.clients.vf_client import VFClient
+            self.db_client = VFClient()
+            logger.info(f"Initialized VFClient for {self.agent_name}")
+
+        params = params or {}
 
         try:
-            # TODO: Implement actual DB query once DB client is available
-            # For now, return empty list
-            return []
+            if query == "offers":
+                return await self.db_client.get_active_offers(**params)
+            elif query == "needs":
+                return await self.db_client.get_active_needs(**params)
+            elif query == "matches":
+                return await self.db_client.get_matches(**params) if hasattr(self.db_client, 'get_matches') else []
+            elif query == "exchanges":
+                return await self.db_client.get_exchanges(**params) if hasattr(self.db_client, 'get_exchanges') else []
+            elif query == "commitments":
+                return await self.db_client.get_commitments(**params) if hasattr(self.db_client, 'get_commitments') else []
+            elif query == "listings":
+                # Get both offers and needs
+                offers = await self.db_client.get_active_offers(**params)
+                needs = await self.db_client.get_active_needs(**params)
+                return offers + needs
+            else:
+                logger.error(f"Unknown query type: {query}")
+                raise ValueError(f"Unsupported query type: {query}")
         except Exception as e:
-            logger.error(f"Database query failed: {e}", exc_info=True)
-            return []
+            logger.error(f"ValueFlows query failed for {query}: {e}", exc_info=True)
+            raise  # Don't mask errors - let caller handle them
 
     async def use_llm(self, prompt: str, context: Optional[Dict] = None) -> str:
         """

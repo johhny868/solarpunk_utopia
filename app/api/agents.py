@@ -255,8 +255,7 @@ async def get_agent_settings(agent_name: str) -> AgentSettingsResponse:
 
     Returns agent configuration.
     """
-    # TODO: Load from database/config file
-    # For now, return default config
+    from app.database.agent_settings_repository import AgentSettingsRepository
 
     agent_classes = {
         "commons-router": CommonsRouterAgent,
@@ -272,11 +271,21 @@ async def get_agent_settings(agent_name: str) -> AgentSettingsResponse:
     if not agent_class:
         raise HTTPException(status_code=404, detail=f"Agent {agent_name} not found")
 
-    agent = agent_class()
+    # Try to load saved settings from database
+    settings_repo = AgentSettingsRepository()
+    saved_settings = await settings_repo.get_settings(agent_name)
+
+    if saved_settings:
+        # Return saved settings
+        config = saved_settings
+    else:
+        # Return default config from agent class
+        agent = agent_class()
+        config = dict(agent.config)
 
     return AgentSettingsResponse(
         agent_name=agent_name,
-        config=dict(agent.config),
+        config=config,
     )
 
 
@@ -290,8 +299,7 @@ async def update_agent_settings(
 
     Allows enabling/disabling agents and configuring behavior.
     """
-    # TODO: Save to database/config file
-    # For now, just return the requested settings
+    from app.database.agent_settings_repository import AgentSettingsRepository
 
     if agent_name not in [
         "commons-router",
@@ -317,6 +325,10 @@ async def update_agent_settings(
     if request.auto_approve is not None:
         config["auto_approve"] = request.auto_approve
 
+    # Save settings to database
+    settings_repo = AgentSettingsRepository()
+    await settings_repo.save_settings(agent_name, config)
+
     return AgentSettingsResponse(
         agent_name=agent_name,
         config=config,
@@ -330,8 +342,9 @@ async def get_all_agent_stats() -> Dict[str, AgentStatsResponse]:
 
     Returns run statistics including proposal counts.
     """
-    # TODO: Return actual stats from running agents
-    # For now, return mock stats
+    from app.database.agent_stats_repository import AgentStatsRepository
+
+    stats_repo = AgentStatsRepository()
 
     agents = [
         "commons-router",
@@ -345,12 +358,16 @@ async def get_all_agent_stats() -> Dict[str, AgentStatsResponse]:
 
     stats = {}
     for name in agents:
+        agent_stats = await stats_repo.get_stats(name)
         stats[name] = AgentStatsResponse(
             stats={
                 "agent_name": name,
                 "enabled": True if name != "inventory-agent" else False,
-                "last_run": None,
-                "proposals_created": 0,
+                "last_run": agent_stats.last_run,
+                "proposals_created": agent_stats.proposals_created,
+                "total_runs": agent_stats.total_runs,
+                "avg_duration_seconds": agent_stats.avg_duration_seconds,
+                "error_count": agent_stats.error_count,
             }
         )
 
@@ -369,8 +386,7 @@ async def get_agent_stats(agent_name: str) -> AgentStatsResponse:
 
     Returns run statistics including proposal counts.
     """
-    # TODO: Return actual stats from running agent
-    # For now, return mock stats
+    from app.database.agent_stats_repository import AgentStatsRepository
 
     if agent_name not in [
         "commons-router",
@@ -383,12 +399,18 @@ async def get_agent_stats(agent_name: str) -> AgentStatsResponse:
     ]:
         raise HTTPException(status_code=404, detail=f"Agent {agent_name} not found")
 
+    stats_repo = AgentStatsRepository()
+    agent_stats = await stats_repo.get_stats(agent_name)
+
     return AgentStatsResponse(
         stats={
             "agent_name": agent_name,
             "enabled": True if agent_name != "inventory-agent" else False,
-            "last_run": None,
-            "proposals_created": 0,
+            "last_run": agent_stats.last_run,
+            "proposals_created": agent_stats.proposals_created,
+            "total_runs": agent_stats.total_runs,
+            "avg_duration_seconds": agent_stats.avg_duration_seconds,
+            "error_count": agent_stats.error_count,
         }
     )
 
