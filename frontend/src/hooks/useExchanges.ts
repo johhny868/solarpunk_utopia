@@ -91,7 +91,7 @@ export function useCompleteExchange() {
       const event = await valueflowsApi.createEvent({
         action: 'transfer',
         provider_id: agentId,
-        resource_spec_id: 'placeholder', // Will be filled by backend from exchange
+        resource_specification_id: 'placeholder', // Will be filled by backend from exchange
         quantity: 0, // Will be filled by backend from exchange
         unit: 'items',
       });

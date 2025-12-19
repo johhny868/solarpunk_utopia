@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-// import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import { CommunityProvider } from './contexts/CommunityContext'
 import { Layout } from './components/Layout'
@@ -21,40 +21,38 @@ import './App.css'
 import './api/interceptors'
 
 // Import local storage initialization
-// TODO: Re-enable after fixing type errors
-// import { initializeStorage } from './api/adaptive-valueflows'
+import { initializeStorage } from './api/adaptive-valueflows'
 
 function App() {
-  // TODO: Re-enable storage initialization after fixing type errors
-  //const [storageReady, setStorageReady] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
 
-  // useEffect(() => {
-  //   // Initialize local SQLite database for offline-first operation
-  //   initializeStorage()
-  //     .then(() => {
-  //       setStorageReady(true);
-  //       console.log('App storage initialized');
-  //     })
-  //     .catch(error => {
-  //       console.error('Failed to initialize storage:', error);
-  //       // Continue anyway - app can still work with remote API
-  //       setStorageReady(true);
-  //     });
-  // }, []);
+  useEffect(() => {
+    // Initialize local SQLite database for offline-first operation
+    initializeStorage()
+      .then(() => {
+        setStorageReady(true);
+        console.log('App storage initialized');
+      })
+      .catch(error => {
+        console.error('Failed to initialize storage:', error);
+        // Continue anyway - app can still work with remote API
+        setStorageReady(true);
+      });
+  }, []);
 
-  // if (!storageReady) {
-  //   return (
-  //     <div style={{
-  //       display: 'flex',
-  //       justifyContent: 'center',
-  //       alignments: 'center',
-  //       height: '100vh',
-  //       fontSize: '1.2rem'
-  //     }}>
-  //       Initializing local storage...
-  //     </div>
-  //   );
-  // }
+  if (!storageReady) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '1.2rem'
+      }}>
+        Initializing local storage...
+      </div>
+    );
+  }
 
   return (
     <AuthProvider>

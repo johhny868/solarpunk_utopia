@@ -141,6 +141,8 @@ export interface Exchange {
   quantity: number;
   unit: string;
   status: 'proposed' | 'in_progress' | 'completed' | 'cancelled';
+  provider_completed?: boolean;
+  receiver_completed?: boolean;
   events: EconomicEvent[];
   created_at: string;
   updated_at: string;

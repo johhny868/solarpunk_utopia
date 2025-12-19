@@ -3,7 +3,6 @@ import axios from 'axios';
 import type {
   Agent,
   Intent,
-  Listing,
   EconomicResource,
   ResourceSpecification,
   EconomicEvent,
@@ -11,7 +10,6 @@ import type {
   Match,
   Commitment,
   CreateIntentRequest,
-  CreateListingRequest,
   CreateEventRequest,
   CreateExchangeRequest,
 } from '@/types/valueflows';

@@ -15,7 +15,7 @@ const api = axios.create({
 export const agentsApi = {
   // Get all agents
   getAgents: async (): Promise<Agent[]> => {
-    const response = await api.get<{ agents: string[]; total: number }>('');
+    await api.get<{ agents: string[]; total: number }>('');
     // Backend returns {agents: [...], total: N}, need to transform
     // For now, return empty array - proper implementation needs agent list endpoint
     return [];
