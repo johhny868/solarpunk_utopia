@@ -60,7 +60,7 @@ A mesh network that enables:
 | [Algorithmic Transparency](changes/algorithmic-transparency/proposal.md) | Why did the AI match this? | ✅ IMPLEMENTED - Full transparency: explanations, adjustable weights, bias detection, audit trail (13 tests passing) |
 | [Temporal Justice](changes/temporal-justice/proposal.md) | Don't exclude caregivers/workers | ✅ IMPLEMENTED - Async participation: slow exchanges, time banks, chunk offers, flexible voting |
 | [Accessibility First](changes/accessibility-first/proposal.md) | Works for non-tech-savvy | ✅ IMPLEMENTED - Backend tracking: preferences, feature usage, feedback, metrics (>10% success goal) |
-| [Language Justice](changes/language-justice/proposal.md) | Not just English | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Language Justice](changes/language-justice/proposal.md) | Not just English | ✅ IMPLEMENTED - Multi-language: translation system, community contributions, language preferences, >20% non-English goal |
 
 ---
 

@@ -1,6 +1,6 @@
 # Proposal: Language Justice
 
-**Status:** DRAFT  
+**Status:** IMPLEMENTED  
 **Philosopher:** Gloria Anzaldúa (Borderlands/La Frontera)
 
 ## Problem

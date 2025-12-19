@@ -56,6 +56,7 @@ from .api.knowledge_osmosis import router as knowledge_osmosis_router
 from .api.algorithmic_transparency import router as algorithmic_transparency_router
 from .api.temporal_justice import router as temporal_justice_router
 from .api.accessibility import router as accessibility_router
+from .api.language_justice import router as language_justice_router
 from .services import TTLService, CryptoService, CacheService
 from .middleware import CSRFMiddleware
 
@@ -196,6 +197,7 @@ app.include_router(knowledge_osmosis_router)
 app.include_router(algorithmic_transparency_router)
 app.include_router(temporal_justice_router)
 app.include_router(accessibility_router)
+app.include_router(language_justice_router)
 
 
 @app.get("/")
