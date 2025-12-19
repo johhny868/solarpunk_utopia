@@ -46,6 +46,7 @@ from .api.steward_dashboard import router as steward_router
 from .api.panic import router as panic_router
 from .api.sanctuary import router as sanctuary_router
 from .api.rapid_response import router as rapid_response_router
+from .api.economic_withdrawal import router as economic_withdrawal_router
 from .services import TTLService, CryptoService, CacheService
 from .middleware import CSRFMiddleware
 
@@ -158,6 +159,7 @@ app.include_router(steward_router)
 app.include_router(panic_router)
 app.include_router(sanctuary_router)
 app.include_router(rapid_response_router)
+app.include_router(economic_withdrawal_router)
 
 
 @app.get("/")
