@@ -53,14 +53,14 @@ A mesh network that enables:
 
 | Proposal | Description | Status |
 |----------|-------------|--------|
-| [Saturnalia Protocol](changes/saturnalia-protocol/proposal.md) | Prevent role crystallization | NEW |
-| [Ancestor Voting](changes/ancestor-voting/proposal.md) | Dead reputation boosts margins | DRAFT |
-| [Mycelial Strike](changes/mycelial-strike/proposal.md) | Automated solidarity | DRAFT |
-| [Knowledge Osmosis](changes/knowledge-osmosis/proposal.md) | Study circles output artifacts | DRAFT |
-| [Algorithmic Transparency](changes/algorithmic-transparency/proposal.md) | Why did the AI match this? | DRAFT |
-| [Temporal Justice](changes/temporal-justice/proposal.md) | Don't exclude caregivers/workers | DRAFT |
-| [Accessibility First](changes/accessibility-first/proposal.md) | Works for non-tech-savvy | DRAFT |
-| [Language Justice](changes/language-justice/proposal.md) | Not just English | DRAFT |
+| [Saturnalia Protocol](changes/saturnalia-protocol/proposal.md) | Prevent role crystallization | ✅ IMPLEMENTED - Backend complete: migration, models, repo, service, API |
+| [Ancestor Voting](changes/ancestor-voting/proposal.md) | Dead reputation boosts margins | 📝 DOCUMENTED - Full proposal written, implementation pending |
+| [Mycelial Strike](changes/mycelial-strike/proposal.md) | Automated solidarity | 📝 DOCUMENTED - Full proposal written, implementation pending |
+| [Knowledge Osmosis](changes/knowledge-osmosis/proposal.md) | Study circles output artifacts | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Algorithmic Transparency](changes/algorithmic-transparency/proposal.md) | Why did the AI match this? | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Temporal Justice](changes/temporal-justice/proposal.md) | Don't exclude caregivers/workers | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Accessibility First](changes/accessibility-first/proposal.md) | Works for non-tech-savvy | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Language Justice](changes/language-justice/proposal.md) | Not just English | 📝 DOCUMENTED - Proposal written, implementation pending |
 
 ---
 
