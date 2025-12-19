@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateNeed } from '@/hooks/useNeeds';
+import { useCommunity } from '@/contexts/CommunityContext';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { ErrorMessage } from '@/components/ErrorMessage';
@@ -11,6 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 export function CreateNeedPage() {
   const navigate = useNavigate();
   const createNeed = useCreateNeed();
+  const { currentCommunity } = useCommunity();
 
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
@@ -59,6 +61,7 @@ export function CreateNeedPage() {
         available_from: availableFrom || undefined,
         available_until: availableUntil || undefined,
         description: note || undefined,
+        community_id: currentCommunity?.id,
       });
 
       navigate('/needs');

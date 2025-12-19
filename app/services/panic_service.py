@@ -13,6 +13,7 @@ import bcrypt
 import os
 import sqlite3
 import secrets
+import base64
 from typing import List, Dict, Tuple, Optional
 from datetime import datetime
 
@@ -27,6 +28,7 @@ from app.models.panic import (
     WIPE_DATA_TYPES,
 )
 from app.database.panic_repository import PanicRepository
+from app.crypto import encrypt_seed_phrase, decrypt_seed_phrase, secure_wipe_key
 
 
 class PanicService:
@@ -246,9 +248,26 @@ class PanicService:
         cursor = conn.cursor()
 
         # 1. Wipe private keys (CRITICAL)
-        # TODO: Implement key storage wipe
-        # For now, just log that we would wipe them
-        wiped_types.append("private_keys")
+        try:
+            # Get private key from database
+            cursor.execute("SELECT private_key FROM user_keys WHERE user_id = ?", (user_id,))
+            key_row = cursor.fetchone()
+
+            if key_row and key_row[0]:
+                # Decode from base64 to bytes
+                private_key_bytes = bytearray(base64.b64decode(key_row[0]))
+
+                # Securely wipe from memory
+                secure_wipe_key(private_key_bytes)
+
+                # Delete from database
+                cursor.execute("DELETE FROM user_keys WHERE user_id = ?", (user_id,))
+
+            wiped_types.append("private_keys")
+        except Exception as e:
+            # Log error but continue with other wipes
+            print(f"Error wiping private keys: {e}")
+            pass
 
         # 2. Wipe message history
         try:
@@ -345,23 +364,34 @@ class PanicService:
         words = [secrets.choice(wordlist) for _ in range(12)]
         return " ".join(words)
 
-    def encrypt_seed_phrase(self, seed_phrase: str, password: str) -> str:
-        """Encrypt seed phrase with user password.
+    def encrypt_seed_phrase_service(self, seed_phrase: str, password: str) -> str:
+        """Encrypt seed phrase with user password using AES-256-GCM.
 
-        In production, use proper encryption (AES-256-GCM or similar).
-        For now, this is a placeholder.
+        Args:
+            seed_phrase: BIP39 seed phrase to encrypt
+            password: User password
+
+        Returns:
+            Base64-encoded encrypted seed phrase
         """
-        # TODO: Implement proper encryption
-        # For now, just return a placeholder
-        return f"ENCRYPTED[{seed_phrase}]"
+        encrypted_bytes = encrypt_seed_phrase(seed_phrase, password)
+        return base64.b64encode(encrypted_bytes).decode('utf-8')
 
-    def decrypt_seed_phrase(self, encrypted: str, password: str) -> str:
-        """Decrypt seed phrase with user password."""
-        # TODO: Implement proper decryption
-        # For now, just extract from placeholder
-        if encrypted.startswith("ENCRYPTED[") and encrypted.endswith("]"):
-            return encrypted[10:-1]
-        return encrypted
+    def decrypt_seed_phrase_service(self, encrypted_b64: str, password: str) -> str:
+        """Decrypt seed phrase with user password.
+
+        Args:
+            encrypted_b64: Base64-encoded encrypted seed phrase
+            password: User password
+
+        Returns:
+            Decrypted seed phrase
+
+        Raises:
+            cryptography.exceptions.InvalidTag: If password is wrong
+        """
+        encrypted_bytes = base64.b64decode(encrypted_b64)
+        return decrypt_seed_phrase(encrypted_bytes, password)
 
     def recover_from_seed_phrase(self, seed_phrase: str) -> Dict[str, str]:
         """Recover identity from seed phrase.

@@ -34,8 +34,11 @@ class Listing:
     resource_spec_id: str  # References ResourceSpec
 
     # Who and where
-    agent_id: str  # Who is offering/needing (references Agent)
+    agent_id: Optional[str] = None  # Who is offering/needing (None for anonymous gifts - GAP-61)
     location_id: Optional[str] = None  # Where (references Location)
+
+    # Anonymous gift flag (GAP-61: Emma Goldman)
+    anonymous: bool = False  # True for anonymous gifts - no attribution, pure generosity
 
     # What and how much
     quantity: float = 1.0
@@ -74,6 +77,7 @@ class Listing:
             "listing_type": self.listing_type.value,
             "resource_spec_id": self.resource_spec_id,
             "agent_id": self.agent_id,
+            "anonymous": self.anonymous,
             "location_id": self.location_id,
             "quantity": self.quantity,
             "unit": self.unit,
@@ -98,7 +102,8 @@ class Listing:
             id=data["id"],
             listing_type=ListingType(data["listing_type"]),
             resource_spec_id=data["resource_spec_id"],
-            agent_id=data["agent_id"],
+            agent_id=data.get("agent_id"),  # Optional for anonymous gifts
+            anonymous=data.get("anonymous", False),
             location_id=data.get("location_id"),
             quantity=data.get("quantity", 1.0),
             unit=data.get("unit", "items"),

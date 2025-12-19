@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS listings (
     id TEXT PRIMARY KEY,
     listing_type TEXT NOT NULL CHECK(listing_type IN ('offer', 'need')),
     resource_spec_id TEXT NOT NULL,
-    agent_id TEXT NOT NULL,
+    agent_id TEXT,  -- Nullable for anonymous gifts (GAP-61)
+    anonymous INTEGER NOT NULL DEFAULT 0,  -- GAP-61: Emma Goldman - anonymous gifts
     location_id TEXT,
     quantity REAL NOT NULL DEFAULT 1.0,
     unit TEXT NOT NULL DEFAULT 'items',
@@ -140,9 +141,11 @@ CREATE INDEX IF NOT EXISTS idx_listings_location ON listings(location_id);
 CREATE INDEX IF NOT EXISTS idx_listings_created ON listings(created_at);
 CREATE INDEX IF NOT EXISTS idx_listings_available_until ON listings(available_until) WHERE available_until IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_listings_community ON listings(community_id);
+CREATE INDEX IF NOT EXISTS idx_listings_anonymous ON listings(anonymous) WHERE anonymous = 1;
 
 -- Composite index for common queries
 CREATE INDEX IF NOT EXISTS idx_listings_type_status ON listings(listing_type, status);
+CREATE INDEX IF NOT EXISTS idx_listings_community_shelf ON listings(listing_type, anonymous, status) WHERE anonymous = 1 AND listing_type = 'offer' AND status = 'active';
 
 -- =============================================================================
 -- MATCHES

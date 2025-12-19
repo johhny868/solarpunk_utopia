@@ -14,6 +14,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { CommunitySelector } from './CommunitySelector';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
@@ -84,7 +85,8 @@ export function Navigation() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <CommunitySelector />
             <NavLink
               to="/offers/create"
               className="flex items-center gap-2 bg-solarpunk-600 text-white px-4 py-2 rounded-lg hover:bg-solarpunk-700 transition-colors text-sm font-medium"

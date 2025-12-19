@@ -27,11 +27,11 @@ class ListingRepository(BaseRepository[Listing]):
 
         query = """
             INSERT INTO listings (
-                id, listing_type, resource_spec_id, agent_id, location_id,
+                id, listing_type, resource_spec_id, agent_id, anonymous, location_id,
                 quantity, unit, available_from, available_until,
                 title, description, image_url, status, resource_instance_id,
                 created_at, updated_at, author, signature
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         params = (
@@ -39,6 +39,7 @@ class ListingRepository(BaseRepository[Listing]):
             listing.listing_type.value,
             listing.resource_spec_id,
             listing.agent_id,
+            1 if listing.anonymous else 0,  # SQLite stores bool as 0/1
             listing.location_id,
             listing.quantity,
             listing.unit,
@@ -197,6 +198,51 @@ class ListingRepository(BaseRepository[Listing]):
         """
 
         rows = self._fetch_all(query, (threshold.isoformat(),))
+        return [Listing.from_dict(row) for row in rows]
+
+    def find_anonymous_gifts(
+        self,
+        category: Optional[ResourceCategory] = None,
+        location_id: Optional[str] = None,
+        limit: Optional[int] = None
+    ) -> List[Listing]:
+        """
+        Find anonymous gift listings (community shelf).
+
+        GAP-61: Emma Goldman - Anonymous gifts without attribution.
+        Returns only active offers marked as anonymous.
+
+        Args:
+            category: Filter by resource category
+            location_id: Filter by location
+            limit: Maximum results
+
+        Returns:
+            List of anonymous gift listings
+        """
+        query = """
+            SELECT l.* FROM listings l
+            LEFT JOIN resource_specs rs ON l.resource_spec_id = rs.id
+            WHERE l.listing_type = 'offer'
+            AND l.anonymous = 1
+            AND l.status = 'active'
+        """
+        params = []
+
+        if category:
+            query += " AND rs.category = ?"
+            params.append(category.value)
+
+        if location_id:
+            query += " AND l.location_id = ?"
+            params.append(location_id)
+
+        query += " ORDER BY l.created_at DESC"
+
+        if limit:
+            query += f" LIMIT {limit}"
+
+        rows = self._fetch_all(query, tuple(params))
         return [Listing.from_dict(row) for row in rows]
 
     def delete(self, listing_id: str) -> bool:

@@ -4,7 +4,9 @@ Auth middleware for FastAPI
 Extracts user from Authorization header and attaches to request.state
 """
 
-from fastapi import Request, HTTPException, Depends
+import os
+from functools import wraps
+from fastapi import Request, HTTPException, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
@@ -13,6 +15,9 @@ from .service import get_auth_service
 
 
 security = HTTPBearer(auto_error=False)
+
+# Admin API key from environment (for background worker endpoints)
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", None)
 
 
 async def get_current_user(
@@ -55,3 +60,30 @@ async def require_auth(user: Optional[User] = Depends(get_current_user)) -> User
         )
 
     return user
+
+
+async def require_admin_key(x_admin_key: Optional[str] = Header(None)):
+    """
+    Require admin API key for admin-only endpoints.
+
+    Use this for background worker endpoints that need to be protected
+    but don't have user authentication.
+
+    Usage:
+        @router.post("/admin/purge")
+        async def admin_endpoint(auth: None = Depends(require_admin_key)):
+            ...
+    """
+    if not ADMIN_API_KEY:
+        raise HTTPException(
+            status_code=500,
+            detail="Admin API key not configured (set ADMIN_API_KEY environment variable)"
+        )
+
+    if not x_admin_key or x_admin_key != ADMIN_API_KEY:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid or missing admin API key"
+        )
+
+    return None

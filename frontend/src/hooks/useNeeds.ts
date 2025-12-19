@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { valueflowsApi } from '@/api/valueflows';
+import { useCommunity } from '@/contexts/CommunityContext';
 import type { Intent, CreateIntentRequest } from '@/types/valueflows';
 
 export function useNeeds() {
+  const { currentCommunity } = useCommunity();
+
   return useQuery({
-    queryKey: ['needs'],
-    queryFn: () => valueflowsApi.getNeeds(),
+    queryKey: ['needs', currentCommunity?.id],
+    queryFn: () => valueflowsApi.getNeeds(currentCommunity?.id),
+    enabled: !!currentCommunity,
   });
 }
 

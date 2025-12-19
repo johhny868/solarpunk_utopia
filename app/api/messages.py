@@ -15,6 +15,7 @@ import base64
 
 from ..database import get_db
 from .cells import get_current_user
+from ..crypto import encrypt_message
 
 router = APIRouter(prefix="/messages", tags=["messages"])
 
@@ -85,15 +86,37 @@ async def send_message(
     if not recipient_key_row:
         raise HTTPException(status_code=404, detail="Recipient not found or has no encryption key")
 
-    recipient_public_key = recipient_key_row[0]
+    recipient_public_key_b64 = recipient_key_row[0]
 
-    # In production: Encrypt content with recipient's public key using nacl/libsodium
-    # For now: Simple base64 encoding as placeholder
-    # TODO: Replace with actual X25519 encryption
-    encrypted_content = base64.b64encode(request.content.encode()).decode()
+    # Get sender's private key
+    cursor = await db.execute(
+        "SELECT private_key FROM user_keys WHERE user_id = ?",
+        (user_id,)
+    )
+    sender_key_row = await cursor.fetchone()
 
-    # Generate ephemeral key for this message (placeholder)
-    ephemeral_key = str(uuid.uuid4())
+    if not sender_key_row:
+        raise HTTPException(status_code=404, detail="Sender encryption key not found")
+
+    sender_private_key_b64 = sender_key_row[0]
+
+    # Decode keys from Base64
+    try:
+        recipient_pubkey = base64.b64decode(recipient_public_key_b64)
+        sender_privkey = base64.b64decode(sender_private_key_b64)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Invalid key format: {str(e)}")
+
+    # Encrypt message using NaCl (X25519 + XSalsa20-Poly1305)
+    try:
+        encrypted_bytes = encrypt_message(request.content, recipient_pubkey, sender_privkey)
+        encrypted_content = base64.b64encode(encrypted_bytes).decode()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Encryption failed: {str(e)}")
+
+    # Ephemeral key is the nonce (included in encrypted_bytes by NaCl)
+    # For API compatibility, store a placeholder
+    ephemeral_key = "nacl_box"  # Indicator that this uses NaCl box encryption
 
     # Create message record
     message_id = str(uuid.uuid4())
@@ -376,6 +399,19 @@ async def send_cell_broadcast(
     if membership[0] != 'steward':
         raise HTTPException(status_code=403, detail="Only stewards can broadcast")
 
+    # Get sender's private key for encryption
+    cursor = await db.execute(
+        "SELECT private_key FROM user_keys WHERE user_id = ?",
+        (user_id,)
+    )
+    sender_key_row = await cursor.fetchone()
+
+    if not sender_key_row:
+        raise HTTPException(status_code=500, detail="Sender encryption key not found")
+
+    sender_privkey_b64 = sender_key_row[0]
+    sender_privkey = base64.b64decode(sender_privkey_b64)
+
     # Get all cell members
     cursor = await db.execute("""
         SELECT user_id FROM cell_memberships
@@ -389,17 +425,34 @@ async def send_cell_broadcast(
     timestamp = datetime.now().isoformat()
 
     for member_id in members:
+        # Get member's public key
+        cursor = await db.execute(
+            "SELECT public_key FROM user_keys WHERE user_id = ?",
+            (member_id,)
+        )
+        member_key_row = await cursor.fetchone()
+
+        if not member_key_row:
+            continue  # Skip members without keys
+
+        member_pubkey = base64.b64decode(member_key_row[0])
+
+        # Encrypt message for this specific member
+        try:
+            encrypted_bytes = encrypt_message(content, member_pubkey, sender_privkey)
+            encrypted_content = base64.b64encode(encrypted_bytes).decode()
+        except Exception:
+            continue  # Skip if encryption fails
+
         message_id = str(uuid.uuid4())
-        encrypted_content = base64.b64encode(content.encode()).decode()
-        ephemeral_key = str(uuid.uuid4())
 
         await db.execute("""
             INSERT INTO messages (
                 id, sender_id, recipient_id, message_type,
                 encrypted_content, ephemeral_key, timestamp,
                 delivery_status
-            ) VALUES (?, ?, ?, 'broadcast', ?, ?, ?, 'pending')
-        """, (message_id, user_id, member_id, encrypted_content, ephemeral_key, timestamp))
+            ) VALUES (?, ?, ?, 'broadcast', ?, 'nacl_box', ?, 'pending')
+        """, (message_id, user_id, member_id, encrypted_content, timestamp))
 
         message_ids.append(message_id)
 

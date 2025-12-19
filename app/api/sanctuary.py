@@ -14,7 +14,7 @@ from typing import Optional, List
 
 from app.services.sanctuary_service import SanctuaryService
 from app.models.sanctuary import SanctuaryResourceType
-from app.auth.middleware import get_current_user
+from app.auth.middleware import get_current_user, require_admin_key
 
 router = APIRouter(prefix="/api/sanctuary", tags=["sanctuary"])
 
@@ -215,14 +215,14 @@ async def get_active_alerts(
 
 @router.post("/admin/purge")
 async def run_auto_purge(
-    service: SanctuaryService = Depends(get_sanctuary_service)
+    service: SanctuaryService = Depends(get_sanctuary_service),
+    auth: None = Depends(require_admin_key)
 ):
     """Run auto-purge of old sanctuary records.
 
     Should be called by background worker every hour.
+    Requires X-Admin-Key header matching ADMIN_API_KEY environment variable.
     """
-    # TODO: Add authentication - this should only be callable by background worker
-
     result = service.run_auto_purge()
 
     return {

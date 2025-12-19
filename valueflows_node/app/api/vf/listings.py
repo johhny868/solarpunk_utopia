@@ -51,9 +51,11 @@ async def create_listing(listing_data: ListingCreate):
         listing = Listing.from_dict(data)
 
         # Sign the listing
-        # Use the node's signing service
+        # For anonymous gifts (GAP-61), sign with "anonymous" identifier
+        # For attributed listings, sign with the agent_id
         signer = SigningService()
-        signer.sign_and_update(listing, listing.agent_id)
+        signing_id = "anonymous" if listing.anonymous else listing.agent_id
+        signer.sign_and_update(listing, signing_id)
 
         # Save to database
         db = get_database()
@@ -126,6 +128,52 @@ async def browse_listings(
         return {
             "listings": [l.to_dict() for l in listings],
             "count": len(listings)
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/community-shelf", response_model=dict)
+async def browse_community_shelf(
+    category: Optional[str] = Query(None, description="Filter by resource category"),
+    location_id: Optional[str] = Query(None, description="Filter by location"),
+    limit: int = Query(100, description="Maximum results")
+):
+    """
+    Browse the community shelf - anonymous gifts from generous neighbors.
+
+    GAP-61: Emma Goldman - "The most violent element in society is ignorance."
+    Anonymous gifts allow pure generosity without expectation of reciprocity or recognition.
+
+    Returns only active offers marked as anonymous.
+
+    Query parameters:
+    - category: Resource category (food, tools, etc.)
+    - location_id: Location ID
+    - limit: Maximum results
+    """
+    try:
+        db = get_database()
+        db.connect()
+        listing_repo = ListingRepository(db.conn)
+
+        # Convert category string to enum if provided
+        category_enum = ResourceCategory(category) if category else None
+
+        # Get anonymous gifts
+        gifts = listing_repo.find_anonymous_gifts(
+            category=category_enum,
+            location_id=location_id,
+            limit=limit
+        )
+
+        db.close()
+
+        return {
+            "gifts": [g.to_dict() for g in gifts],
+            "count": len(gifts),
+            "message": "These gifts are offered anonymously - take what you need, give what you can."
         }
 
     except Exception as e:

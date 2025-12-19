@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { valueflowsApi } from '@/api/valueflows';
+import { useCommunity } from '@/contexts/CommunityContext';
 import type { Exchange, CreateExchangeRequest, CreateEventRequest } from '@/types/valueflows';
 
 export function useExchanges() {
+  const { currentCommunity } = useCommunity();
+
   return useQuery({
-    queryKey: ['exchanges'],
-    queryFn: () => valueflowsApi.getExchanges(),
+    queryKey: ['exchanges', currentCommunity?.id],
+    queryFn: () => valueflowsApi.getExchanges(currentCommunity?.id),
+    enabled: !!currentCommunity,
   });
 }
 
@@ -54,9 +58,12 @@ export function useCreateEvent() {
 }
 
 export function useMatches() {
+  const { currentCommunity } = useCommunity();
+
   return useQuery({
-    queryKey: ['matches'],
-    queryFn: () => valueflowsApi.getMatches(),
+    queryKey: ['matches', currentCommunity?.id],
+    queryFn: () => valueflowsApi.getMatches(currentCommunity?.id),
+    enabled: !!currentCommunity,
   });
 }
 

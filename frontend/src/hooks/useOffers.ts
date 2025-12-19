@@ -1,11 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { valueflowsApi } from '@/api/valueflows';
+import { useCommunity } from '@/contexts/CommunityContext';
 import type { Intent, CreateIntentRequest } from '@/types/valueflows';
 
 export function useOffers() {
+  const { currentCommunity } = useCommunity();
+
   return useQuery({
-    queryKey: ['offers'],
-    queryFn: () => valueflowsApi.getOffers(),
+    queryKey: ['offers', currentCommunity?.id],
+    queryFn: () => valueflowsApi.getOffers(currentCommunity?.id),
+    enabled: !!currentCommunity,
   });
 }
 

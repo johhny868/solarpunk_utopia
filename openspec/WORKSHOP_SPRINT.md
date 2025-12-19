@@ -64,6 +64,39 @@ A mesh network that enables:
 
 ---
 
+## CRITICAL: Gap Fix Proposals (Session 4 Discovery)
+
+**WARNING:** Many features marked "✅ IMPLEMENTED" above have APIs that respond but use placeholder internals. See VISION_REALITY_DELTA.md for details.
+
+### P0 - BEFORE WORKSHOP (Blocking Issues)
+
+| Proposal | Gaps Fixed | Status |
+|----------|------------|--------|
+| [Fix Real Encryption](changes/fix-real-encryption/proposal.md) | GAP-112, 114, 116, 119 | NEW |
+| [Fix DTN Propagation](changes/fix-dtn-propagation/proposal.md) | GAP-110, 113, 117 | NEW |
+| [Fix Trust Verification](changes/fix-trust-verification/proposal.md) | GAP-106, 118, 120 | NEW |
+| [Fix API Endpoints](changes/fix-api-endpoints/proposal.md) | GAP-65, 69, 71, 72 | NEW |
+| [Fix Fraud/Abuse Protections](changes/fix-fraud-abuse-protections/proposal.md) | GAP-103-109 | NEW |
+
+### P1 - FIRST WEEK (Quality Issues)
+
+| Proposal | Gaps Fixed | Status |
+|----------|------------|--------|
+| [Fix Mock Data](changes/fix-mock-data/proposal.md) | GAP-66-68, 70, 73-102, 111, 115, 121-123 | NEW |
+
+### Known Facade Issues (from VISION_REALITY_DELTA.md)
+
+| Feature | Claims | Reality |
+|---------|--------|---------|
+| Mesh Messaging | "E2E encrypted" | Base64 encoding only (GAP-116) |
+| Panic Wipe | "Secure deletion" | Keys not actually wiped (GAP-114) |
+| Burn Notices | "Network propagation" | Never sent (GAP-113) |
+| Trust Checks | "0.9 required" | Hardcoded 0.9 always (GAP-118) |
+| Metrics | "Real tracking" | Hardcoded values (GAP-115) |
+| Admin Endpoints | "Protected" | No authentication (GAP-119) |
+
+---
+
 ## Parallel Work Streams
 
 ### Stream A: Mobile App (Agent 1)

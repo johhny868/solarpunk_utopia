@@ -2,7 +2,7 @@
 Pydantic Validation Models for Listings API
 
 GAP-43: Input Validation
-Replaces raw dict parameters with validated Pydantic models.
+GAP-61: Anonymous Gifts (Emma Goldman)
 """
 
 from pydantic import BaseModel, Field, field_validator
@@ -40,7 +40,15 @@ class ListingCreate(BaseModel):
     # Required fields
     listing_type: ListingType
     resource_spec_id: str = Field(..., min_length=1, max_length=200)
-    agent_id: str = Field(..., min_length=1, max_length=200)
+
+    # Agent ID - optional for anonymous gifts (GAP-61)
+    agent_id: Optional[str] = Field(None, min_length=1, max_length=200)
+
+    # Anonymous gift flag (GAP-61: Emma Goldman)
+    anonymous: bool = Field(
+        default=False,
+        description="Make this an anonymous gift - no attribution, pure generosity"
+    )
 
     # Quantity and unit
     quantity: float = Field(default=1.0, gt=0, le=1000000)
@@ -77,14 +85,29 @@ class ListingCreate(BaseModel):
 
     @field_validator('agent_id')
     @classmethod
-    def validate_agent_id(cls, v: str) -> str:
-        """Validate agent ID format"""
-        if not v or len(v.strip()) == 0:
-            raise ValueError("agent_id cannot be empty")
+    def validate_agent_id(cls, v: Optional[str]) -> Optional[str]:
+        """Validate agent ID format - optional for anonymous gifts"""
+        if v is None:
+            return None  # Allow None for anonymous gifts
+        if len(v.strip()) == 0:
+            raise ValueError("agent_id cannot be empty string")
         # TODO (GAP-43 Phase 3): Add database validation
         # if not await agent_exists(v):
         #     raise ValueError(f"Agent {v} not found")
         return v.strip()
+
+    @field_validator('anonymous')
+    @classmethod
+    def validate_anonymous_requires_no_agent(cls, v: bool, info) -> bool:
+        """Ensure agent_id is None when anonymous=True, and present when anonymous=False"""
+        agent_id = info.data.get('agent_id')
+        if not v and agent_id is None:
+            # Not anonymous but no agent_id provided
+            raise ValueError("agent_id is required when anonymous=False")
+        if v and agent_id is not None:
+            # Anonymous but agent_id provided - log warning but allow (will be ignored)
+            pass  # We allow this - agent_id will be ignored in service layer
+        return v
 
     @field_validator('available_until')
     @classmethod
@@ -105,18 +128,30 @@ class ListingCreate(BaseModel):
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "listing_type": "offer",
-                "resource_spec_id": "resource_spec:tomatoes",
-                "agent_id": "agent:alice",
-                "quantity": 5.0,
-                "unit": "lbs",
-                "title": "Fresh heirloom tomatoes",
-                "description": "From my garden, ready to pick",
-                "location_id": "location:community_garden",
-                "available_from": "2025-12-20T10:00:00",
-                "available_until": "2025-12-22T18:00:00"
-            }
+            "examples": [
+                {
+                    "listing_type": "offer",
+                    "resource_spec_id": "resource_spec:tomatoes",
+                    "agent_id": "agent:alice",
+                    "quantity": 5.0,
+                    "unit": "lbs",
+                    "title": "Fresh heirloom tomatoes",
+                    "description": "From my garden, ready to pick",
+                    "location_id": "location:community_garden",
+                    "available_from": "2025-12-20T10:00:00",
+                    "available_until": "2025-12-22T18:00:00"
+                },
+                {
+                    "listing_type": "offer",
+                    "resource_spec_id": "resource_spec:bread",
+                    "anonymous": True,
+                    "quantity": 3.0,
+                    "unit": "loaves",
+                    "title": "Fresh sourdough",
+                    "description": "Left on the community shelf for whoever needs it",
+                    "location_id": "location:community_center"
+                }
+            ]
         }
 
 

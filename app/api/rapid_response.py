@@ -13,13 +13,13 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from app.services.rapid_response_service import RapidResponseService
+from app.auth.middleware import get_current_user, require_admin_key
 from app.models.rapid_response import (
     AlertLevel,
     AlertType,
     ResponderStatus,
     ResponderRole,
 )
-from app.auth.middleware import get_current_user
 
 router = APIRouter(prefix="/api/rapid-response", tags=["rapid-response"])
 
@@ -533,11 +533,13 @@ async def get_review(
 
 @router.post("/admin/auto-purge")
 async def run_auto_purge(
-    service: RapidResponseService = Depends(get_rapid_response_service)
+    service: RapidResponseService = Depends(get_rapid_response_service),
+    auth: None = Depends(require_admin_key)
 ):
-    """Run auto-purge of old alerts (background worker only)."""
-    # TODO: Add authentication - this should only be callable by background worker
+    """Run auto-purge of old alerts (background worker only).
 
+    Requires X-Admin-Key header matching ADMIN_API_KEY environment variable.
+    """
     result = service.run_auto_purge()
 
     return {
@@ -549,11 +551,13 @@ async def run_auto_purge(
 
 @router.post("/admin/process-downgrades")
 async def process_auto_downgrades(
-    service: RapidResponseService = Depends(get_rapid_response_service)
+    service: RapidResponseService = Depends(get_rapid_response_service),
+    auth: None = Depends(require_admin_key)
 ):
-    """Process auto-downgrades for unconfirmed CRITICAL alerts (background worker only)."""
-    # TODO: Add authentication - this should only be callable by background worker
+    """Process auto-downgrades for unconfirmed CRITICAL alerts (background worker only).
 
+    Requires X-Admin-Key header matching ADMIN_API_KEY environment variable.
+    """
     downgraded = service.process_auto_downgrades()
 
     return {

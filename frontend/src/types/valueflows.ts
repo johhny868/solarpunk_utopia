@@ -50,6 +50,7 @@ export interface Listing {
   note?: string; // Legacy field, maps to description
   image_url?: string;
   status: 'active' | 'matched' | 'fulfilled' | 'cancelled';
+  community_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -126,6 +127,7 @@ export interface Match {
   score: number;
   reason?: string;
   status: 'proposed' | 'accepted' | 'rejected' | 'fulfilled';
+  community_id?: string;
   created_at: string;
 }
 
@@ -144,6 +146,7 @@ export interface Exchange {
   provider_completed?: boolean;
   receiver_completed?: boolean;
   events: EconomicEvent[];
+  community_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -161,6 +164,7 @@ export interface CreateListingRequest {
   title?: string;
   description?: string;
   image_url?: string;
+  community_id?: string;
 }
 
 // Legacy alias for backward compatibility
@@ -187,4 +191,13 @@ export interface CreateExchangeRequest {
   resource_specification_id: string;
   quantity: number;
   unit: string;
+}
+
+export interface Community {
+  id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  settings?: Record<string, any>;
+  is_public: boolean;
 }

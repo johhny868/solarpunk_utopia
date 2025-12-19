@@ -65,8 +65,11 @@ export const valueflowsApi = {
   },
 
   // Listings (Offers & Needs)
-  getListings: async (listing_type?: 'offer' | 'need'): Promise<Intent[]> => {
-    const url = listing_type ? `/listings?listing_type=${listing_type}` : '/listings';
+  getListings: async (listing_type?: 'offer' | 'need', community_id?: string): Promise<Intent[]> => {
+    const params = new URLSearchParams();
+    if (listing_type) params.append('listing_type', listing_type);
+    if (community_id) params.append('community_id', community_id);
+    const url = `/listings${params.toString() ? '?' + params.toString() : ''}`;
     const response = await api.get<{ listings: Intent[] }>(url);
     return response.data.listings || response.data;
   },
@@ -91,8 +94,8 @@ export const valueflowsApi = {
   },
 
   // Legacy aliases for backward compatibility
-  getIntents: async (type?: 'offer' | 'need'): Promise<Intent[]> => {
-    return valueflowsApi.getListings(type);
+  getIntents: async (type?: 'offer' | 'need', community_id?: string): Promise<Intent[]> => {
+    return valueflowsApi.getListings(type, community_id);
   },
 
   getIntent: async (id: string): Promise<Intent> => {
@@ -112,18 +115,21 @@ export const valueflowsApi = {
   },
 
   // Offers
-  getOffers: async (): Promise<Intent[]> => {
-    return valueflowsApi.getListings('offer');
+  getOffers: async (community_id?: string): Promise<Intent[]> => {
+    return valueflowsApi.getListings('offer', community_id);
   },
 
   // Needs
-  getNeeds: async (): Promise<Intent[]> => {
-    return valueflowsApi.getListings('need');
+  getNeeds: async (community_id?: string): Promise<Intent[]> => {
+    return valueflowsApi.getListings('need', community_id);
   },
 
   // Matches
-  getMatches: async (): Promise<Match[]> => {
-    const response = await api.get<{ matches: Match[]; count: number }>('/matches');
+  getMatches: async (community_id?: string): Promise<Match[]> => {
+    const params = new URLSearchParams();
+    if (community_id) params.append('community_id', community_id);
+    const url = `/matches${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await api.get<{ matches: Match[]; count: number }>(url);
     return response.data.matches || response.data;
   },
 
@@ -170,8 +176,11 @@ export const valueflowsApi = {
   },
 
   // Exchanges
-  getExchanges: async (): Promise<Exchange[]> => {
-    const response = await api.get<{ exchanges: Exchange[]; count: number }>('/exchanges');
+  getExchanges: async (community_id?: string): Promise<Exchange[]> => {
+    const params = new URLSearchParams();
+    if (community_id) params.append('community_id', community_id);
+    const url = `/exchanges${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await api.get<{ exchanges: Exchange[]; count: number }>(url);
     return response.data.exchanges || response.data;
   },
 
