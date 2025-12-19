@@ -1,0 +1,41 @@
+{
+  "preset_name": "citizen",
+  "description": "Default preset for typical commune member",
+  "role": "citizen",
+  "cache_config": {
+    "storage_budget_mb": 512,
+    "warn_threshold_percent": 90,
+    "eviction_threshold_percent": 95
+  },
+  "ttl_enforcement": {
+    "check_interval_seconds": 300,
+    "strict_mode": true,
+    "retention_days": 3
+  },
+  "forwarding_policy": {
+    "priorities_allowed": ["emergency", "perishable"],
+    "audience_allowed": ["public", "local"],
+    "max_hop_count": 15,
+    "battery_aware": true
+  },
+  "speculative_caching": {
+    "enabled": false,
+    "reason": "Save battery and storage"
+  },
+  "battery_profile": {
+    "mode": "balanced",
+    "low_battery_threshold": 20,
+    "critical_battery_threshold": 10,
+    "sync_frequency_normal_seconds": 600,
+    "sync_frequency_low_battery_seconds": 1800
+  },
+  "network_config": {
+    "auto_connect_to_known_aps": true,
+    "enable_wifi_direct": false,
+    "mdns_discovery": true
+  },
+  "ui_config": {
+    "show_advanced_features": false,
+    "notification_priority": "default"
+  }
+}

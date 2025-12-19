@@ -1,0 +1,50 @@
+{
+  "preset_name": "bridge",
+  "description": "Bridge node - carries bundles between AP islands",
+  "role": "bridge",
+  "cache_config": {
+    "storage_budget_mb": 4096,
+    "warn_threshold_percent": 90,
+    "eviction_threshold_percent": 95
+  },
+  "ttl_enforcement": {
+    "check_interval_seconds": 180,
+    "strict_mode": false,
+    "retention_days": 7
+  },
+  "forwarding_policy": {
+    "priorities_allowed": ["emergency", "perishable", "normal"],
+    "audience_allowed": ["public", "local", "trusted"],
+    "max_hop_count": 20,
+    "battery_aware": true,
+    "aggressive_emergency": true,
+    "aggressive_perishable": true
+  },
+  "speculative_caching": {
+    "enabled": true,
+    "cache_emergency": true,
+    "cache_hot_bundles": true,
+    "hot_bundle_threshold_accesses": 3
+  },
+  "battery_profile": {
+    "mode": "balanced",
+    "low_battery_threshold": 20,
+    "critical_battery_threshold": 10,
+    "sync_frequency_normal_seconds": 300,
+    "sync_frequency_low_battery_seconds": 900
+  },
+  "network_config": {
+    "auto_connect_to_known_aps": true,
+    "enable_wifi_direct": true,
+    "mdns_discovery": true,
+    "priority_roaming": true
+  },
+  "index_response": {
+    "enabled": true,
+    "response_delay_ms": 100
+  },
+  "ui_config": {
+    "show_advanced_features": true,
+    "notification_priority": "high"
+  }
+}

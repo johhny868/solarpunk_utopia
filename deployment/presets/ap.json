@@ -1,0 +1,57 @@
+{
+  "preset_name": "ap",
+  "description": "Access Point - provides network infrastructure",
+  "role": "ap",
+  "cache_config": {
+    "storage_budget_mb": 4096,
+    "warn_threshold_percent": 90,
+    "eviction_threshold_percent": 95
+  },
+  "ttl_enforcement": {
+    "check_interval_seconds": 180,
+    "strict_mode": false,
+    "retention_days": 7
+  },
+  "forwarding_policy": {
+    "priorities_allowed": ["emergency", "perishable", "normal", "low"],
+    "audience_allowed": ["public", "local", "trusted"],
+    "max_hop_count": 20,
+    "battery_aware": false
+  },
+  "speculative_caching": {
+    "enabled": true,
+    "cache_emergency": true,
+    "cache_hot_bundles": true,
+    "cache_indexes": true,
+    "hot_bundle_threshold_accesses": 2
+  },
+  "battery_profile": {
+    "mode": "performance",
+    "low_battery_threshold": 15,
+    "critical_battery_threshold": 5,
+    "sync_frequency_normal_seconds": 120,
+    "sync_frequency_low_battery_seconds": 300,
+    "expect_continuous_power": true
+  },
+  "network_config": {
+    "hotspot_enabled": true,
+    "hotspot_schedule": "always_on",
+    "ssid_prefix": "Solarpunk",
+    "mdns_discovery": true,
+    "enable_wifi_direct": false
+  },
+  "index_publishing": {
+    "enabled": true,
+    "frequency_seconds": 300,
+    "include_full_catalog": true
+  },
+  "portal_hosting": {
+    "enabled": true,
+    "services": ["vf_query", "knowledge_search", "local_services"]
+  },
+  "ui_config": {
+    "show_advanced_features": true,
+    "notification_priority": "low",
+    "headless_mode": false
+  }
+}

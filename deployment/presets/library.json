@@ -1,0 +1,74 @@
+{
+  "preset_name": "library",
+  "description": "Library node - knowledge hub with large storage",
+  "role": "library",
+  "cache_config": {
+    "storage_budget_mb": 20480,
+    "warn_threshold_percent": 90,
+    "eviction_threshold_percent": 95,
+    "preserve_knowledge": true
+  },
+  "ttl_enforcement": {
+    "check_interval_seconds": 600,
+    "strict_mode": false,
+    "retention_days": 30,
+    "preserve_knowledge_indefinitely": true
+  },
+  "forwarding_policy": {
+    "priorities_allowed": ["emergency", "perishable", "normal", "low"],
+    "audience_allowed": ["public", "local", "trusted"],
+    "max_hop_count": 20,
+    "battery_aware": false
+  },
+  "speculative_caching": {
+    "enabled": true,
+    "cache_emergency": true,
+    "cache_hot_bundles": true,
+    "cache_indexes": true,
+    "cache_all_knowledge": true,
+    "cache_all_protocols": true,
+    "cache_all_lessons": true,
+    "hot_bundle_threshold_accesses": 1
+  },
+  "file_serving": {
+    "enabled": true,
+    "aggressive_caching": true,
+    "serve_chunks_for_all_knowledge": true,
+    "max_concurrent_uploads": 10
+  },
+  "battery_profile": {
+    "mode": "performance",
+    "low_battery_threshold": 10,
+    "critical_battery_threshold": 5,
+    "sync_frequency_normal_seconds": 120,
+    "sync_frequency_low_battery_seconds": 300,
+    "expect_continuous_power": true,
+    "plugged_in_required": true
+  },
+  "network_config": {
+    "auto_connect_to_known_aps": true,
+    "mdns_discovery": true,
+    "enable_wifi_direct": false
+  },
+  "index_response": {
+    "enabled": true,
+    "response_delay_ms": 50,
+    "include_full_catalog": true
+  },
+  "kiwix_config": {
+    "host_full_content": true,
+    "content_packs": [
+      "permaculture",
+      "repair_guides",
+      "education",
+      "health",
+      "wikipedia_offline"
+    ],
+    "auto_update": false
+  },
+  "ui_config": {
+    "show_advanced_features": true,
+    "notification_priority": "low",
+    "headless_mode": true
+  }
+}
