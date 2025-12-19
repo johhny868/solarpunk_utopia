@@ -487,6 +487,66 @@ getAgents: async (): Promise<Agent[]> => {
 
 ---
 
+## Session 3 Gaps: Fraud/Abuse/Safety Protections (2025-12-19)
+
+Gaps between FRAUD_ABUSE_SAFETY.md specifications and actual implementation:
+
+### GAP-103: No Monthly Vouch Limit
+**Severity**: HIGH (FRAUD-04)
+**Location**: `app/api/vouch.py:33-68`, `app/services/web_of_trust_service.py:261-291`
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies MAX_VOUCHES_PER_MONTH = 5
+**Reality**: No limit on vouches per user per month. An attacker could vouch for hundreds of accounts rapidly.
+**Fix**: Add vouch counting and monthly limit check in `get_vouch_eligibility()`:
+```python
+monthly_vouches = repo.get_vouches_this_month(voucher_id)
+if len(monthly_vouches) >= MAX_VOUCHES_PER_MONTH:
+    return {"can_vouch": False, "reason": "Monthly vouch limit reached"}
+```
+
+### GAP-104: No Vouch Cooling Period
+**Severity**: HIGH (FRAUD-04)
+**Location**: `app/api/vouch.py:33-68`
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies MIN_KNOWN_HOURS = 24 before vouching
+**Reality**: Can vouch for someone immediately. Enables rapid infiltration.
+**Fix**: Track first interaction between users, require 24h minimum before vouch allowed.
+
+### GAP-105: No Vouch Revocation Cooloff
+**Severity**: MEDIUM (ABUSE-03)
+**Location**: `app/api/vouch.py:127-168`
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies 48-hour cooloff to revoke own vouch without consequence
+**Reality**: Revocation always requires reason, no grace period for mistakes/coercion
+**Fix**: Add VOUCH_COOLOFF_HOURS = 48, allow revocation without penalty within window
+
+### GAP-106: Genesis Node Addition No Multi-Sig
+**Severity**: CRITICAL (Adversarial)
+**Location**: `app/api/vouch.py:206-251`
+**Spec**: Production should require multi-sig or steward consensus
+**Reality**: Any single genesis node can add new genesis nodes
+**Fix**: Require 3-of-7 genesis node signatures for adding new genesis nodes
+
+### GAP-107: No Block List Implementation
+**Severity**: HIGH (ABUSE-01)
+**Location**: Missing entirely
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies BlockList class for harassment prevention
+**Reality**: No blocking mechanism exists. Harassers can match with victims.
+**Fix**: Add BlockList model, repository, and integrate into match filtering
+
+### GAP-108: No Auto-Lock on Inactivity
+**Severity**: HIGH (SAFETY-05)
+**Location**: Missing entirely
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies INACTIVITY_TIMEOUT = 120 seconds
+**Reality**: App never locks, stolen phone has full access
+**Fix**: Add SecurityManager with auto-lock, sensitive action re-auth
+
+### GAP-109: No Sanctuary Verification Protocol
+**Severity**: CRITICAL (SAFETY-01)
+**Location**: Missing entirely
+**Spec**: FRAUD_ABUSE_SAFETY.md specifies SanctuaryVerification with 2+ steward verification
+**Reality**: No sanctuary verification exists - highest risk scenario
+**Fix**: Implement full sanctuary verification before workshop
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-19 (Session 2 autonomous analysis)
+**Last Updated**: 2025-12-19 (Session 3 fraud/abuse/safety review)
 **Next Review**: After Workshop Sprint items complete.

@@ -271,7 +271,7 @@ public class MeshNetworkPlugin extends Plugin {
         return count;
     }
 
-    private boolean hasRequiredPermissions() {
+    public boolean hasRequiredPermissions() {
         Context context = getContext();
         boolean hasLocation = ContextCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
