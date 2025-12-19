@@ -15,6 +15,8 @@ import { DiscoveryPage } from './pages/DiscoveryPage'
 import { KnowledgePage } from './pages/KnowledgePage'
 import { NetworkPage } from './pages/NetworkPage'
 import { AgentsPage} from './pages/AgentsPage'
+import { EventCreatePage } from './pages/EventCreatePage'
+import { EventJoinPage } from './pages/EventJoinPage'
 import './App.css'
 
 // Import API interceptors to add auth token to requests
@@ -78,6 +80,9 @@ function App() {
                     <Route path="/knowledge" element={<KnowledgePage />} />
                     <Route path="/network" element={<NetworkPage />} />
                     <Route path="/agents" element={<AgentsPage />} />
+                    <Route path="/events/create" element={<EventCreatePage />} />
+                    <Route path="/join/event/:inviteCode" element={<EventJoinPage />} />
+                    <Route path="/join/event" element={<EventJoinPage />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

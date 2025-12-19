@@ -185,38 +185,32 @@ Response:
 }
 ```
 
-## Frontend Integration Needed
-
-The backend is complete. Frontend needs to implement:
+## ✅ Frontend Implementation (Completed)
 
 ### For Stewards
-1. **Event Creation Form**
-   - Input: Event name, type, dates, location, max attendees
-   - Output: Display QR code from invite_code
-   - Generate QR using library like `qrcode.react` or `react-qr-code`
+1. **Event Creation Form** ✅
+   - `frontend/src/pages/EventCreatePage.tsx` - Full event creation UI
+   - Displays QR code using `react-qr-code` library
+   - Shows invite code and event details
+   - Print functionality for physical QR codes
+   - Route: `/events/create`
 
-2. **Event Management Dashboard**
-   - List created events
-   - Show attendee count vs max
-   - Display event status (active/expired)
-   - Option to deactivate event early
+2. **Event Join Flow** ✅
+   - `frontend/src/pages/EventJoinPage.tsx` - Join via invite code
+   - Manual code entry (QR scanner deferred to mobile device camera)
+   - Success confirmation with trust level display
+   - Routes: `/join/event/:inviteCode` and `/join/event`
 
-3. **Analytics Dashboard**
-   - Display onboarding metrics
-   - Charts for growth over time
-   - Upgrade funnel visualization
+3. **API Integration** ✅
+   - `frontend/src/api/onboarding.ts` - Complete API client
+   - createEvent, joinEvent, getBatchInvite, etc.
+   - TypeScript types for all request/response models
 
-### For Members
-4. **Event Join Flow**
-   - QR scanner (use phone camera)
-   - Extract invite code from QR
-   - POST to /onboarding/event/join
-   - Show welcome message and trust level
-
-5. **Batch Invite Creation**
-   - Simple form for established members
-   - Generate shareable link/QR
-   - Show usage stats
+### Remaining Frontend Work
+- [ ] Event Management Dashboard (list of created events)
+- [ ] Analytics Dashboard (metrics visualization)
+- [ ] Batch Invite Creation UI
+- [ ] Camera-based QR scanner (use device camera API)
 
 ## QR Code Generation
 
