@@ -1,6 +1,6 @@
 # Proposal: Knowledge Osmosis
 
-**Status:** DRAFT  
+**Status:** IMPLEMENTED
 **Philosopher:** Freire (Pedagogy of the Oppressed)
 
 ## Problem
