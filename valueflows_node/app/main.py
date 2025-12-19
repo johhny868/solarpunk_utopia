@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from .database import initialize_database
 from .api.vf import listings, matches, exchanges, events, agents, resource_specs
-from .api import communities
+from .api import communities, leakage_metrics
 
 
 @asynccontextmanager
@@ -52,6 +52,7 @@ app.include_router(exchanges.router)
 app.include_router(events.router)
 app.include_router(agents.router)
 app.include_router(resource_specs.router)
+app.include_router(leakage_metrics.router)
 
 
 @app.get("/")

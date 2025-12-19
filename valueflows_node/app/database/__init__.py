@@ -43,7 +43,7 @@ class VFDatabase:
             self.conn = None
 
     def initialize_schema(self):
-        """Create all tables from schema.sql"""
+        """Create all tables from schema.sql and run migrations"""
         schema_path = Path(__file__).parent / "vf_schema.sql"
 
         with open(schema_path, 'r') as f:
@@ -54,6 +54,34 @@ class VFDatabase:
 
         self.conn.executescript(schema_sql)
         self.conn.commit()
+
+        # Run migrations
+        self._run_migrations()
+
+    def _run_migrations(self):
+        """Run database migrations in order"""
+        migrations_dir = Path(__file__).parent / "migrations"
+
+        if not migrations_dir.exists():
+            return
+
+        # Get all migration files
+        migration_files = sorted(migrations_dir.glob("*.sql"))
+
+        for migration_file in migration_files:
+            print(f"  Running migration: {migration_file.name}")
+            with open(migration_file, 'r') as f:
+                migration_sql = f.read()
+
+            try:
+                self.conn.executescript(migration_sql)
+                self.conn.commit()
+            except sqlite3.OperationalError as e:
+                # Table might already exist, that's okay
+                if "already exists" in str(e):
+                    print(f"    (Table already exists, skipping)")
+                else:
+                    raise
 
     def get_cursor(self) -> sqlite3.Cursor:
         """Get a database cursor"""
