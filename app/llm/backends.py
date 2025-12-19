@@ -47,18 +47,17 @@ class OllamaBackend(LLMClient):
             return cached
 
         try:
-            # Build messages
-            messages = []
+            # Build full prompt (Ollama /api/generate uses single prompt, not messages)
+            full_prompt = prompt
             if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+                full_prompt = f"{system_prompt}\n\n{prompt}"
 
             # Call Ollama API
             response = await self.client.post(
-                f"{self.base_url}/api/chat",
+                f"{self.base_url}/api/generate",
                 json={
                     "model": self.config.model,
-                    "messages": messages,
+                    "prompt": full_prompt,
                     "stream": False,
                     "options": {
                         "temperature": temperature or self.config.temperature,
@@ -72,11 +71,11 @@ class OllamaBackend(LLMClient):
             data = response.json()
 
             # Parse response
-            content = data["message"]["content"]
+            content = data["response"]
             result = LLMResponse(
                 content=content,
                 model=self.config.model,
-                finish_reason="stop",
+                finish_reason=data.get("done_reason", "stop"),
                 tokens_used=data.get("eval_count", 0),
                 cached=False,
             )
@@ -100,18 +99,25 @@ class OllamaBackend(LLMClient):
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
     ) -> LLMResponse:
-        """Multi-turn chat with Ollama"""
+        """Multi-turn chat with Ollama (converts to single prompt)"""
         try:
-            # Convert messages to Ollama format
-            ollama_messages = [
-                {"role": msg.role, "content": msg.content} for msg in messages
-            ]
+            # Convert messages to single prompt
+            prompt_parts = []
+            for msg in messages:
+                if msg.role == "system":
+                    prompt_parts.append(f"System: {msg.content}")
+                elif msg.role == "user":
+                    prompt_parts.append(f"User: {msg.content}")
+                elif msg.role == "assistant":
+                    prompt_parts.append(f"Assistant: {msg.content}")
+
+            full_prompt = "\n\n".join(prompt_parts) + "\n\nAssistant:"
 
             response = await self.client.post(
-                f"{self.base_url}/api/chat",
+                f"{self.base_url}/api/generate",
                 json={
                     "model": self.config.model,
-                    "messages": ollama_messages,
+                    "prompt": full_prompt,
                     "stream": False,
                     "options": {
                         "temperature": temperature or self.config.temperature,
@@ -124,7 +130,7 @@ class OllamaBackend(LLMClient):
             data = response.json()
 
             return LLMResponse(
-                content=data["message"]["content"],
+                content=data["response"],
                 model=self.config.model,
                 tokens_used=data.get("eval_count", 0),
             )

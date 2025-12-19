@@ -71,7 +71,7 @@ async def test_llm_backends():
     # Test 2: Ollama (if available)
     logger.info("\n=== Test 2: OllamaBackend ===")
     try:
-        config = LLMConfig(backend="ollama", model="qwen2.5:1.5b")
+        config = LLMConfig(backend="ollama", model="qwen3:4b")
         client = get_llm_client(config)
 
         if await client.health_check():
