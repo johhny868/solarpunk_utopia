@@ -6,6 +6,7 @@ from .forwarding_service import ForwardingService
 from .receipt_service import ReceiptService, Receipt, ReceiptType
 from .trust_service import TrustService, TrustLevel
 from .agent_scheduler import AgentScheduler, get_scheduler, start_scheduler, stop_scheduler
+from .proposal_executor import ProposalExecutor, get_executor
 
 __all__ = [
     "CryptoService",
@@ -22,4 +23,6 @@ __all__ = [
     "get_scheduler",
     "start_scheduler",
     "stop_scheduler",
+    "ProposalExecutor",
+    "get_executor",
 ]

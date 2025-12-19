@@ -136,7 +136,8 @@ async def approve_proposal(
     Approve or reject a proposal.
 
     Records the user's decision (approve/reject) and updates proposal status.
-    If all required approvals are granted, proposal status becomes APPROVED.
+    If all required approvals are granted, proposal status becomes APPROVED
+    and the proposal is automatically executed to create VF entities.
     """
     try:
         proposal = await approval_tracker.approve_proposal(
@@ -145,6 +146,21 @@ async def approve_proposal(
             approved=request.approved,
             reason=request.reason,
         )
+
+        # Execute approved proposal to create VF entities
+        if proposal.status == ProposalStatus.APPROVED and not proposal.executed_at:
+            from app.services import get_executor
+
+            executor = get_executor()
+            try:
+                execution_result = await executor.execute_proposal(proposal)
+                logger.info(
+                    f"Executed proposal {proposal_id}: {execution_result}"
+                )
+            except Exception as e:
+                logger.error(f"Failed to execute proposal {proposal_id}: {e}")
+                # Don't fail the approval, just log the error
+                # Proposal is still approved, just not executed yet
 
         return proposal
 
