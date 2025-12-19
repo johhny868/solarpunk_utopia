@@ -1,16 +1,25 @@
 import { Intent } from '@/types/valueflows';
 import { Card } from './Card';
 import { Button } from './Button';
-import { MapPin, Calendar, Package } from 'lucide-react';
+import { MapPin, Calendar, Package, Edit, Trash2 } from 'lucide-react';
 import { formatTimeAgo, formatQuantity, formatDate } from '@/utils/formatters';
 
 interface NeedCardProps {
   need: Intent;
   onFulfill?: (need: Intent) => void;
+  onEdit?: (need: Intent) => void;
+  onDelete?: (need: Intent) => void;
   showActions?: boolean;
+  isOwner?: boolean;
 }
 
-export function NeedCard({ need, onFulfill, showActions = true }: NeedCardProps) {
+export function NeedCard({ need, onFulfill, onEdit, onDelete, showActions = true, isOwner = false }: NeedCardProps) {
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this need? This action cannot be undone.')) {
+      onDelete?.(need);
+    }
+  };
+
   return (
     <Card hoverable>
       <div className="flex flex-col gap-3">
@@ -23,9 +32,33 @@ export function NeedCard({ need, onFulfill, showActions = true }: NeedCardProps)
               Needed by {need.agent?.name || 'Unknown'}
             </p>
           </div>
-          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-            {need.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+              {need.status}
+            </span>
+            {isOwner && showActions && (
+              <div className="flex gap-1">
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(need)}
+                    className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Edit need"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={handleDelete}
+                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete need"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-4 text-sm text-gray-600">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useOffers } from '@/hooks/useOffers';
+import { Link, useNavigate } from 'react-router-dom';
+import { useOffers, useDeleteOffer } from '@/hooks/useOffers';
 import { Loading } from '@/components/Loading';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { OfferCard } from '@/components/OfferCard';
@@ -8,12 +8,32 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Plus, Filter } from 'lucide-react';
 import { RESOURCE_CATEGORIES } from '@/utils/categories';
+import type { Intent } from '@/types/valueflows';
 
 export function OffersPage() {
   const { data: offers, isLoading, error } = useOffers();
+  const deleteOffer = useDeleteOffer();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+
+  // TODO: Get current user ID from auth context
+  const currentUserId = 'demo-user';
+
+  const handleEdit = (offer: Intent) => {
+    // Navigate to edit page (could be same as create with ID param)
+    navigate(`/offers/${offer.id}/edit`);
+  };
+
+  const handleDelete = async (offer: Intent) => {
+    try {
+      await deleteOffer.mutateAsync(offer.id);
+    } catch (error) {
+      console.error('Failed to delete offer:', error);
+      alert('Failed to delete offer. Please try again.');
+    }
+  };
 
   // Filter offers
   const filteredOffers = offers?.filter((offer) => {
@@ -119,7 +139,13 @@ export function OffersPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredOffers.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} />
+              <OfferCard
+                key={offer.id}
+                offer={offer}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                isOwner={offer.agent?.id === currentUserId}
+              />
             ))}
           </div>
         </div>
