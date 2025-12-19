@@ -50,6 +50,11 @@ from .api.rapid_response import router as rapid_response_router
 from .api.economic_withdrawal import router as economic_withdrawal_router
 from .api.resilience_metrics import router as resilience_router
 from .api.saturnalia import router as saturnalia_router
+from .api.ancestor_voting import router as ancestor_voting_router
+from .api.mycelial_strike import router as mycelial_strike_router
+from .api.knowledge_osmosis import router as knowledge_osmosis_router
+from .api.algorithmic_transparency import router as algorithmic_transparency_router
+from .api.temporal_justice import router as temporal_justice_router
 from .services import TTLService, CryptoService, CacheService
 from .middleware import CSRFMiddleware
 
@@ -184,6 +189,11 @@ app.include_router(rapid_response_router)
 app.include_router(economic_withdrawal_router)
 app.include_router(resilience_router)
 app.include_router(saturnalia_router)
+app.include_router(ancestor_voting_router)
+app.include_router(mycelial_strike_router)
+app.include_router(knowledge_osmosis_router)
+app.include_router(algorithmic_transparency_router)
+app.include_router(temporal_justice_router)
 
 
 @app.get("/")

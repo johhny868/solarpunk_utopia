@@ -1,6 +1,6 @@
 # Proposal: Temporal Justice
 
-**Status:** DRAFT  
+**Status:** IMPLEMENTED
 **Philosopher:** Silvia Federici (Wages Against Housework)
 
 ## Problem
