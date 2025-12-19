@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+// import { useEffect, useState } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
+import { CommunityProvider } from './contexts/CommunityContext'
 import { Layout } from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
@@ -25,7 +26,7 @@ import './api/interceptors'
 
 function App() {
   // TODO: Re-enable storage initialization after fixing type errors
-  // const [storageReady, setStorageReady] = useState(false);
+  //const [storageReady, setStorageReady] = useState(false);
 
   // useEffect(() => {
   //   // Initialize local SQLite database for offline-first operation
@@ -57,33 +58,35 @@ function App() {
 
   return (
     <AuthProvider>
-      <Routes>
-        {/* Public route - no auth needed */}
-        <Route path="/login" element={<LoginPage />} />
+      <CommunityProvider>
+        <Routes>
+          {/* Public route - no auth needed */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Protected routes - require auth */}
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/offers" element={<OffersPage />} />
-                  <Route path="/offers/create" element={<CreateOfferPage />} />
-                  <Route path="/needs" element={<NeedsPage />} />
-                  <Route path="/needs/create" element={<CreateNeedPage />} />
-                  <Route path="/exchanges" element={<ExchangesPage />} />
-                  <Route path="/discovery" element={<DiscoveryPage />} />
-                  <Route path="/knowledge" element={<KnowledgePage />} />
-                  <Route path="/network" element={<NetworkPage />} />
-                  <Route path="/agents" element={<AgentsPage />} />
-                </Routes>
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          {/* Protected routes - require auth */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/offers" element={<OffersPage />} />
+                    <Route path="/offers/create" element={<CreateOfferPage />} />
+                    <Route path="/needs" element={<NeedsPage />} />
+                    <Route path="/needs/create" element={<CreateNeedPage />} />
+                    <Route path="/exchanges" element={<ExchangesPage />} />
+                    <Route path="/discovery" element={<DiscoveryPage />} />
+                    <Route path="/knowledge" element={<KnowledgePage />} />
+                    <Route path="/network" element={<NetworkPage />} />
+                    <Route path="/agents" element={<AgentsPage />} />
+                  </Routes>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </CommunityProvider>
     </AuthProvider>
   )
 }
