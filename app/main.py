@@ -49,6 +49,7 @@ from .api.sanctuary import router as sanctuary_router
 from .api.rapid_response import router as rapid_response_router
 from .api.economic_withdrawal import router as economic_withdrawal_router
 from .api.resilience_metrics import router as resilience_router
+from .api.saturnalia import router as saturnalia_router
 from .services import TTLService, CryptoService, CacheService
 from .middleware import CSRFMiddleware
 
@@ -182,6 +183,7 @@ app.include_router(sanctuary_router)
 app.include_router(rapid_response_router)
 app.include_router(economic_withdrawal_router)
 app.include_router(resilience_router)
+app.include_router(saturnalia_router)
 
 
 @app.get("/")
