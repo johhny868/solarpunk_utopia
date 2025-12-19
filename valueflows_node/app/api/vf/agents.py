@@ -12,6 +12,7 @@ from datetime import datetime
 import uuid
 
 from ...models.vf.agent import Agent, AgentType
+from ...models.requests.vf_objects import AgentCreate
 from ...database import get_database
 from ...repositories.vf.agent_repo import AgentRepository
 from ...services.signing_service import SigningService
@@ -20,32 +21,33 @@ router = APIRouter(prefix="/vf/agents", tags=["agents"])
 
 
 @router.post("", response_model=dict)
-async def create_agent(agent_data: dict):
+async def create_agent(agent_data: AgentCreate):
     """
     Create a new agent.
 
-    Request body should contain:
-    - name: Agent name
-    - type: Agent type ("person", "group", or "place")
-    - description (optional): Description of agent
-    - image_url (optional): URL to image
-    - primary_location_id (optional): Primary location ID
-    - contact_info (optional): Contact information
+    GAP-43: Now uses Pydantic validation model.
+
+    Validates:
+    - Required fields present (name)
+    - Field types correct
+    - String lengths reasonable
+    - URLs have valid format
     """
     try:
-        # Generate ID if not provided
-        if "id" not in agent_data:
-            agent_data["id"] = f"agent:{uuid.uuid4()}"
+        # Convert validated Pydantic model to dict
+        data = agent_data.model_dump()
+
+        # Generate ID
+        data["id"] = f"agent:{uuid.uuid4()}"
 
         # Set timestamps
-        agent_data["created_at"] = datetime.now().isoformat()
+        data["created_at"] = datetime.now().isoformat()
 
-        # Handle field name mapping: "type" in request -> "agent_type" in model
-        if "type" in agent_data:
-            agent_data["agent_type"] = agent_data.pop("type")
+        # Map fields: "note" -> note is already correct in Pydantic model
+        # No mapping needed for agent create
 
         # Create Agent object
-        agent = Agent.from_dict(agent_data)
+        agent = Agent.from_dict(data)
 
         # Sign the agent
         # Use the node's signing service

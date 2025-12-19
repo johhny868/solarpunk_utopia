@@ -6,6 +6,7 @@ from typing import Optional, List
 import uuid
 
 from ...models.vf.commitment import Commitment, CommitmentStatus
+from ...models.requests.vf_objects import CommitmentCreate, CommitmentUpdate
 from ...database import get_database
 from ...repositories.vf.commitment_repo import CommitmentRepository
 from ...services.vf_bundle_publisher import VFBundlePublisher
@@ -64,14 +65,26 @@ async def get_commitment(commitment_id: str):
 
 
 @router.post("/", response_model=dict)
-async def create_commitment(commitment_data: dict):
-    """Create a new commitment"""
-    try:
-        if "id" not in commitment_data:
-            commitment_data["id"] = f"commitment:{uuid.uuid4()}"
-        commitment_data["created_at"] = datetime.now().isoformat()
+async def create_commitment(commitment_data: CommitmentCreate):
+    """
+    Create a new commitment.
 
-        commitment = Commitment.from_dict(commitment_data)
+    GAP-43: Now uses Pydantic validation model.
+
+    Validates:
+    - Required fields present
+    - Field types correct
+    - Numeric ranges valid
+    - String lengths reasonable
+    """
+    try:
+        # Convert validated Pydantic model to dict
+        data = commitment_data.model_dump()
+
+        data["id"] = f"commitment:{uuid.uuid4()}"
+        data["created_at"] = datetime.now().isoformat()
+
+        commitment = Commitment.from_dict(data)
 
         db = get_database()
         db.connect()
@@ -93,8 +106,12 @@ async def create_commitment(commitment_data: dict):
 
 
 @router.patch("/{commitment_id}", response_model=dict)
-async def update_commitment(commitment_id: str, updates: dict):
-    """Update a commitment's status"""
+async def update_commitment(commitment_id: str, updates: CommitmentUpdate):
+    """
+    Update a commitment's status.
+
+    GAP-43: Now uses Pydantic validation model.
+    """
     try:
         db = get_database()
         db.connect()
@@ -104,13 +121,13 @@ async def update_commitment(commitment_id: str, updates: dict):
         if not commitment:
             raise HTTPException(status_code=404, detail="Commitment not found")
 
-        # Update status if provided
-        if "status" in updates:
-            commitment.status = CommitmentStatus(updates["status"])
+        # Convert validated Pydantic model to dict
+        update_dict = updates.model_dump(exclude_unset=True)
 
-        # Update fulfilled_by_event_id if provided
-        if "fulfilled_by_event_id" in updates:
-            commitment.fulfilled_by_event_id = updates["fulfilled_by_event_id"]
+        # Update fields from validated model
+        for key, value in update_dict.items():
+            if hasattr(commitment, key):
+                setattr(commitment, key, value)
 
         updated_commitment = commitment_repo.update(commitment)
 

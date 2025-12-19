@@ -5,6 +5,7 @@ from datetime import datetime
 import uuid
 
 from ...models.vf.exchange import Exchange
+from ...models.requests.vf_objects import ExchangeCreate
 from ...database import get_database
 from ...repositories.vf.exchange_repo import ExchangeRepository
 from ...services.vf_bundle_publisher import VFBundlePublisher
@@ -39,14 +40,25 @@ async def get_exchanges(status: str = None, agent_id: str = None):
 
 
 @router.post("/", response_model=dict)
-async def create_exchange(exchange_data: dict):
-    """Create a new exchange (from accepted match)"""
-    try:
-        if "id" not in exchange_data:
-            exchange_data["id"] = f"exchange:{uuid.uuid4()}"
-        exchange_data["created_at"] = datetime.now().isoformat()
+async def create_exchange(exchange_data: ExchangeCreate):
+    """
+    Create a new exchange (from accepted match).
 
-        exchange = Exchange.from_dict(exchange_data)
+    GAP-43: Now uses Pydantic validation model.
+
+    Validates:
+    - Required fields present (name)
+    - Field types correct
+    - String lengths reasonable
+    """
+    try:
+        # Convert validated Pydantic model to dict
+        data = exchange_data.model_dump()
+
+        data["id"] = f"exchange:{uuid.uuid4()}"
+        data["created_at"] = datetime.now().isoformat()
+
+        exchange = Exchange.from_dict(data)
 
         db = get_database()
         db.connect()

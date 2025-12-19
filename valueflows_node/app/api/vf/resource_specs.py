@@ -12,6 +12,7 @@ from datetime import datetime
 import uuid
 
 from ...models.vf.resource_spec import ResourceSpec, ResourceCategory
+from ...models.requests.vf_objects import ResourceSpecCreate
 from ...database import get_database
 from ...repositories.vf.resource_spec_repo import ResourceSpecRepository
 from ...services.signing_service import SigningService
@@ -20,32 +21,35 @@ router = APIRouter(prefix="/vf/resource_specs", tags=["resource_specs"])
 
 
 @router.post("", response_model=dict)
-async def create_resource_spec(spec_data: dict):
+async def create_resource_spec(spec_data: ResourceSpecCreate):
     """
     Create a new resource specification.
 
-    Request body should contain:
-    - name: Resource spec name (e.g., "Tomatoes")
-    - category: Resource category (e.g., "food", "tools", "skills")
-    - unit (optional): Default unit of measure (e.g., "lbs", "hours", "items")
-    - description (optional): Description of resource spec
-    - subcategory (optional): Subcategory (e.g., "Vegetables")
-    - image_url (optional): URL to image
+    GAP-43: Now uses Pydantic validation model.
+
+    Validates:
+    - Required fields present (name, category)
+    - Field types correct
+    - String lengths reasonable
+    - Category is valid enum value
+    - URLs have valid format
     """
     try:
-        # Generate ID if not provided
-        if "id" not in spec_data:
-            spec_data["id"] = f"resource_spec:{uuid.uuid4()}"
+        # Convert validated Pydantic model to dict
+        data = spec_data.model_dump()
+
+        # Generate ID
+        data["id"] = f"resource_spec:{uuid.uuid4()}"
 
         # Set timestamps
-        spec_data["created_at"] = datetime.now().isoformat()
+        data["created_at"] = datetime.now().isoformat()
 
         # Handle field name mapping: "unit" in request -> "default_unit" in model
-        if "unit" in spec_data:
-            spec_data["default_unit"] = spec_data.pop("unit")
+        if "unit" in data:
+            data["default_unit"] = data.pop("unit")
 
         # Create ResourceSpec object
-        spec = ResourceSpec.from_dict(spec_data)
+        spec = ResourceSpec.from_dict(data)
 
         # Sign the resource spec
         # Use the node's signing service

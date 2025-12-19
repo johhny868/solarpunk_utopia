@@ -6,6 +6,7 @@ import uuid
 import sqlite3
 
 from ...models.vf.match import Match
+from ...models.requests.vf_objects import MatchCreate
 from ...database import get_database
 from ...repositories.vf.match_repo import MatchRepository
 from ...services.vf_bundle_publisher import VFBundlePublisher
@@ -48,14 +49,25 @@ async def get_matches(status: str = None, agent_id: str = None):
 
 
 @router.post("/", response_model=dict)
-async def create_match(match_data: dict):
-    """Create a new match (offer + need pairing)"""
-    try:
-        if "id" not in match_data:
-            match_data["id"] = f"match:{uuid.uuid4()}"
-        match_data["created_at"] = datetime.now().isoformat()
+async def create_match(match_data: MatchCreate):
+    """
+    Create a new match (offer + need pairing).
 
-        match = Match.from_dict(match_data)
+    GAP-43: Now uses Pydantic validation model.
+
+    Validates:
+    - Required fields present
+    - Field types correct
+    - Numeric ranges valid
+    """
+    try:
+        # Convert validated Pydantic model to dict
+        data = match_data.model_dump()
+
+        data["id"] = f"match:{uuid.uuid4()}"
+        data["created_at"] = datetime.now().isoformat()
+
+        match = Match.from_dict(data)
 
         # GAP-107: Check if either user has blocked the other
         block_repo = get_block_repo()
