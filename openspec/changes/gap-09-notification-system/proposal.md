@@ -1,6 +1,7 @@
 # GAP-09: Notification/Awareness System
 
-**Status**: Draft
+**Status**: IMPLEMENTED (MVP)
+**Implemented**: 2025-12-19
 **Priority**: P2 - Core Experience
 **Estimated Effort**: MVP 2-3 hours, Full 1-2 days
 **Assigned**: Unclaimed
@@ -42,8 +43,20 @@ Full:
 
 ## Success Criteria
 
-- [ ] Users see pending proposal count
-- [ ] Badge updates when proposals arrive
-- [ ] No need to manually check agents page
+- [x] Users see pending proposal count - Endpoint exists at GET /agents/proposals/pending/{user_id}/count
+- [ ] Badge updates when proposals arrive - Frontend implementation needed
+- [ ] No need to manually check agents page - Frontend implementation needed
+
+## Implementation Notes (2025-12-19)
+
+The backend MVP is COMPLETE:
+- Endpoint: `GET /agents/proposals/pending/{user_id}/count`
+- Returns: `{"user_id": "...", "pending_count": 3}`
+- Located in: `app/api/agents.py` lines 120-132
+
+Frontend still needs:
+- Navigation badge component
+- Homepage proposal card
+- Polling logic (every 30 seconds)
 
 **Reference**: `VISION_REALITY_DELTA.md:GAP-09`
