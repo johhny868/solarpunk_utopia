@@ -62,13 +62,73 @@ RESOURCE_SPECS = [
 ]
 
 
+LOCATIONS = [
+    {"name": "North Garden", "description": "Main vegetable garden with raised beds"},
+    {"name": "South Garden", "description": "Herb spiral and perennial food forest"},
+    {"name": "Tool Shed", "description": "Shared tool library and workshop"},
+    {"name": "Community Kitchen", "description": "Commercial kitchen for batch cooking"},
+    {"name": "Workshop", "description": "Bike repair and carpentry workspace"},
+]
+
+
+async def clear_existing_seed_data(client: httpx.AsyncClient):
+    """Delete existing seed data to make script idempotent"""
+    logger.info("Clearing existing seed data...")
+
+    # Note: In a real implementation, we'd mark seed data with a flag
+    # For now, we'll skip this or implement basic deletion
+    # This would require DELETE endpoints which may not exist yet
+    logger.info("  ⚠ Idempotent deletion not fully implemented (requires DELETE endpoints)")
+
+
 async def seed_data():
     """Seed all demo data"""
 
     async with httpx.AsyncClient(timeout=30.0) as client:
 
-        # Step 1: Create resource specs
-        logger.info("Creating resource specs...")
+        # Step 0: Clear existing seed data
+        await clear_existing_seed_data(client)
+
+        # Step 1: Create default community
+        logger.info("Creating default community...")
+        try:
+            response = await client.post(
+                f"{VF_API}/communities",
+                json={
+                    "name": "Sunrise Collective",
+                    "description": "A resilient gift economy community",
+                    "is_public": True,
+                }
+            )
+            response.raise_for_status()
+            community = response.json()
+            community_id = community["id"]
+            logger.info(f"  ✓ Sunrise Collective (id: {community_id})")
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 400 and "already exists" in e.response.text:
+                logger.info("  ⚠ Sunrise Collective already exists, using existing")
+                # Get existing community
+                response = await client.get(f"{VF_API}/communities")
+                communities = response.json()
+                community_id = next(c["id"] for c in communities if c["name"] == "Sunrise Collective")
+            else:
+                raise
+
+        # Step 2: Create locations
+        logger.info("\nCreating locations...")
+        locations = {}
+        for loc_data in LOCATIONS:
+            response = await client.post(
+                f"{VF_API}/vf/locations",
+                json=loc_data
+            )
+            response.raise_for_status()
+            location = response.json()
+            locations[loc_data["name"]] = location["id"]
+            logger.info(f"  ✓ {loc_data['name']}")
+
+        # Step 3: Create resource specs
+        logger.info("\nCreating resource specs...")
         specs = {}
         for spec_data in RESOURCE_SPECS:
             response = await client.post(
@@ -179,6 +239,8 @@ async def seed_data():
         logger.info("\n" + "="*60)
         logger.info("🌱 Demo data seeded successfully!")
         logger.info("="*60)
+        logger.info(f"Community: Sunrise Collective")
+        logger.info(f"Locations: {len(LOCATIONS)}")
         logger.info(f"Resource Specs: {len(RESOURCE_SPECS)}")
         logger.info(f"Commune Members: {len(COMMUNE_MEMBERS)}")
         logger.info(f"Offers: {len(offers_data)}")
