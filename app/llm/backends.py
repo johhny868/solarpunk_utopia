@@ -375,11 +375,23 @@ class MockBackend(LLMClient):
         max_tokens: Optional[int] = None,
     ) -> LLMResponse:
         """Return mock response"""
-        return LLMResponse(
+        # Check cache
+        cache_key = self._get_cache_key(prompt, system_prompt)
+        cached = self._check_cache(cache_key)
+        if cached:
+            return cached
+
+        # Generate mock response
+        result = LLMResponse(
             content=f"Mock response to: {prompt[:50]}...",
             model="mock",
             tokens_used=10,
         )
+
+        # Store in cache
+        self._store_cache(cache_key, result)
+
+        return result
 
     async def chat(
         self,
