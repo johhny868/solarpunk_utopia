@@ -46,7 +46,7 @@ A mesh network that enables:
 |----------|-------------|--------|
 | [Sanctuary Network](changes/sanctuary-network/proposal.md) | Safe houses, transport, legal | ✅ IMPLEMENTED - Auto-purge + high trust |
 | [Rapid Response](changes/rapid-response/proposal.md) | When ICE shows up | ✅ IMPLEMENTED - Full coordination system |
-| [Economic Withdrawal](changes/economic-withdrawal/proposal.md) | Coordinated boycotts | NEW |
+| [Economic Withdrawal](changes/economic-withdrawal/proposal.md) | Coordinated boycotts | ✅ IMPLEMENTED - Backend complete: campaigns, pledges, alternatives, bulk buys |
 | [Resilience Metrics](changes/resilience-metrics/proposal.md) | Network health tracking | NEW |
 
 ### Tier 4: PHILOSOPHICAL (Ongoing)
