@@ -13,7 +13,9 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 
 from app.services.sanctuary_service import SanctuaryService
-from app.models.sanctuary import SanctuaryResourceType
+from app.services.web_of_trust_service import WebOfTrustService
+from app.database.vouch_repository import VouchRepository
+from app.models.sanctuary import SanctuaryResourceType, TRUST_THRESHOLDS
 from app.auth.middleware import get_current_user, require_admin_key
 
 router = APIRouter(prefix="/api/sanctuary", tags=["sanctuary"])
@@ -58,6 +60,16 @@ def get_sanctuary_service() -> SanctuaryService:
     return SanctuaryService(db_path="data/solarpunk.db")
 
 
+def get_vouch_repo():
+    """Get VouchRepository instance."""
+    return VouchRepository(db_path="data/solarpunk.db")
+
+
+def get_trust_service(repo: VouchRepository = Depends(get_vouch_repo)):
+    """Get WebOfTrustService instance."""
+    return WebOfTrustService(repo)
+
+
 # ===== Sanctuary Resource Endpoints =====
 
 @router.post("/resources/offer")
@@ -92,7 +104,8 @@ async def offer_resource(
 async def get_available_resources(
     cell_id: str,
     user_id: str = Depends(get_current_user),
-    service: SanctuaryService = Depends(get_sanctuary_service)
+    service: SanctuaryService = Depends(get_sanctuary_service),
+    trust_service: WebOfTrustService = Depends(get_trust_service)
 ):
     """Get available sanctuary resources for a cell.
 
@@ -100,8 +113,17 @@ async def get_available_resources(
     - HIGH sensitivity requires >0.8 trust
     - MEDIUM sensitivity requires >0.6 trust
     """
-    # TODO: Get user's actual trust score from trust service
-    user_trust = 0.9  # Placeholder
+    # Get user's actual trust score
+    trust_score = trust_service.compute_trust_score(user_id)
+    user_trust = trust_score.computed_trust
+
+    # Deny access if trust too low for sanctuary operations
+    min_trust = TRUST_THRESHOLDS.get("steward_actions", 0.7)
+    if user_trust < min_trust:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Insufficient trust for sanctuary access. Need {min_trust:.2f}, have {user_trust:.2f}"
+        )
 
     resources = service.get_available_resources(cell_id, user_trust)
 

@@ -16,6 +16,7 @@ from app.models.economic_withdrawal import (
     PledgeStatus,
 )
 from app.auth.middleware import get_current_user
+from app.auth.steward_auth import require_steward
 
 router = APIRouter(prefix="/api/economic-withdrawal", tags=["economic-withdrawal"])
 
@@ -113,7 +114,8 @@ async def create_campaign(
     Campaigns coordinate collective action to redirect spending from
     extractive corporations to regenerative community systems.
     """
-    # TODO: Verify user is steward
+    # Verify user is steward
+    await require_steward(user_id)
 
     campaign = service.create_campaign(
         created_by=user_id,
