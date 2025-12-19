@@ -81,3 +81,26 @@ export function useRejectMatch() {
     },
   });
 }
+
+export function useCompleteExchange() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ exchangeId, agentId }: { exchangeId: string; agentId: string }) => {
+      // First, create an event for the transfer
+      const event = await valueflowsApi.createEvent({
+        action: 'transfer',
+        provider_id: agentId,
+        resource_spec_id: 'placeholder', // Will be filled by backend from exchange
+        quantity: 0, // Will be filled by backend from exchange
+        unit: 'items',
+      });
+
+      // Then mark the exchange as complete with the event ID
+      return valueflowsApi.completeExchange(exchangeId, agentId, event.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exchanges'] });
+    },
+  });
+}

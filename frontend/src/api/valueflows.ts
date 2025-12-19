@@ -168,4 +168,13 @@ export const valueflowsApi = {
     const response = await api.put<Exchange>(`/exchanges/${id}`, data);
     return response.data;
   },
+
+  completeExchange: async (exchangeId: string, agentId: string, eventId: string): Promise<{ exchange: Exchange; fully_completed: boolean }> => {
+    const response = await api.patch<{ exchange: Exchange; fully_completed: boolean }>(
+      `/exchanges/${exchangeId}/complete`,
+      null,
+      { params: { agent_id: agentId, event_id: eventId } }
+    );
+    return response.data;
+  },
 };

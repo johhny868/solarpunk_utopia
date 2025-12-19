@@ -1,16 +1,28 @@
 import { useState } from 'react';
-import { useExchanges, useMatches } from '@/hooks/useExchanges';
+import { useExchanges, useMatches, useCompleteExchange } from '@/hooks/useExchanges';
 import { Loading } from '@/components/Loading';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { Card } from '@/components/Card';
 import { MatchCard } from '@/components/MatchCard';
-import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
+import { ArrowRight, CheckCircle, Clock, Check } from 'lucide-react';
 import { formatTimeAgo, formatQuantity, formatStatus } from '@/utils/formatters';
 
 export function ExchangesPage() {
   const { data: exchanges, isLoading: exchangesLoading, error: exchangesError } = useExchanges();
   const { data: matches, isLoading: matchesLoading } = useMatches();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const completeExchange = useCompleteExchange();
+
+  // TODO: Get current user ID from auth context
+  const currentUserId = 'demo-user';
+
+  const handleComplete = async (exchangeId: string, agentId: string) => {
+    try {
+      await completeExchange.mutateAsync({ exchangeId, agentId });
+    } catch (error) {
+      console.error('Failed to complete exchange:', error);
+    }
+  };
 
   const filteredExchanges = exchanges?.filter(
     (exchange) => selectedStatus === 'all' || exchange.status === selectedStatus
@@ -135,6 +147,73 @@ export function ExchangesPage() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Completion Buttons */}
+                {exchange.status !== 'completed' && exchange.status !== 'cancelled' && (
+                  <div className="pt-3 border-t">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Mark as Complete</p>
+                    <div className="flex gap-3">
+                      {/* Provider button */}
+                      {exchange.provider_id === currentUserId && (
+                        <button
+                          onClick={() => handleComplete(exchange.id, exchange.provider_id)}
+                          disabled={exchange.provider_completed || completeExchange.isPending}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                            exchange.provider_completed
+                              ? 'bg-green-100 text-green-800 cursor-not-allowed'
+                              : 'bg-solarpunk-600 text-white hover:bg-solarpunk-700'
+                          }`}
+                        >
+                          {exchange.provider_completed ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Provider Confirmed
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Confirm as Provider
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      {/* Receiver button */}
+                      {exchange.receiver_id === currentUserId && (
+                        <button
+                          onClick={() => handleComplete(exchange.id, exchange.receiver_id)}
+                          disabled={exchange.receiver_completed || completeExchange.isPending}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                            exchange.receiver_completed
+                              ? 'bg-green-100 text-green-800 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {exchange.receiver_completed ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Receiver Confirmed
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Confirm as Receiver
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {(exchange.provider_completed || exchange.receiver_completed) && (
+                      <p className="text-xs text-gray-600 mt-2">
+                        {exchange.provider_completed && exchange.receiver_completed
+                          ? '🎉 Both parties have confirmed! Exchange complete.'
+                          : exchange.provider_completed
+                          ? 'Provider confirmed. Waiting for receiver...'
+                          : 'Receiver confirmed. Waiting for provider...'}
+                      </p>
+                    )}
                   </div>
                 )}
 
