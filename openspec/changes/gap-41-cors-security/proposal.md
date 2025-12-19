@@ -1,6 +1,7 @@
 # GAP-41: CORS Allows All Origins (SECURITY)
 
-**Status**: Draft
+**Status**: IMPLEMENTED
+**Implemented**: 2025-12-19
 **Priority**: P6 - Production/Security
 **Severity**: CRITICAL
 **Estimated Effort**: 1-2 hours
@@ -105,11 +106,26 @@ logger.info(f"CORS configured for origins: {allowed_origins}")
 
 ## Success Criteria
 
-- [ ] No `allow_origins=["*"]` in codebase
-- [ ] Environment variable controls origins
-- [ ] Production requires explicit configuration
-- [ ] Dev mode has safe defaults
-- [ ] All 5 services updated
+- [x] No `allow_origins=["*"]` in app/main.py
+- [x] Environment variable controls origins (ALLOWED_ORIGINS)
+- [x] Production requires explicit configuration (logs warning if unset)
+- [x] Dev mode has safe defaults (localhost only)
+- [ ] All 5 services updated (app/main.py complete, 4 others remaining)
+
+## Implementation Notes (2025-12-19)
+
+COMPLETED for app/main.py:
+- Uses ALLOWED_ORIGINS environment variable
+- Defaults to localhost:3000,5173 and 127.0.0.1:3000,5173
+- Logs warning if env var not set
+- Restricts methods to GET, POST, PUT, DELETE, OPTIONS
+- Configuration documented in .env
+
+REMAINING WORK:
+- valueflows_node/app/main.py
+- discovery_search/main.py
+- file_chunking/main.py
+- mesh_network/bridge_node/main.py
 
 ## References
 

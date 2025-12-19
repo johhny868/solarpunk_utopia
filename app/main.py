@@ -29,6 +29,7 @@ Background Services:
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -122,12 +123,31 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware (for development - adjust for production)
+# CORS middleware (GAP-41: Secure CORS configuration)
+# Get allowed origins from environment variable, default to secure localhost origins
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+if allowed_origins_env:
+    # Parse comma-separated origins from environment
+    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",")]
+    logger.info(f"CORS: Using configured origins: {allowed_origins}")
+else:
+    # Fail-safe default: localhost origins only for development
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
+    logger.warning(
+        "CORS: No ALLOWED_ORIGINS env var set, using localhost-only defaults. "
+        "This will block production traffic! Set ALLOWED_ORIGINS in production."
+    )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
