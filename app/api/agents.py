@@ -80,13 +80,17 @@ async def list_proposals(
     agent_name: Optional[str] = Query(None, description="Filter by agent name"),
     proposal_type: Optional[ProposalType] = Query(None, description="Filter by proposal type"),
     status: Optional[ProposalStatus] = Query(None, description="Filter by status"),
-    user_id: Optional[str] = Query(None, description="Filter by user (proposals requiring approval)"),
+    current_user: Optional[User] = Depends(get_current_user),
 ) -> ProposalListResponse:
     """
     List proposals with optional filters.
 
     Returns all proposals matching the filter criteria.
+    GAP-42: Now uses authenticated user instead of user_id query parameter.
     """
+    # Use current_user.id if authenticated, otherwise None (public view)
+    user_id = current_user.id if current_user else None
+
     filter_obj = ProposalFilter(
         agent_name=agent_name,
         proposal_type=proposal_type,
@@ -102,14 +106,17 @@ async def list_proposals(
     )
 
 
-@router.get("/proposals/pending/{user_id}")
-async def get_pending_approvals(user_id: str) -> ProposalListResponse:
+@router.get("/proposals/pending")
+async def get_pending_approvals(
+    current_user: User = Depends(require_auth),
+) -> ProposalListResponse:
     """
-    Get proposals pending approval from a specific user.
+    Get proposals pending approval from the current user.
 
     Returns proposals awaiting this user's decision.
+    GAP-42: Now requires authentication and uses current user.
     """
-    proposals = await approval_tracker.get_pending_approvals(user_id)
+    proposals = await approval_tracker.get_pending_approvals(current_user.id)
 
     return ProposalListResponse(
         proposals=proposals,
@@ -117,17 +124,20 @@ async def get_pending_approvals(user_id: str) -> ProposalListResponse:
     )
 
 
-@router.get("/proposals/pending/{user_id}/count")
-async def get_pending_count(user_id: str) -> Dict[str, int]:
+@router.get("/proposals/pending/count")
+async def get_pending_count(
+    current_user: User = Depends(require_auth),
+) -> Dict[str, int]:
     """
-    Get count of proposals pending approval from a specific user.
+    Get count of proposals pending approval from the current user.
 
     Returns just the number - useful for badges and notifications.
+    GAP-42: Now requires authentication and uses current user.
     """
-    proposals = await approval_tracker.get_pending_approvals(user_id)
+    proposals = await approval_tracker.get_pending_approvals(current_user.id)
 
     return {
-        "user_id": user_id,
+        "user_id": current_user.id,
         "pending_count": len(proposals),
     }
 

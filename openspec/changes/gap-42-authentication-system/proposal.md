@@ -1,10 +1,11 @@
 # GAP-42: No Authentication System (SECURITY)
 
-**Status**: Draft
+**Status**: ✅ IMPLEMENTED
 **Priority**: P6 - Production/Security
 **Severity**: CRITICAL
 **Estimated Effort**: See GAP-02
-**Assigned**: Unclaimed
+**Assigned**: Claude Agent
+**Completed**: December 19, 2025
 
 ## Problem Statement
 
@@ -65,10 +66,21 @@ Once GAP-02 is implemented:
 
 ## Success Criteria
 
-- [ ] No endpoints accept `user_id` as parameter
-- [ ] All protected endpoints require authentication
-- [ ] Users cannot impersonate others
-- [ ] GAP-02 proposal is implemented
+- [x] No endpoints accept `user_id` as parameter
+- [x] All protected endpoints require authentication
+- [x] Users cannot impersonate others
+- [x] GAP-02 proposal is implemented
+
+## Implementation Notes
+
+All agent API endpoints have been updated to use the authentication middleware:
+- `GET /agents/proposals` - Uses `get_current_user` for optional auth
+- `GET /agents/proposals/pending` - Now requires auth via `require_auth`
+- `GET /agents/proposals/pending/count` - Now requires auth via `require_auth`
+- `POST /agents/proposals/{id}/approve` - Already had `require_auth`
+- `POST /agents/proposals/{id}/reject` - Already had `require_auth`
+
+User identity now comes from the authenticated session token, not from untrusted query parameters.
 
 ## References
 
