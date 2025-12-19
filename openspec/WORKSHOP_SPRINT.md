@@ -57,7 +57,7 @@ A mesh network that enables:
 | [Ancestor Voting](changes/ancestor-voting/proposal.md) | Dead reputation boosts margins | ✅ IMPLEMENTED - Full stack: migration, models, repo, service, API |
 | [Mycelial Strike](changes/mycelial-strike/proposal.md) | Automated solidarity defense | ✅ IMPLEMENTED - Complete system: alerts, strikes, throttling, de-escalation, steward oversight |
 | [Knowledge Osmosis](changes/knowledge-osmosis/proposal.md) | Study circles output artifacts | ✅ IMPLEMENTED - Full stack: circles, artifacts, Common Heap, osmosis tracking |
-| [Algorithmic Transparency](changes/algorithmic-transparency/proposal.md) | Why did the AI match this? | 📝 DOCUMENTED - Proposal written, implementation pending |
+| [Algorithmic Transparency](changes/algorithmic-transparency/proposal.md) | Why did the AI match this? | ✅ IMPLEMENTED - Full transparency: explanations, adjustable weights, bias detection, audit trail (13 tests passing) |
 | [Temporal Justice](changes/temporal-justice/proposal.md) | Don't exclude caregivers/workers | 📝 DOCUMENTED - Proposal written, implementation pending |
 | [Accessibility First](changes/accessibility-first/proposal.md) | Works for non-tech-savvy | 📝 DOCUMENTED - Proposal written, implementation pending |
 | [Language Justice](changes/language-justice/proposal.md) | Not just English | 📝 DOCUMENTED - Proposal written, implementation pending |
