@@ -23,6 +23,7 @@ import { CreateCellPage } from './pages/CreateCellPage'
 import { MessagesPage } from './pages/MessagesPage'
 import { MessageThreadPage } from './pages/MessageThreadPage'
 import { NewMessagePage } from './pages/NewMessagePage'
+import { StewardDashboardPage } from './pages/StewardDashboardPage'
 import './App.css'
 
 // Import API interceptors to add auth token to requests
@@ -95,6 +96,8 @@ function App() {
                     <Route path="/messages" element={<MessagesPage />} />
                     <Route path="/messages/new" element={<NewMessagePage />} />
                     <Route path="/messages/:threadId" element={<MessageThreadPage />} />
+                    <Route path="/steward" element={<StewardDashboardPage />} />
+                    <Route path="/steward/:cellId" element={<StewardDashboardPage />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

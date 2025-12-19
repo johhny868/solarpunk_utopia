@@ -35,7 +35,7 @@ A mesh network that enables:
 
 | Proposal | Description | Status |
 |----------|-------------|--------|
-| [Steward Dashboard](changes/steward-dashboard/proposal.md) | Tools for community leaders | NEW |
+| [Steward Dashboard](changes/steward-dashboard/proposal.md) | Tools for community leaders | ✅ IMPLEMENTED - Metrics + attention queue |
 | [Leakage Metrics](changes/leakage-metrics/proposal.md) | Track economic impact | NEW |
 | [Network Import](changes/network-import/proposal.md) | Bring in existing communities | NEW |
 | [Panic Features](changes/panic-features/proposal.md) | Duress codes, wipe, decoy | NEW |
