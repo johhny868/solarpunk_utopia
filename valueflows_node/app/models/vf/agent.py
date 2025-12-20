@@ -17,6 +17,18 @@ class AgentType(str, Enum):
     PLACE = "place"
 
 
+class AgentStatus(str, Enum):
+    """
+    Agent status for rest mode (GAP-62: Loafer's Rights)
+
+    Emma Goldman: "The right to be lazy is sacred"
+    Peter Kropotkin: "In a well-organized society, all will have a right to live and to enjoy life"
+    """
+    ACTIVE = "active"
+    RESTING = "resting"  # Taking a break, no notifications
+    SABBATICAL = "sabbatical"  # Extended rest period
+
+
 @dataclass
 class Agent:
     """
@@ -40,6 +52,12 @@ class Agent:
     # Contact/coordination
     contact_info: Optional[str] = None  # Can be encrypted
 
+    # GAP-62: Loafer's Rights - Rest Mode Support
+    # "The right to be lazy is sacred" - Emma Goldman
+    status: AgentStatus = AgentStatus.ACTIVE
+    status_note: Optional[str] = None  # e.g., "Recovering from burnout", "Caring for family"
+    status_updated_at: Optional[datetime] = None  # When status was last changed
+
     # Metadata
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -58,6 +76,9 @@ class Agent:
             "image_url": self.image_url,
             "primary_location_id": self.primary_location_id,
             "contact_info": self.contact_info,
+            "status": self.status.value,
+            "status_note": self.status_note,
+            "status_updated_at": self.status_updated_at.isoformat() if self.status_updated_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "author": self.author,
@@ -75,6 +96,9 @@ class Agent:
             image_url=data.get("image_url"),
             primary_location_id=data.get("primary_location_id"),
             contact_info=data.get("contact_info"),
+            status=AgentStatus(data.get("status", "active")),
+            status_note=data.get("status_note"),
+            status_updated_at=datetime.fromisoformat(data["status_updated_at"]) if data.get("status_updated_at") else None,
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None,
             updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None,
             author=data.get("author"),

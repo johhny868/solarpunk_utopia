@@ -192,11 +192,55 @@
 
 ---
 
-## 🔜 Not Yet Started
+### GAP-62: Loafer's Rights (Goldman + Kropotkin) 🧠 PHILOSOPHY
 
-### GAP-62: Loafer's Rights (Goldman + Kropotkin)
-**Status**: ⏳ Not started
-**Estimated**: 6-10 hours
+**Status**: ⏳ In Progress (Phase 2 complete: backend done, frontend pending)
+
+**What Was Built**:
+- Database migration & schema
+  - Created migration `007_add_rest_mode_to_agents.sql`
+  - Added `status` field (active/resting/sabbatical)
+  - Added `status_note` field (optional explanation)
+  - Added `status_updated_at` timestamp
+  - Added indexes for efficient rest mode queries
+
+- Data model updates
+  - `valueflows_node/app/models/vf/agent.py`
+  - Added `AgentStatus` enum (ACTIVE, RESTING, SABBATICAL)
+  - Added status fields to Agent dataclass
+  - Updated to_dict() and from_dict() methods
+  - Goldman/Kropotkin quotes in docstrings
+
+- Repository layer
+  - `valueflows_node/app/repositories/vf/agent_repo.py`
+  - Updated create() and update() to handle status fields
+  - Added `update_status()` method for quick status changes
+  - Added `find_by_status()` method
+  - Added `count_in_rest_mode()` for community stats
+
+- API endpoints
+  - `valueflows_node/app/api/vf/agents.py`
+  - `PATCH /vf/agents/{id}/status` - Update agent status with note
+  - `GET /vf/agents/stats/rest-mode-count` - Get count of people resting
+  - Goldman quote in endpoint docstrings
+  - Returns supportive messaging: "X people in rest mode - we're holding you"
+
+**Philosophical Alignment**:
+- ✅ Agents can signal they're taking a break (no judgment)
+- ✅ Optional explanation (respects privacy)
+- ✅ Status tracked to prevent unwanted notifications
+- ✅ Community stats normalize rest as valid state
+- ✅ "The right to be lazy is sacred" - Emma Goldman
+
+**Remaining Work**:
+- Phase 1: Remove guilt-trip notifications (audit notification system)
+- Phase 3: Frontend components (rest mode toggle, profile badges, settings)
+- Phase 4: Testing and validation
+- Estimated: 6-8 hours
+
+---
+
+## 🔜 Not Yet Started
 
 ### GAP-64: Battery Warlord Detection (Bakunin)
 **Status**: ⏳ Not started
@@ -213,12 +257,12 @@
 | GAP-57 | ✅ Audit Done | HIGH | N/A | 8-10h |
 | GAP-59 | ⏳ Models Ready | N/A | HIGH (Freire) | 15-17h |
 | GAP-61 | ✅ Complete | N/A | HIGH (Goldman) | 1-2h (db fix + tests) |
-| GAP-62 | ⏳ Not Started | N/A | MEDIUM (Goldman/Kropotkin) | 6-10h |
+| GAP-62 | ⏳ Backend Done | N/A | HIGH (Goldman/Kropotkin) | 6-8h (frontend) |
 | GAP-64 | ⏳ Not Started | N/A | HIGH (Bakunin) | 10-15h |
 
-**Completion**: 4/7 specs fully implemented (57%)
+**Completion**: 4/7 specs fully implemented, 2 in progress (57%)
 **Security Foundation**: Strong (3/3 security specs complete)
-**Philosophy Foundation**: Growing (1 complete, 1 in progress, 2 pending)
+**Philosophy Foundation**: Growing (1 complete, 2 in progress, 1 pending)
 
 ---
 

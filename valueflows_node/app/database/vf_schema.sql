@@ -21,11 +21,19 @@ CREATE TABLE IF NOT EXISTS agents (
     updated_at TEXT,
     author TEXT,  -- Public key of creator
     signature TEXT,  -- Ed25519 signature
+
+    -- GAP-62: Loafer's Rights (Goldman + Kropotkin) - Rest Mode Support
+    status TEXT DEFAULT 'active' CHECK(status IN ('active', 'resting', 'sabbatical')),
+    status_note TEXT,  -- Optional explanation: "Recovering from burnout", etc.
+    status_updated_at TEXT,  -- When status was last changed
+
     FOREIGN KEY (primary_location_id) REFERENCES locations(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_agents_type ON agents(agent_type);
 CREATE INDEX IF NOT EXISTS idx_agents_created ON agents(created_at);
+CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
+CREATE INDEX IF NOT EXISTS idx_agents_resting ON agents(status) WHERE status IN ('resting', 'sabbatical');
 
 -- =============================================================================
 -- LOCATIONS

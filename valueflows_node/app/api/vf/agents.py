@@ -11,13 +11,21 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 
-from ...models.vf.agent import Agent, AgentType
+from ...models.vf.agent import Agent, AgentType, AgentStatus
 from ...models.requests.vf_objects import AgentCreate
 from ...database import get_database
 from ...repositories.vf.agent_repo import AgentRepository
 from ...services.signing_service import SigningService
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/vf/agents", tags=["agents"])
+
+
+# GAP-62: Loafer's Rights - Request models for rest mode
+class StatusUpdate(BaseModel):
+    """Update agent status (for rest mode)"""
+    status: str = Field(..., description="Status: active, resting, or sabbatical")
+    status_note: Optional[str] = Field(None, max_length=500, description="Optional explanation")
 
 
 @router.post("", response_model=dict)
@@ -123,5 +131,79 @@ async def get_agent(agent_id: str):
 
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.patch("/{agent_id}/status", response_model=dict)
+async def update_agent_status(agent_id: str, status_update: StatusUpdate):
+    """
+    Update agent status (GAP-62: Loafer's Rights)
+
+    Allows agents to signal they're taking a break - rest mode.
+
+    Status options:
+    - active: Normal participation
+    - resting: Taking a break, no notifications
+    - sabbatical: Extended rest period
+
+    Emma Goldman: "The right to be lazy is sacred"
+    """
+    try:
+        # Validate status value
+        status = AgentStatus(status_update.status)
+
+        db = get_database()
+        db.connect()
+        agent_repo = AgentRepository(db.conn)
+
+        # Check agent exists
+        agent = agent_repo.find_by_id(agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+        # Update status
+        updated = agent_repo.update_status(agent_id, status, status_update.status_note)
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+        # Return updated agent
+        agent = agent_repo.find_by_id(agent_id)
+        db.close()
+
+        return agent.to_dict()
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid status. Must be: active, resting, or sabbatical")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/stats/rest-mode-count", response_model=dict)
+async def get_rest_mode_count():
+    """
+    Get count of agents in rest mode (GAP-62: Loafer's Rights)
+
+    Returns number of agents with status 'resting' or 'sabbatical'.
+
+    Used for community stats: "23 people in rest mode (we're holding you)"
+    """
+    try:
+        db = get_database()
+        db.connect()
+        agent_repo = AgentRepository(db.conn)
+
+        count = agent_repo.count_in_rest_mode()
+
+        db.close()
+
+        return {
+            "count": count,
+            "message": f"{count} {'person' if count == 1 else 'people'} in rest mode - we're holding you"
+        }
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
