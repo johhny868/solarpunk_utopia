@@ -91,11 +91,12 @@ The system SHALL collect evidence automatically.
 #### Scenario: Building a Case
 - GIVEN a node is throttling someone
 - THEN the system tracks:
-  - Original abuse reports
-  - How many nodes are throttling
+  - Original abuse reports (what triggered this)
+  - How many nodes are throttling (via DTN sync)
   - Duration of throttling
-  - User's response (did behavior change?)
+  - Exchanges completed since throttle started (functional data the app already has)
 - AND this evidence is available for steward review
+- NOTE: We only track what the app naturally knows (offers, exchanges, vouches) - not login times, browsing patterns, or other surveillance data
 
 ### Requirement: De-escalation
 
@@ -187,9 +188,10 @@ The system SHALL make strike reasons visible.
     "throttle_level": "medium",
     "activated_at": "2025-12-19T...",
     "deactivated_at": null,
-    "behavior_score_at_start": 2.5,
-    "current_behavior_score": 4.1,  # improving
+    "exchanges_at_start": 0,       # Functional data: exchanges completed
+    "exchanges_since": 3,          # Functional data: new exchanges since throttle
     "automatic": true
+    # NOTE: No behavior_score - we don't track "behavior", just functional facts
 }
 ```
 
@@ -206,8 +208,25 @@ The system SHALL make strike reasons visible.
 
 - **No Central Authority:** Each node decides independently based on trust
 - **Expiration:** Alerts expire after 7 days if not renewed
-- **Redemption:** Behavior change leads to automatic de-escalation
+- **Redemption:** Completing exchanges leads to automatic de-escalation
 - **No Permanent Bans:** Even critical-level strikes can be overcome
+
+### No Surveillance
+
+We only track **functional data** - things the app needs to operate:
+- Offers posted
+- Needs posted
+- Exchanges completed
+- Vouches given/received
+
+We explicitly DO NOT track:
+- Login frequency
+- Session duration
+- Pages viewed
+- Browsing patterns
+- "Behavior scores"
+
+De-escalation is based on exchanges completed, not "behavior change" - because we can only see what people actually do in the network, not how they use the app.
 
 ## Risks
 

@@ -60,9 +60,11 @@ Once GAP-02 is implemented:
 
 ### SHOULD Requirements
 
-1. System SHOULD implement rate limiting on auth endpoints
-2. System SHOULD track failed login attempts
+1. System SHOULD implement rate limiting on auth endpoints (ephemeral, per-IP, not stored)
+2. System SHOULD use in-memory rate limiting for failed attempts (no persistent tracking of "who failed when")
 3. System SHOULD support API keys for service-to-service auth
+
+**Privacy Note:** We do NOT track failed login attempts per-user. Rate limiting is ephemeral, in-memory, and IP-based only. No historical record of "who tried to login and failed" is kept.
 
 ## Success Criteria
 

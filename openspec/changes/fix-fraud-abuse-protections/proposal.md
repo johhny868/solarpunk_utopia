@@ -144,63 +144,49 @@ async def unblock_user(user_id: str, current_user=Depends(get_current_user)):
 
 ### 5. Auto-Lock on Inactivity (GAP-108)
 
-```python
-# frontend/src/services/security_manager.ts
+**IMPORTANT: This is a CLIENT-SIDE ONLY feature for user security. No activity data is ever stored, logged, or sent to any server.**
+
+```typescript
+// frontend/src/services/security_manager.ts
 const INACTIVITY_TIMEOUT_MS = 120_000;  // 2 minutes
-const SENSITIVE_ACTIONS = [
-    "send_message",
-    "create_offer",
-    "view_sanctuary",
-    "vouch_for",
-];
 
 class SecurityManager {
-    private lastActivity: number = Date.now();
+    // EPHEMERAL: This timestamp lives only in RAM, never persisted
+    private lastInteraction: number = Date.now();
     private locked: boolean = false;
-    private lockTimeout: NodeJS.Timeout | null = null;
 
     constructor() {
         this.startInactivityTimer();
-        this.setupEventListeners();
+        // Only listen for basic user presence, not tracking behavior
+        document.addEventListener('click', () => this.userIsPresent());
+    }
+
+    private userIsPresent() {
+        // Just reset the timer - no logging, no tracking, no storage
+        this.lastInteraction = Date.now();
     }
 
     private startInactivityTimer() {
-        this.lockTimeout = setInterval(() => {
-            if (Date.now() - this.lastActivity > INACTIVITY_TIMEOUT_MS) {
+        setInterval(() => {
+            if (Date.now() - this.lastInteraction > INACTIVITY_TIMEOUT_MS) {
                 this.lock();
             }
         }, 10_000);
     }
 
-    private setupEventListeners() {
-        ['click', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, () => this.recordActivity());
-        });
-    }
-
-    recordActivity() {
-        this.lastActivity = Date.now();
-    }
-
     async lock() {
         this.locked = true;
-        // Navigate to lock screen
+        // Clear sensitive state from memory before showing lock screen
+        this.clearSensitiveState();
         window.location.href = '/lock';
     }
-
-    async checkSensitiveAction(action: string): Promise<boolean> {
-        if (SENSITIVE_ACTIONS.includes(action)) {
-            return await this.verifyPIN();
-        }
-        return true;
-    }
-
-    private async verifyPIN(): Promise<boolean> {
-        // Show PIN dialog
-        const pin = await showPINDialog();
-        return await verifyPINWithServer(pin);
-    }
 }
+
+// PRIVACY GUARANTEES:
+// - No "last active" timestamp ever leaves the device
+// - No activity data is stored in localStorage or sent to server
+// - The lastInteraction variable is purely RAM-resident and lost on page close
+// - This is a security feature for the user, not surveillance of the user
 ```
 
 ### 6. Sanctuary Verification Protocol (GAP-109) - P0 PRIORITY
@@ -297,7 +283,7 @@ class SanctuaryService:
 - SHALL require 24h interaction history before vouching
 - SHALL allow no-consequence revocation within 48h
 - SHALL provide block list preventing matches/messages
-- SHALL auto-lock app after 2 minutes inactivity
+- SHALL auto-lock app after 2 minutes inactivity (client-side only, no server tracking)
 - SHALL require 2+ steward verification for sanctuaries
 - SHALL require buddy system for sanctuary assignments
 
@@ -367,12 +353,31 @@ def test_sanctuary_requires_verification():
 - Testing: 2 hours
 - Total: ~10 hours
 
+## Privacy Guarantees
+
+This proposal protects users from abuse WITHOUT surveillance:
+
+**We track (functional data):**
+- Vouches given (for monthly limit)
+- Interactions between users (for cooling period) - just "have they exchanged?" not "when did they last login"
+- Block relationships (who blocked whom)
+
+**We explicitly DO NOT track:**
+- Login times or "last active" timestamps
+- Session duration
+- Pages viewed
+- Browsing patterns
+- Failed login attempts (beyond immediate rate-limiting)
+
+The auto-lock feature is purely client-side and ephemeral - it exists to protect the user, not to surveil them.
+
 ## Success Criteria
 
 - [ ] Monthly vouch limit enforced
 - [ ] 24h cooling period enforced
 - [ ] 48h revocation cooloff implemented
 - [ ] Block list functional
-- [ ] Auto-lock triggers after 2 min inactivity
+- [ ] Auto-lock triggers after 2 min inactivity (client-side only)
 - [ ] Sanctuary requires 2+ steward verifications
 - [ ] Buddy system mandatory for sanctuary assignments
+- [ ] No "last active" timestamps stored on server

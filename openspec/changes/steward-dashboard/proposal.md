@@ -40,7 +40,7 @@ A dedicated dashboard for cell stewards that provides visibility and control.
 │  ┌─────────────────────────────────────────────────┐│
 │  │ 🔴 3 join requests pending                      ││
 │  │ 🟡 2 proposals awaiting approval                ││
-│  │ 🟡 1 member hasn't been active in 2 weeks       ││
+│  │ 🟡 1 member hasn't participated in 2 weeks      ││
 │  │ 🟢 All clear on trust/safety                    ││
 │  └─────────────────────────────────────────────────┘│
 │                                                      │
@@ -93,16 +93,27 @@ The system SHALL surface proposals needing steward attention.
 - AND they can approve, reject, or discuss each one
 - AND they see who else needs to approve
 
-### Requirement: Member Activity Visibility
+### Requirement: Member Participation Visibility
 
-The system SHALL help stewards notice disengaged members.
+The system SHALL help stewards notice members who haven't participated recently.
 
 #### Scenario: Check-in Prompt
-- GIVEN Dave hasn't been active in 14 days
+- GIVEN Dave hasn't posted offers, needs, or completed exchanges in 14 days
 - WHEN the steward views the dashboard
-- THEN they see a gentle flag: "Dave hasn't been active recently"
+- THEN they see a gentle flag: "Dave hasn't participated recently"
 - AND they can send a check-in message
 - AND this is framed as care, not surveillance
+
+**What we track (functional data):**
+- Offers posted
+- Needs posted
+- Exchanges completed
+
+**What we DON'T track:**
+- Login times
+- Pages viewed
+- Time spent in app
+- "Last active" timestamps
 
 ### Requirement: Celebration Features
 
@@ -133,7 +144,7 @@ The system SHALL show stewards what's happening in adjacent cells.
 3. [ ] Implement "Needs Attention" queue
 4. [ ] Create join request management flow
 5. [ ] Build proposal queue for stewards
-6. [ ] Add member activity tracking (with privacy)
+6. [ ] Add member participation tracking (offers/needs/exchanges only - no login tracking)
 7. [ ] Create celebration/milestone system
 8. [ ] Build regional/cross-cell view
 9. [ ] Add cell settings management
@@ -148,7 +159,7 @@ The system SHALL show stewards what's happening in adjacent cells.
 
 ## Risks
 
-- **Surveillance creep:** Dashboard becomes Big Brother. Mitigation: Privacy by design, no individual contribution tracking.
+- **Surveillance creep:** Dashboard becomes Big Brother. Mitigation: Only track functional data (offers, needs, exchanges). Never track login times, browsing, or "activity". No individual contribution tracking.
 - **Steward burnout:** Too many notifications. Mitigation: Configurable quiet hours, delegation.
 
 ## Success Criteria

@@ -25,6 +25,29 @@ class ProposalType(str, Enum):
     LEARNING_PATH = "learning_path"  # Education pathfinder
     REPLENISHMENT = "replenishment"  # Inventory agent
     SHORTAGE_WARNING = "shortage_warning"  # Inventory agent
+    # Gift Flow Agent
+    BURNOUT_CARE_ALERT = "burnout_care_alert"  # Gift flow agent
+    # Governance Circle Agent
+    GOVERNANCE_PROPOSAL = "governance_proposal"  # Governance circle agent
+    MEDIATION_REQUEST = "mediation_request"  # Governance circle agent
+    # Conquest of Bread Agent
+    HEAP_MODE_TOGGLE = "heap_mode_toggle"  # Conquest of bread agent
+    RATIONING_MODE = "rationing_mode"  # Conquest of bread agent
+    # Insurrectionary Joy Agent
+    JOY_STRIKE = "joy_strike"  # Insurrectionary joy agent
+    DANCE_PARTY = "dance_party"  # Insurrectionary joy agent
+    BUREAUCRACY_JAM = "bureaucracy_jam"  # Insurrectionary joy agent
+    # Radical Inclusion Agent
+    MARGINALITY_WARNING = "marginality_warning"  # Radical inclusion agent
+    CARE_WORK_RECOGNITION = "care_work_recognition"  # Radical inclusion agent
+    # Conscientization Agent
+    RESOURCE_REQUEST = "resource_request"  # Conscientization agent
+    MENTOR_MATCH = "mentor_match"  # Conscientization agent
+    CULTURE_CIRCLE = "culture_circle"  # Conscientization agent
+    # Counter-Power Agent
+    CENTRALIZATION_WARNING = "centralization_warning"  # Counter-power agent
+    WARLORD_ALERT = "warlord_alert"  # Counter-power agent
+    PRUNING_PROMPT = "pruning_prompt"  # Counter-power agent
 
 
 class ProposalStatus(str, Enum):

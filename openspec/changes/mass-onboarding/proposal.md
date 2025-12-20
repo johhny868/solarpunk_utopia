@@ -74,7 +74,7 @@ The system SHALL support steward-generated invite links.
 - WHEN Carlos generates a "batch invite" (limit: 20 people)
 - THEN he gets a unique link/QR code
 - AND each person who uses it receives Carlos's vouch
-- AND Carlos sees who used his links
+- AND Carlos sees who he vouched for via this link (functional data: vouch relationships)
 - AND his vouch capacity refreshes over time
 
 ### Requirement: Onboarding Queue Management
@@ -137,7 +137,7 @@ Apply → Explain Interest → Wait for Review → Interview → Vouch → Activ
 7. [ ] Create queue management for surge protection
 8. [ ] Build application review flow for stewards
 9. [ ] Implement post-event upgrade prompts
-10. [ ] Create onboarding analytics for stewards
+10. [ ] Show stewards who they've onboarded (vouches given - functional data only, no engagement tracking)
 11. [ ] Build "invite your network" sharing tools
 
 ## Dependencies
@@ -146,16 +146,31 @@ Apply → Explain Interest → Wait for Review → Interview → Vouch → Activ
 - Local Cells (cell assignment)
 - Identity system (account creation)
 
+## Privacy Guarantees
+
+**Functional data we track:**
+- Who vouched for whom (the vouch relationship)
+- Trust level at onboarding
+- Cell membership
+
+**What we explicitly DO NOT track:**
+- Link click counts or "conversion rates"
+- How often new members log in after onboarding
+- "Engagement" or "retention" metrics
+- "Last active" timestamps
+
+Stewards see who they've onboarded because that's the vouch relationship. They don't see engagement analytics.
+
 ## Risks
 
 - **Event trust abuse:** People use event access for bad purposes. Mitigation: Event trust is limited, expires after event.
-- **Import trust gaming:** Fake accounts on source platforms. Mitigation: Require minimum account age/activity.
+- **Import trust gaming:** Fake accounts on source platforms. Mitigation: Require minimum account age/activity on source platform.
 - **Surge failures:** System crashes during big events. Mitigation: Load testing, queue management.
 
 ## Success Criteria
 
 - [ ] 200 people can onboard in 15 minutes at an event
 - [ ] Hipcamp users can join in under 60 seconds
-- [ ] Batch invite links work and track usage
+- [ ] Batch invite links work (stewards see who they vouched for, not engagement metrics)
 - [ ] Trust ladder progression is clear and achievable
 - [ ] No bottlenecks during workshop

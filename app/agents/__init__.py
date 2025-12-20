@@ -23,6 +23,13 @@ from .work_party_scheduler import WorkPartyScheduler
 from .permaculture_planner import PermaculturePlanner
 from .education_pathfinder import EducationPathfinder
 from .inventory_agent import InventoryAgent
+from .gift_flow import GiftFlowAgent
+from .governance_circle import GovernanceCircleAgent
+from .conquest_of_bread import ConquestOfBreadAgent
+from .insurrectionary_joy import InsurrectionaryJoyAgent
+from .radical_inclusion import RadicalInclusionAgent
+from .conscientization import ConscientizationAgent
+from .counter_power import CounterPowerAgent
 
 
 __all__ = [
@@ -35,7 +42,7 @@ __all__ = [
     "ProposalFilter",
     "ApprovalTracker",
     "approval_tracker",
-    # Agents
+    # Original Agents
     "CommonsRouterAgent",
     "MutualAidMatchmaker",
     "PerishablesDispatcher",
@@ -43,4 +50,12 @@ __all__ = [
     "PermaculturePlanner",
     "EducationPathfinder",
     "InventoryAgent",
+    # New Agents
+    "GiftFlowAgent",
+    "GovernanceCircleAgent",
+    "ConquestOfBreadAgent",
+    "InsurrectionaryJoyAgent",
+    "RadicalInclusionAgent",
+    "ConscientizationAgent",
+    "CounterPowerAgent",
 ]

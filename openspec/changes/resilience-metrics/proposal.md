@@ -31,7 +31,7 @@ A resilience dashboard that measures network health across multiple dimensions.
 | **Velocity** | Speed of resource matching | <24 hours offer→match |
 | **Recovery** | Bounce back from disruption | Cells reform within 1 week |
 | **Coverage** | Needs being met | >80% needs matched |
-| **Decentralization** | No power concentration | No node >10% of activity |
+| **Decentralization** | No power concentration | No node >10% of vouches or exchanges |
 
 ### Views
 
@@ -71,7 +71,7 @@ The system SHALL identify single points of failure.
 #### Scenario: Vulnerability Scan
 - GIVEN the network has grown organically
 - WHEN an admin runs vulnerability scan
-- THEN they see nodes that are "too important" (>10% of vouches, resources, or activity)
+- THEN they see nodes that are "too important" (>10% of vouches, offers, or exchanges)
 - AND edges that if removed would isolate cells
 - AND suggestions for adding redundancy
 
@@ -125,7 +125,9 @@ healthy = flow_rate >= 1/30 (1 per month per member)
 ### Redundancy Score
 ```
 redundancy = 1 - (max_node_centrality / total_nodes)
-healthy = no single node > 10% of graph centrality
+healthy = no single node > 10% of vouches or exchanges
+# NOTE: We measure centrality by functional data (vouches, offers, exchanges)
+# NOT by "activity" (logins, page views, session time)
 ```
 
 ### Velocity Score
@@ -168,6 +170,21 @@ healthy = coverage >= 0.8
 - Network-level data visible to all members
 - Threat modeling does not expose individual connections
 
+**Functional Data Only:**
+We compute metrics from functional data the app already has:
+- Offers posted
+- Needs posted
+- Exchanges completed
+- Vouches given/received
+
+**We explicitly DO NOT track:**
+- Login frequency or "last active"
+- Session duration
+- Pages viewed
+- "Activity" as a metric
+
+When we say "active members" we mean "members who have posted offers/needs or completed exchanges in the time period" - not "members who have logged in".
+
 ## Risks
 
 - **Gaming:** People inflate metrics for status. Mitigation: Metrics measure flow, not volume. Quality over quantity.
@@ -182,3 +199,4 @@ healthy = coverage >= 0.8
 - [ ] Geographic gaps are visible
 - [ ] Trends show network trajectory
 - [ ] All metrics preserve privacy (aggregates only)
+- [ ] No login/activity tracking - only functional data (offers, needs, exchanges, vouches)

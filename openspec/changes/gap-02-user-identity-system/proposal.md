@@ -147,7 +147,7 @@ The system SHALL implement a minimal but functional user identity system for MVP
    - `ProtectedRoute.tsx` - Route guard component
 
 3. **Database**
-   - Users table (id, email, name, created_at, last_login)
+   - Users table (id, email, name, created_at) - NO last_login field (we don't track activity)
    - Sessions table (id, user_id, token, expires_at)
    - Magic links table (id, email, token, expires_at, used)
 
