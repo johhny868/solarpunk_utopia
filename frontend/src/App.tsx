@@ -27,6 +27,7 @@ import { NewMessagePage } from './pages/NewMessagePage'
 import { StewardDashboardPage } from './pages/StewardDashboardPage'
 import RapidResponsePage from './pages/RapidResponsePage'
 import { CommunitiesPage } from './pages/CommunitiesPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 import './App.css'
 
 // Import API interceptors to add auth token to requests
@@ -72,6 +73,9 @@ function App() {
         <Routes>
           {/* Public route - no auth needed */}
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Onboarding route - shown after first login */}
+          <Route path="/onboarding" element={<OnboardingPage />} />
 
           {/* Protected routes - require auth */}
           <Route

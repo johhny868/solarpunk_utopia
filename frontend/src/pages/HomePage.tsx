@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useOffers } from '@/hooks/useOffers';
 import { useNeeds } from '@/hooks/useNeeds';
 import { useExchanges } from '@/hooks/useExchanges';
@@ -15,6 +16,15 @@ import { ProposalCard } from '@/components/ProposalCard';
 import { Gift, Heart, ArrowLeftRight, Package, AlertCircle } from 'lucide-react';
 
 export function HomePage() {
+  const navigate = useNavigate();
+
+  // GAP-12: Check if onboarding completed, redirect if not
+  useEffect(() => {
+    const onboardingCompleted = localStorage.getItem('onboarding_completed');
+    if (!onboardingCompleted) {
+      navigate('/onboarding');
+    }
+  }, [navigate]);
   const { data: offers, isLoading: offersLoading } = useOffers();
   const { data: needs, isLoading: needsLoading } = useNeeds();
   const { data: exchanges, isLoading: exchangesLoading } = useExchanges();

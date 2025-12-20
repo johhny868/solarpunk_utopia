@@ -62,78 +62,182 @@ The system just:
 
 Everything else is human-to-human.
 
-## Detection Triggers (Concrete)
+## How We Notice (Not Surveillance)
 
-The system watches for patterns, not intentions. Humans decide what it means.
+**We don't track behavior. People tell us things.**
+
+### What We DON'T Do
+
+- ❌ Log activity patterns
+- ❌ Track login frequency
+- ❌ Monitor who talks to whom
+- ❌ Analyze "data access patterns"
+- ❌ Compute give/receive ratios
+- ❌ Build behavioral profiles
+- ❌ Any algorithmic "risk scoring"
+
+That's surveillance. We don't do that.
+
+### What We DO Do
+
+**People notice people. That's it.**
+
+```
+Sources of "something's up":
+
+1. SELF-REPORT
+   - "Hey, I've been struggling and haven't been showing up"
+   - "I messed up, can someone help me make it right?"
+   - Check-in prompts (optional): "How are you doing with your commitments?"
+
+2. SOMEONE EXPRESSES CONCERN
+   - "Hey, I'm worried about [person]. They seem off."
+   - "I had a weird interaction with [person]. Not sure what to make of it."
+   - NOT a "report" system. Just humans talking to care coordinator.
+
+3. DIRECT EXPERIENCE
+   - "They didn't show up for our exchange"
+   - "They said something that made me uncomfortable"
+   - The person affected talks to someone, not fills out a form.
+
+4. COMMUNITY CONVERSATION
+   - At a meal: "Has anyone heard from Jamie? They've been quiet."
+   - This is how communities actually work.
+```
+
+### No Forms. No Reports. No Tickets.
+
+```
+NOT THIS:
+┌─────────────────────────────────┐
+│ INCIDENT REPORT FORM            │
+│ User ID: _______                │
+│ Violation Type: [dropdown]      │
+│ Description: ________________   │
+│ [SUBMIT]                        │
+└─────────────────────────────────┘
+
+THIS:
+"Hey Sam, can we talk? Something happened with
+the exchange yesterday and I'm not sure what to do."
+```
+
+### Care Coordinator Role
+
+One or two people (rotating) who:
+- Are known as "the people you can talk to"
+- Listen when someone has a concern
+- Notice if the same name comes up from multiple people
+- Gently suggest: "Want me to connect you with someone who can help?"
+- Match people with care volunteers when patterns emerge
+
+They don't:
+- Keep databases
+- Track incidents
+- Score people
+- Make judgments
+
+They're a switchboard, not a surveillance system.
+
+### When Does Care Outreach Happen?
+
+```
+Level 0-1: Anyone who knows them just... checks in
+           No coordination needed. Humans being humans.
+
+Level 2:   Multiple people have mentioned something
+           Care coordinator suggests a volunteer befriend them
+           Volunteer reaches out casually
+
+Level 3:   Clear harm happening (fake offers, vouch selling)
+           Someone directly affected brings it up
+           Care coordinator + small circle decides on access limits
+           Care volunteer assigned
+
+Level 4:   Someone trusted says "I think this person is a cop"
+           Small security circle evaluates
+           Access limits + long-game care
+```
+
+### What About Fake Offers / Vouch Selling?
+
+These get noticed the old-fashioned way:
+
+**Fake offers:**
+- Someone shows up to an exchange and the other person isn't there
+- They mention it to friends: "Has anyone else had this happen?"
+- If multiple people say yes, word reaches care coordinator
+- That's the "detection"
+
+**Vouch selling:**
+- Someone notices: "Wait, this person vouched for 20 people this week?"
+- They mention it: "Is that normal?"
+- Care coordinator: "Hm, let me gently check in with them"
+- That's it
+
+**No algorithms. No thresholds. Just people paying attention.**
+
+### What's Visible Anyway (Not Surveillance)
+
+Some things are just... public. Anyone can see them:
+
+```
+VISIBLE (anyone can notice):
+- Someone's posted 10 needs and 0 offers (it's on their profile)
+- Someone vouched for 20 people this week (vouches are visible)
+- Someone's offers keep getting cancelled (their listings show this)
+- They've never completed an exchange (completion badges or lack thereof)
+
+NOT VISIBLE (would require tracking):
+- How often they log in
+- What profiles they've looked at
+- How long they spend on the app
+- Who they message
+- When they're active
+```
+
+The visible stuff isn't surveillance - it's just looking at what they've chosen to share publicly. Like noticing someone at the community meal takes food but never brings a dish. You're not "tracking" them, you're just... there.
 
 ```python
-class DetectionTriggers:
-    """Concrete thresholds that trigger each level"""
-
-    # Level 0: OOPS - No automated detection
-    # Humans just notice and help
-
-    # Level 1: STRUGGLING - Gentle check-in triggers
-    LEVEL_1 = {
-        "no_activity_days": 14,           # Haven't logged in for 2 weeks
-        "cancelled_commitments": 2,        # Flaked twice in a row
-        "conflict_reports_received": 1,    # Someone reported a conflict
-        "give_receive_ratio_below": 0.2,   # Receiving 5x more than giving (for 30+ days)
+# This is fine - it's public info
+def get_public_activity(user_id: str):
+    return {
+        "offers_posted": count_public_offers(user_id),
+        "needs_posted": count_public_needs(user_id),
+        "exchanges_completed": count_completed_exchanges(user_id),
+        "vouches_given": count_vouches_given(user_id),  # These are public
     }
 
-    # Level 2: PATTERN - Assign care volunteer
-    LEVEL_2 = {
-        "no_shows": 3,                     # 3+ matches where they didn't show
-        "completion_rate_below": 0.5,      # Less than half their matches complete
-        "conflict_reports_received": 3,    # Multiple people reported issues
-        "needs_without_offers_count": 10,  # Posted 10 needs, 0 offers (ever)
-        "blocked_by_count": 3,             # 3+ people have blocked them
+# This is NOT fine - it's surveillance
+def get_private_behavior(user_id: str):  # DON'T BUILD THIS
+    return {
+        "login_times": get_login_history(user_id),  # NO
+        "pages_viewed": get_browsing_history(user_id),  # NO
+        "time_on_app": get_session_durations(user_id),  # NO
     }
-
-    # Level 3: HARMFUL - Limit access + intensive care
-    LEVEL_3 = {
-        "vouches_per_week_above": 10,      # Vouch velocity (selling?)
-        "vouch_revocation_rate": 0.3,      # 30%+ of their vouches get revoked
-        "fake_offer_reports": 2,           # Multiple "this was fake" reports
-        "same_person_exchanges": 5,        # Exchanging with same person 5+ times/month
-        "high_value_claims": 3,            # 3+ exchanges claimed at max value
-        "data_access_anomaly": True,       # Accessing lots of profiles without interacting
-    }
-
-    # Level 4: INFILTRATOR - Manual detection only
-    # These require human judgment, not thresholds:
-    # - Correlating questions across conversations
-    # - Documenting who talks to whom
-    # - Asking about security practices
-    # - Known association with hostile orgs
-    # - Tip from trusted source
 ```
 
-### What Triggers AREN'T
+### The "Lots of Needs, No Offers" Thing
 
-- Being new (everyone starts somewhere)
-- Being quiet (introverts exist)
-- Receiving a lot (some people need more right now)
-- Having conflicts (humans disagree)
-- Low trust score (that's what the score is for)
+Yeah, that's a sign. And it's visible. Anyone scrolling their feed notices:
 
-### How Triggers Flow
+> "Huh, I've seen Jamie ask for stuff three times this week but I've never seen them offer anything."
 
-```
-Threshold crossed
-       ↓
-System creates private flag (not visible to anyone but care coordinator)
-       ↓
-Care coordinator reviews (human!)
-       ↓
-Decides: false positive? real pattern? context matters?
-       ↓
-If real: assigns care volunteer
-       ↓
-Volunteer takes it from here (no more automation)
-```
+That's not surveillance. That's community awareness.
 
-The system DETECTS. Humans DECIDE.
+What happens:
+1. Someone notices (organically, while using the app)
+2. They might mention it to care coordinator: "Is Jamie okay? They seem to need a lot."
+3. Care coordinator: "Yeah, let's have someone check in."
+4. Care volunteer reaches out: "Hey Jamie! How's it going? Need any help getting set up with offers?"
+
+Maybe Jamie:
+- Didn't know how to post offers
+- Is going through something and genuinely needs more right now
+- Doesn't have anything to offer (help them find something!)
+- Is extracting on purpose (rare, but address with care)
+
+The response is the same regardless: befriend, understand, help.
 
 ---
 
