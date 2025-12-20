@@ -18,8 +18,14 @@ from app.models.sanctuary import (
     SensitivityLevel,
     SanctuaryResourceType,
     VerificationStatus,
+    VerificationMethod,
+    VerificationRecord,
+    SanctuaryVerification,
+    SanctuaryUse,
     SANCTUARY_MIN_TRUST,
     SANCTUARY_MEDIUM_TRUST,
+    MIN_SANCTUARY_VERIFICATIONS,
+    VERIFICATION_VALIDITY_DAYS,
 )
 from app.database.sanctuary_repository import SanctuaryRepository
 
@@ -221,3 +227,173 @@ class SanctuaryService:
         Should be called by background worker every hour.
         """
         return self.repo.purge_old_records()
+
+    # ===== Multi-Steward Verification (GAP-109) =====
+
+    def add_verification(
+        self,
+        resource_id: str,
+        steward_id: str,
+        verification_method: VerificationMethod,
+        notes: Optional[str] = None,
+        escape_routes_verified: bool = False,
+        capacity_verified: bool = False,
+        buddy_protocol_available: bool = False
+    ) -> dict:
+        """Add a steward verification to a sanctuary resource.
+
+        Requires 2 independent steward verifications before resource becomes available.
+
+        Returns:
+            {
+                'verification_id': str,
+                'verification_count': int,
+                'status': 'pending' or 'verified',
+                'needs_second_verification': bool,
+                'message': str
+            }
+        """
+        # Get current verification status
+        verification_agg = self.repo.get_verification_aggregate(resource_id)
+
+        if verification_agg is None:
+            # No verifications yet, create aggregate
+            verification_agg = SanctuaryVerification(
+                resource_id=resource_id,
+                verifications=[],
+                successful_uses=0
+            )
+
+        # Check if steward can add verification (hasn't already verified)
+        if not verification_agg.can_add_verification(steward_id):
+            raise ValueError(f"Different steward required. Steward {steward_id} has already verified this resource.")
+
+        # Create verification record
+        verification = VerificationRecord(
+            id=f"ver-{uuid.uuid4()}",
+            resource_id=resource_id,
+            steward_id=steward_id,
+            verified_at=datetime.utcnow(),
+            verification_method=verification_method,
+            notes=notes,
+            escape_routes_verified=escape_routes_verified,
+            capacity_verified=capacity_verified,
+            buddy_protocol_available=buddy_protocol_available
+        )
+
+        # Save verification record
+        self.repo.create_verification(verification)
+
+        # Add to aggregate
+        verification_agg.add_verification(verification)
+
+        # Update resource metadata
+        self.repo.update_resource_verification_metadata(
+            resource_id=resource_id,
+            first_verified_at=verification_agg.first_verified_at,
+            last_check=verification_agg.last_check,
+            expires_at=verification_agg.expires_at
+        )
+
+        # Update verification status if we have enough verifications
+        if verification_agg.verification_count >= MIN_SANCTUARY_VERIFICATIONS:
+            self.repo.update_verification_status(resource_id, VerificationStatus.VERIFIED)
+            status = 'verified'
+            message = "Resource verified and available for matching."
+        else:
+            # Still pending
+            status = 'pending'
+            message = f"Verification added. Needs {MIN_SANCTUARY_VERIFICATIONS - verification_agg.verification_count} more steward(s) to approve."
+
+        return {
+            'verification_id': verification.id,
+            'verification_count': verification_agg.verification_count,
+            'status': status,
+            'needs_second_verification': verification_agg.needs_second_verification,
+            'message': message
+        }
+
+    def get_verification_status(self, resource_id: str) -> Optional[SanctuaryVerification]:
+        """Get verification status for a sanctuary resource."""
+        return self.repo.get_verification_aggregate(resource_id)
+
+    def get_resources_needing_verification(
+        self,
+        cell_id: str,
+        steward_id: Optional[str] = None
+    ) -> dict:
+        """Get sanctuary resources that need verification or re-verification.
+
+        Returns:
+            {
+                'pending_verification': [resources with only 1 verification],
+                'expiring_soon': [resources expiring in next 14 days]
+            }
+        """
+        result = self.repo.get_resources_needing_verification(
+            cell_id=cell_id,
+            exclude_steward_id=steward_id  # Exclude resources this steward already verified
+        )
+
+        return {
+            'pending_verification': result['pending'],
+            'expiring_soon': result['expiring']
+        }
+
+    def record_sanctuary_use(
+        self,
+        resource_id: str,
+        request_id: str,
+        outcome: str = "success"
+    ) -> SanctuaryUse:
+        """Record a sanctuary use (for quality tracking).
+
+        Args:
+            resource_id: Sanctuary resource used
+            request_id: Request fulfilled
+            outcome: 'success', 'failed', or 'compromised'
+        """
+        use = SanctuaryUse(
+            id=f"use-{uuid.uuid4()}",
+            resource_id=resource_id,
+            request_id=request_id,
+            completed_at=datetime.utcnow(),
+            outcome=outcome,
+            purge_at=datetime.utcnow() + timedelta(days=30)
+        )
+
+        self.repo.create_sanctuary_use(use)
+
+        # If successful, increment the successful_uses counter
+        if outcome == "success":
+            self.repo.increment_successful_uses(resource_id)
+
+        return use
+
+    def get_high_trust_resources(
+        self,
+        cell_id: str,
+        resource_type: SanctuaryResourceType
+    ) -> List[SanctuaryResource]:
+        """Get sanctuary resources suitable for CRITICAL severity needs.
+
+        Filters to:
+        - Resources with 3+ successful prior uses
+        - Resources verified by 2+ stewards
+        - Resources not expired
+        """
+        # Get all verified resources
+        resources = self.repo.get_resources_by_cell(cell_id, verified_only=True)
+
+        # Filter by type
+        if resource_type:
+            resources = [r for r in resources if r.resource_type == resource_type]
+
+        # Filter to high-trust resources
+        high_trust = []
+        for resource in resources:
+            verification = self.repo.get_verification_aggregate(resource.id)
+            if verification and verification.is_high_trust:
+                high_trust.append(resource)
+
+        return high_trust

@@ -57,22 +57,40 @@ class SanctuaryResource(BaseModel):
         description="How long resource is available (days)"
     )
 
-    # Verification
+    # Verification (legacy single-steward, deprecated in favor of multi-steward)
     verification_status: VerificationStatus = Field(
         default=VerificationStatus.PENDING,
         description="Verification status"
     )
     verified_by: Optional[str] = Field(
         default=None,
-        description="Steward who verified (if verified)"
+        description="DEPRECATED: Use multi-steward verification instead"
     )
     verified_at: Optional[datetime] = Field(
         default=None,
-        description="When verified"
+        description="DEPRECATED: Use multi-steward verification instead"
     )
     verification_notes: Optional[str] = Field(
         default=None,
-        description="Verification notes (encrypted, steward-only)"
+        description="DEPRECATED: Use multi-steward verification instead"
+    )
+
+    # Multi-steward verification (GAP-109)
+    first_verified_at: Optional[datetime] = Field(
+        default=None,
+        description="When first steward verified"
+    )
+    last_check: Optional[datetime] = Field(
+        default=None,
+        description="Most recent verification check"
+    )
+    expires_at: Optional[datetime] = Field(
+        default=None,
+        description="When verification expires (90 days from last_check)"
+    )
+    successful_uses: int = Field(
+        default=0,
+        description="Count of successful sanctuary uses (for critical need filtering)"
     )
 
     # Availability
@@ -343,9 +361,100 @@ MIN_SANCTUARY_VERIFICATIONS = 2  # Minimum steward verifications required
 VERIFICATION_VALIDITY_DAYS = 90  # Verification expires after 90 days
 
 
+class VerificationMethod(str, Enum):
+    """Method used to verify sanctuary resource."""
+    IN_PERSON = "in_person"      # Physical visit to location
+    VIDEO_CALL = "video_call"     # Video call with owner
+    TRUSTED_REFERRAL = "trusted_referral"  # Vouched by trusted steward
+
+
+class VerificationRecord(BaseModel):
+    """Individual steward verification of a sanctuary resource."""
+    id: str = Field(description="Unique verification ID")
+    resource_id: str = Field(description="Sanctuary resource being verified")
+    steward_id: str = Field(description="Steward performing verification")
+    verified_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="When verification was performed"
+    )
+    verification_method: VerificationMethod = Field(
+        description="Method used to verify"
+    )
+    notes: Optional[str] = Field(
+        default=None,
+        description="Encrypted steward-only notes"
+    )
+    escape_routes_verified: bool = Field(
+        default=False,
+        description="Escape routes checked and verified"
+    )
+    capacity_verified: bool = Field(
+        default=False,
+        description="Capacity checked and verified"
+    )
+    buddy_protocol_available: bool = Field(
+        default=False,
+        description="Buddy check-in system available"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "ver-001",
+                "resource_id": "sanctuary-res-001",
+                "steward_id": "steward-alice",
+                "verified_at": "2025-12-19T00:00:00Z",
+                "verification_method": "in_person",
+                "notes": "Verified escape routes, capacity confirmed",
+                "escape_routes_verified": True,
+                "capacity_verified": True,
+                "buddy_protocol_available": True,
+                "created_at": "2025-12-19T00:00:00Z"
+            }
+        }
+
+
+class SanctuaryUse(BaseModel):
+    """Record of a sanctuary use (for quality tracking)."""
+    id: str = Field(description="Unique use ID")
+    resource_id: str = Field(description="Resource used")
+    request_id: str = Field(description="Request fulfilled")
+    completed_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="When use completed"
+    )
+    outcome: str = Field(
+        description="Outcome: success, failed, compromised"
+    )
+    purge_at: datetime = Field(
+        description="When to auto-purge (30 days)"
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        # Set purge_at if not provided (30 days after completion)
+        if not self.purge_at:
+            self.purge_at = self.completed_at + timedelta(days=30)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "use-001",
+                "resource_id": "sanctuary-res-001",
+                "request_id": "sanctuary-req-001",
+                "completed_at": "2025-12-19T00:00:00Z",
+                "outcome": "success",
+                "purge_at": "2026-01-18T00:00:00Z",
+                "created_at": "2025-12-19T00:00:00Z"
+            }
+        }
+
+
 class SanctuaryVerification(BaseModel):
     """
-    Multi-steward verification for sanctuary spaces (GAP-109).
+    Multi-steward verification aggregate for sanctuary spaces (GAP-109).
 
     Ensures safety by requiring:
     - 2+ steward verifications
@@ -354,26 +463,22 @@ class SanctuaryVerification(BaseModel):
     - Track record of successful uses
     """
 
-    space_id: str = Field(description="ID of sanctuary space being verified")
-    verified_by: List[str] = Field(
-        description="List of steward IDs who verified",
+    resource_id: str = Field(description="ID of sanctuary resource being verified")
+    verifications: List[VerificationRecord] = Field(
+        description="List of individual steward verifications",
         default_factory=list
     )
-    verified_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="When verification was completed"
+    first_verified_at: Optional[datetime] = Field(
+        default=None,
+        description="When first steward verified"
     )
-    last_check: datetime = Field(
-        default_factory=datetime.utcnow,
+    last_check: Optional[datetime] = Field(
+        default=None,
         description="Last physical check of space"
     )
-    escape_routes: List[str] = Field(
-        description="List of escape route descriptions",
-        default_factory=list
-    )
-    has_buddy_protocol: bool = Field(
-        default=False,
-        description="Whether buddy system is in place"
+    expires_at: Optional[datetime] = Field(
+        default=None,
+        description="When verification expires (90 days from last check)"
     )
     successful_uses: int = Field(
         default=0,
@@ -381,15 +486,24 @@ class SanctuaryVerification(BaseModel):
     )
 
     @property
+    def verified_by(self) -> List[str]:
+        """Get list of steward IDs who verified."""
+        return [v.steward_id for v in self.verifications]
+
+    @property
+    def verification_count(self) -> int:
+        """Get number of verifications."""
+        return len(self.verifications)
+
+    @property
     def is_valid(self) -> bool:
         """Check if verification is still valid."""
         # Must have minimum verifications
-        if len(self.verified_by) < MIN_SANCTUARY_VERIFICATIONS:
+        if self.verification_count < MIN_SANCTUARY_VERIFICATIONS:
             return False
 
         # Must not be expired
-        age_days = (datetime.utcnow() - self.verified_at).days
-        if age_days > VERIFICATION_VALIDITY_DAYS:
+        if self.expires_at and datetime.utcnow() > self.expires_at:
             return False
 
         return True
@@ -400,11 +514,37 @@ class SanctuaryVerification(BaseModel):
         # For critical needs, require 3+ successful prior uses
         return self.successful_uses >= 3 and self.is_valid
 
-    def add_verification(self, steward_id: str):
+    @property
+    def needs_second_verification(self) -> bool:
+        """Check if resource needs a second steward verification."""
+        return self.verification_count == 1
+
+    @property
+    def needs_reverification(self) -> bool:
+        """Check if resource needs re-verification (expiring soon)."""
+        if not self.expires_at:
+            return False
+        days_until_expiry = (self.expires_at - datetime.utcnow()).days
+        return 0 < days_until_expiry <= 14  # Expiring in next 14 days
+
+    def can_add_verification(self, steward_id: str) -> bool:
+        """Check if steward can add verification (hasn't already verified)."""
+        return steward_id not in self.verified_by
+
+    def add_verification(self, verification: VerificationRecord):
         """Add a steward verification."""
-        if steward_id not in self.verified_by:
-            self.verified_by.append(steward_id)
-            self.verified_at = datetime.utcnow()
+        if not self.can_add_verification(verification.steward_id):
+            raise ValueError(f"Steward {verification.steward_id} has already verified this resource")
+
+        self.verifications.append(verification)
+
+        # Update first_verified_at if this is the first verification
+        if self.verification_count == 1:
+            self.first_verified_at = verification.verified_at
+
+        # Update last_check and expires_at
+        self.last_check = verification.verified_at
+        self.expires_at = verification.verified_at + timedelta(days=VERIFICATION_VALIDITY_DAYS)
 
     def record_successful_use(self):
         """Record a successful sanctuary use."""

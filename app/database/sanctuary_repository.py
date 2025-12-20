@@ -499,3 +499,282 @@ class SanctuaryRepository:
             created_at=datetime.fromisoformat(row[13]),
             expires_at=datetime.fromisoformat(row[14])
         )
+
+    # ===== Multi-Steward Verification (GAP-109) =====
+
+    def create_verification(self, verification: 'VerificationRecord') -> 'VerificationRecord':
+        """Create a verification record for a sanctuary resource."""
+        from app.models.sanctuary import VerificationRecord
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO sanctuary_verifications
+            (id, resource_id, steward_id, verified_at, verification_method, notes,
+             escape_routes_verified, capacity_verified, buddy_protocol_available, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            verification.id,
+            verification.resource_id,
+            verification.steward_id,
+            verification.verified_at.isoformat(),
+            verification.verification_method.value,
+            verification.notes,
+            int(verification.escape_routes_verified),
+            int(verification.capacity_verified),
+            int(verification.buddy_protocol_available),
+            verification.created_at.isoformat()
+        ))
+
+        conn.commit()
+        conn.close()
+        return verification
+
+    def get_verifications_for_resource(self, resource_id: str) -> List['VerificationRecord']:
+        """Get all verifications for a sanctuary resource."""
+        from app.models.sanctuary import VerificationRecord, VerificationMethod
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, resource_id, steward_id, verified_at, verification_method, notes,
+                   escape_routes_verified, capacity_verified, buddy_protocol_available, created_at
+            FROM sanctuary_verifications
+            WHERE resource_id = ?
+            ORDER BY verified_at ASC
+        """, (resource_id,))
+
+        rows = cursor.fetchall()
+        conn.close()
+
+        verifications = []
+        for row in rows:
+            verifications.append(VerificationRecord(
+                id=row[0],
+                resource_id=row[1],
+                steward_id=row[2],
+                verified_at=datetime.fromisoformat(row[3]),
+                verification_method=VerificationMethod(row[4]),
+                notes=row[5],
+                escape_routes_verified=bool(row[6]),
+                capacity_verified=bool(row[7]),
+                buddy_protocol_available=bool(row[8]),
+                created_at=datetime.fromisoformat(row[9])
+            ))
+
+        return verifications
+
+    def get_verification_aggregate(self, resource_id: str) -> Optional['SanctuaryVerification']:
+        """Get verification aggregate (all verifications + metadata) for a resource."""
+        from app.models.sanctuary import SanctuaryVerification
+
+        # Get verifications
+        verifications = self.get_verifications_for_resource(resource_id)
+
+        # Get resource metadata for verification fields
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT first_verified_at, last_check, expires_at, successful_uses
+            FROM sanctuary_resources
+            WHERE id = ?
+        """, (resource_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if not row:
+            return None
+
+        return SanctuaryVerification(
+            resource_id=resource_id,
+            verifications=verifications,
+            first_verified_at=datetime.fromisoformat(row[0]) if row[0] else None,
+            last_check=datetime.fromisoformat(row[1]) if row[1] else None,
+            expires_at=datetime.fromisoformat(row[2]) if row[2] else None,
+            successful_uses=row[3] or 0
+        )
+
+    def update_resource_verification_metadata(
+        self,
+        resource_id: str,
+        first_verified_at: Optional[datetime],
+        last_check: datetime,
+        expires_at: datetime
+    ):
+        """Update verification metadata for a resource."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # If first_verified_at is provided, update it
+        if first_verified_at:
+            cursor.execute("""
+                UPDATE sanctuary_resources
+                SET first_verified_at = ?,
+                    last_check = ?,
+                    expires_at = ?,
+                    updated_at = ?
+                WHERE id = ?
+            """, (
+                first_verified_at.isoformat(),
+                last_check.isoformat(),
+                expires_at.isoformat(),
+                datetime.utcnow().isoformat(),
+                resource_id
+            ))
+        else:
+            # Just update last_check and expires_at
+            cursor.execute("""
+                UPDATE sanctuary_resources
+                SET last_check = ?,
+                    expires_at = ?,
+                    updated_at = ?
+                WHERE id = ?
+            """, (
+                last_check.isoformat(),
+                expires_at.isoformat(),
+                datetime.utcnow().isoformat(),
+                resource_id
+            ))
+
+        conn.commit()
+        conn.close()
+
+    def update_verification_status(
+        self,
+        resource_id: str,
+        status: VerificationStatus
+    ):
+        """Update verification status for a resource."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE sanctuary_resources
+            SET verification_status = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (status.value, datetime.utcnow().isoformat(), resource_id))
+
+        conn.commit()
+        conn.close()
+
+    def create_sanctuary_use(self, use: 'SanctuaryUse') -> 'SanctuaryUse':
+        """Record a sanctuary use."""
+        from app.models.sanctuary import SanctuaryUse
+
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO sanctuary_uses
+            (id, resource_id, request_id, completed_at, outcome, purge_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            use.id,
+            use.resource_id,
+            use.request_id,
+            use.completed_at.isoformat(),
+            use.outcome,
+            use.purge_at.isoformat(),
+            use.created_at.isoformat()
+        ))
+
+        conn.commit()
+        conn.close()
+        return use
+
+    def increment_successful_uses(self, resource_id: str):
+        """Increment successful_uses counter for a resource."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE sanctuary_resources
+            SET successful_uses = successful_uses + 1,
+                updated_at = ?
+            WHERE id = ?
+        """, (datetime.utcnow().isoformat(), resource_id))
+
+        conn.commit()
+        conn.close()
+
+    def get_resources_needing_verification(
+        self,
+        cell_id: str,
+        exclude_steward_id: Optional[str] = None
+    ) -> dict:
+        """Get resources that need verification or re-verification.
+
+        Returns:
+            {
+                'pending': [resources with only 1 verification],
+                'expiring': [resources expiring in next 14 days]
+            }
+        """
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        # Get resources needing 2nd verification (only 1 verification so far)
+        # Exclude resources this steward has already verified
+        if exclude_steward_id:
+            cursor.execute("""
+                SELECT DISTINCT r.id, r.resource_type, r.sensitivity, r.offered_by, r.cell_id, r.description,
+                       r.capacity, r.duration_days, r.verification_status, r.verified_by, r.verified_at,
+                       r.verification_notes, r.available, r.available_from, r.available_until,
+                       r.created_at, r.updated_at, r.purge_at
+                FROM sanctuary_resources r
+                WHERE r.cell_id = ?
+                  AND r.verification_status = 'pending'
+                  AND r.id IN (
+                      SELECT resource_id FROM sanctuary_verifications GROUP BY resource_id HAVING COUNT(*) = 1
+                  )
+                  AND r.id NOT IN (
+                      SELECT resource_id FROM sanctuary_verifications WHERE steward_id = ?
+                  )
+                ORDER BY r.created_at DESC
+            """, (cell_id, exclude_steward_id))
+        else:
+            cursor.execute("""
+                SELECT DISTINCT r.id, r.resource_type, r.sensitivity, r.offered_by, r.cell_id, r.description,
+                       r.capacity, r.duration_days, r.verification_status, r.verified_by, r.verified_at,
+                       r.verification_notes, r.available, r.available_from, r.available_until,
+                       r.created_at, r.updated_at, r.purge_at
+                FROM sanctuary_resources r
+                WHERE r.cell_id = ?
+                  AND r.verification_status = 'pending'
+                  AND r.id IN (
+                      SELECT resource_id FROM sanctuary_verifications GROUP BY resource_id HAVING COUNT(*) = 1
+                  )
+                ORDER BY r.created_at DESC
+            """, (cell_id,))
+
+        pending_rows = cursor.fetchall()
+
+        # Get resources expiring in next 14 days
+        expires_soon = datetime.utcnow() + timedelta(days=14)
+        cursor.execute("""
+            SELECT id, resource_type, sensitivity, offered_by, cell_id, description,
+                   capacity, duration_days, verification_status, verified_by, verified_at,
+                   verification_notes, available, available_from, available_until,
+                   created_at, updated_at, purge_at
+            FROM sanctuary_resources
+            WHERE cell_id = ?
+              AND verification_status = 'verified'
+              AND expires_at IS NOT NULL
+              AND expires_at <= ?
+              AND expires_at > ?
+            ORDER BY expires_at ASC
+        """, (cell_id, expires_soon.isoformat(), datetime.utcnow().isoformat()))
+
+        expiring_rows = cursor.fetchall()
+
+        conn.close()
+
+        return {
+            'pending': [self._row_to_resource(row) for row in pending_rows],
+            'expiring': [self._row_to_resource(row) for row in expiring_rows]
+        }
