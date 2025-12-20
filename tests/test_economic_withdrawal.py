@@ -16,6 +16,7 @@ from app.models.economic_withdrawal import (
     CampaignStatus,
     PledgeStatus,
 )
+from tests.conftest import init_test_db
 
 
 # Test database path
@@ -25,6 +26,9 @@ TEST_DB_PATH = "data/test_economic_withdrawal.db"
 @pytest.fixture
 def service():
     """Create a test service with a clean database."""
+    # Initialize database with migrations
+    init_test_db(TEST_DB_PATH)
+
     # Create service
     service = EconomicWithdrawalService(db_path=TEST_DB_PATH)
 
