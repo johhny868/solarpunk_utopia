@@ -62,6 +62,81 @@ The system just:
 
 Everything else is human-to-human.
 
+## Detection Triggers (Concrete)
+
+The system watches for patterns, not intentions. Humans decide what it means.
+
+```python
+class DetectionTriggers:
+    """Concrete thresholds that trigger each level"""
+
+    # Level 0: OOPS - No automated detection
+    # Humans just notice and help
+
+    # Level 1: STRUGGLING - Gentle check-in triggers
+    LEVEL_1 = {
+        "no_activity_days": 14,           # Haven't logged in for 2 weeks
+        "cancelled_commitments": 2,        # Flaked twice in a row
+        "conflict_reports_received": 1,    # Someone reported a conflict
+        "give_receive_ratio_below": 0.2,   # Receiving 5x more than giving (for 30+ days)
+    }
+
+    # Level 2: PATTERN - Assign care volunteer
+    LEVEL_2 = {
+        "no_shows": 3,                     # 3+ matches where they didn't show
+        "completion_rate_below": 0.5,      # Less than half their matches complete
+        "conflict_reports_received": 3,    # Multiple people reported issues
+        "needs_without_offers_count": 10,  # Posted 10 needs, 0 offers (ever)
+        "blocked_by_count": 3,             # 3+ people have blocked them
+    }
+
+    # Level 3: HARMFUL - Limit access + intensive care
+    LEVEL_3 = {
+        "vouches_per_week_above": 10,      # Vouch velocity (selling?)
+        "vouch_revocation_rate": 0.3,      # 30%+ of their vouches get revoked
+        "fake_offer_reports": 2,           # Multiple "this was fake" reports
+        "same_person_exchanges": 5,        # Exchanging with same person 5+ times/month
+        "high_value_claims": 3,            # 3+ exchanges claimed at max value
+        "data_access_anomaly": True,       # Accessing lots of profiles without interacting
+    }
+
+    # Level 4: INFILTRATOR - Manual detection only
+    # These require human judgment, not thresholds:
+    # - Correlating questions across conversations
+    # - Documenting who talks to whom
+    # - Asking about security practices
+    # - Known association with hostile orgs
+    # - Tip from trusted source
+```
+
+### What Triggers AREN'T
+
+- Being new (everyone starts somewhere)
+- Being quiet (introverts exist)
+- Receiving a lot (some people need more right now)
+- Having conflicts (humans disagree)
+- Low trust score (that's what the score is for)
+
+### How Triggers Flow
+
+```
+Threshold crossed
+       ↓
+System creates private flag (not visible to anyone but care coordinator)
+       ↓
+Care coordinator reviews (human!)
+       ↓
+Decides: false positive? real pattern? context matters?
+       ↓
+If real: assigns care volunteer
+       ↓
+Volunteer takes it from here (no more automation)
+```
+
+The system DETECTS. Humans DECIDE.
+
+---
+
 ## The Spectrum of "Sabotage"
 
 Most cases aren't malicious:

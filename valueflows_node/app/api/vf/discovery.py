@@ -8,17 +8,17 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional, List
 from pydantic import BaseModel
 
-from valueflows_node.app.models.sharing_preference import (
+from ...models.sharing_preference import (
     SharingPreference,
     SharingPreferenceCreate,
     SharingPreferenceUpdate,
 )
-from valueflows_node.app.models.vf.listing import Listing
-from valueflows_node.app.repositories.sharing_preference_repo import SharingPreferenceRepository
-from valueflows_node.app.repositories.vf.listing_repo import ListingRepository
-from valueflows_node.app.services.inter_community_service import InterCommunityService
+from ...models.vf.listing import Listing
+from ...repositories.sharing_preference_repo import SharingPreferenceRepository
+from ...repositories.vf.listing_repo import ListingRepository
+from ...services.inter_community_service import InterCommunityService
+from ...database import get_database
 from app.database.vouch_repository import VouchRepository
-from valueflows_node.app.database.db import get_db_path
 
 
 router = APIRouter(prefix="/discovery", tags=["discovery"])
@@ -34,16 +34,17 @@ class DiscoveryResult(BaseModel):
 
 def get_inter_community_service() -> InterCommunityService:
     """Dependency injection for InterCommunityService."""
-    db_path = get_db_path()
-    sharing_pref_repo = SharingPreferenceRepository(db_path)
-    vouch_repo = VouchRepository(db_path)
+    db = get_database()
+    db.connect()
+    sharing_pref_repo = SharingPreferenceRepository(db.db_path)
+    vouch_repo = VouchRepository(db.db_path)
     return InterCommunityService(sharing_pref_repo, vouch_repo)
 
 
 def get_listing_repo() -> ListingRepository:
     """Dependency injection for ListingRepository."""
-    from valueflows_node.app.database.db import Database
-    db = Database()
+    db = get_database()
+    db.connect()
     return ListingRepository(db.conn)
 
 

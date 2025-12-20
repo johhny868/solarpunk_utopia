@@ -179,6 +179,8 @@ export interface CreateListingRequest {
   description?: string;
   image_url?: string;
   community_id?: string;
+  visibility?: 'my_cell' | 'my_community' | 'trusted_network' | 'anyone_local' | 'network_wide';
+  anonymous?: boolean;
 }
 
 // Legacy alias for backward compatibility
