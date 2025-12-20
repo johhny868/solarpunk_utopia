@@ -10,13 +10,14 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 72 (14 CRITICAL, 19 HIGH, 21 MEDIUM, 9 LOW)
-**Session 8 Update**: 7 gaps FIXED (GAP-114, GAP-134, GAP-135, GAP-136, GAP-148, GAP-149, GAP-150)
+**Total Gaps Found**: 72 (14 CRITICAL, 18 HIGH, 21 MEDIUM, 9 LOW)
+**Session 8 Update**: 8 gaps FIXED (GAP-114, GAP-117, GAP-134, GAP-135, GAP-136, GAP-148, GAP-149, GAP-150)
 
 ### Session 8 Progress (2025-12-20)
 
 **FIXED:**
 - ✅ **GAP-114**: Private key wipe VERIFIED WORKING - Uses secure_wipe_key() with multiple overwrites (zeros→random→ones→zeros)
+- ✅ **GAP-117**: Mesh messaging DTN bundle creation - Now creates proper bundles via BundleService
 - ✅ **GAP-134**: Steward verification now properly implemented (`require_steward` middleware)
 - ✅ **GAP-135**: Panic "all clear" VERIFIED WORKING - _propagate_all_clear() creates DTN bundle to notify network
 - ✅ **GAP-136**: Resilience metrics now queries actual ValueFlows database
