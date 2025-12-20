@@ -17,7 +17,7 @@ from app.models.mourning import (
     MourningBanner
 )
 from app.repositories.mourning_repository import MourningRepository
-from app.auth.middleware import require_steward
+from app.auth.middleware import require_steward, require_auth
 from app.auth.models import User
 from fastapi import Depends
 
@@ -138,7 +138,7 @@ async def get_active_mourning(cell_id: str):
 @router.post("/memorial/add-entry")
 async def add_memorial_entry(
     request: AddMemorialEntryRequest,
-    user_id: str  # TODO: Get from auth
+    current_user: User = Depends(require_auth)
 ):
     """Add an entry to a memorial.
 
@@ -150,7 +150,7 @@ async def add_memorial_entry(
         entry = MemorialEntry(
             id=f"entry-{uuid.uuid4()}",
             memorial_id=request.memorial_id,
-            author_id=user_id,
+            author_id=current_user.id,
             content=request.content,
             media_url=request.media_url,
             created_at=datetime.utcnow()
@@ -186,7 +186,7 @@ async def get_memorial_entries(memorial_id: str):
 @router.post("/support/offer")
 async def offer_support(
     request: OfferSupportRequest,
-    user_id: str  # TODO: Get from auth
+    current_user: User = Depends(require_auth)
 ):
     """Offer support during mourning.
 
@@ -198,7 +198,7 @@ async def offer_support(
         support = GriefSupport(
             id=f"support-{uuid.uuid4()}",
             mourning_id=request.mourning_id,
-            offered_by=user_id,
+            offered_by=current_user.id,
             support_type=request.support_type,
             details=request.details,
             created_at=datetime.utcnow()

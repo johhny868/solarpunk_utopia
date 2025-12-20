@@ -4,11 +4,13 @@ Data portability and community forking endpoints.
 "Freedom without socialism is privilege, injustice;
 socialism without freedom is slavery and brutality." - Bakunin
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 
+from app.auth.middleware import require_auth, require_admin_key
+from app.auth.models import User
 from app.services.fork_rights_service import ForkRightsService
 from app.models.fork_rights import (
     DataExportRequest,
@@ -61,7 +63,7 @@ class LeaveCommunityRequest(BaseModel):
 @router.post("/export-data")
 async def request_data_export(
     request: ExportDataRequest,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Request a data export.
 
@@ -79,7 +81,7 @@ async def request_data_export(
     try:
         service = ForkRightsService()
         export_request = service.request_data_export(
-            user_id=user_id,
+            user_id=current_user.id,
             export_type=request.export_type
         )
 
@@ -95,12 +97,12 @@ async def request_data_export(
 
 @router.get("/export-data/status")
 async def get_export_status(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Get status of most recent data export request."""
     try:
         service = ForkRightsService()
-        export_request = service.repo.get_export_request(user_id)
+        export_request = service.repo.get_export_request(current_user.id)
 
         if not export_request:
             return {
@@ -118,7 +120,7 @@ async def get_export_status(
 
 @router.get("/export-data/download")
 async def download_export(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Download completed export file.
 
@@ -126,7 +128,7 @@ async def download_export(
     """
     try:
         service = ForkRightsService()
-        export_request = service.repo.get_export_request(user_id)
+        export_request = service.repo.get_export_request(current_user.id)
 
         if not export_request:
             raise HTTPException(status_code=404, detail="No export request found")
@@ -150,7 +152,7 @@ async def download_export(
 
 @router.post("/export-data/generate")
 async def generate_export_now(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Generate data export immediately (synchronous).
 
@@ -162,16 +164,16 @@ async def generate_export_now(
 
         # Create request
         request = service.request_data_export(
-            user_id=user_id,
+            user_id=current_user.id,
             export_type="data_only"
         )
 
         # Generate export file
-        export_path = service.generate_export_file(user_id)
+        export_path = service.generate_export_file(current_user.id)
 
         # Update request status
         service.repo.update_export_status(
-            user_id=user_id,
+            user_id=current_user.id,
             requested_at=request.requested_at,
             status="complete",
             export_url=export_path
@@ -190,7 +192,7 @@ async def generate_export_now(
 # Connection Export Consent
 @router.get("/connection-consents/pending")
 async def get_pending_consents(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Get pending connection export consent requests.
 
@@ -199,7 +201,7 @@ async def get_pending_consents(
     """
     try:
         service = ForkRightsService()
-        consents = service.get_pending_consents(user_id)
+        consents = service.get_pending_consents(current_user.id)
 
         return {
             "status": "success",
@@ -213,7 +215,7 @@ async def get_pending_consents(
 @router.post("/connection-consents/respond")
 async def respond_to_consent(
     response: ConnectionConsentResponse,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Respond to a connection export consent request.
 
@@ -239,7 +241,7 @@ async def respond_to_consent(
 @router.post("/fork-community")
 async def fork_community(
     request: ForkCommunityRequest,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Fork a community.
 
@@ -255,7 +257,7 @@ async def fork_community(
     try:
         service = ForkRightsService()
         fork = service.fork_community(
-            user_id=user_id,
+            user_id=current_user.id,
             original_cell_id=request.original_cell_id,
             new_cell_name=request.new_cell_name,
             fork_reason=request.fork_reason,
@@ -274,7 +276,7 @@ async def fork_community(
 
 @router.get("/fork-invitations/pending")
 async def get_pending_fork_invitations(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Get pending fork invitations.
 
@@ -283,7 +285,7 @@ async def get_pending_fork_invitations(
     """
     try:
         service = ForkRightsService()
-        invitations = service.get_pending_fork_invitations(user_id)
+        invitations = service.get_pending_fork_invitations(current_user.id)
 
         return {
             "status": "success",
@@ -297,7 +299,7 @@ async def get_pending_fork_invitations(
 @router.post("/fork-invitations/respond")
 async def respond_to_fork_invitation(
     response: ForkInvitationResponse,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Respond to a fork invitation.
 
@@ -309,7 +311,7 @@ async def respond_to_fork_invitation(
     try:
         service = ForkRightsService()
         service.respond_to_fork_invitation(
-            user_id=user_id,
+            user_id=current_user.id,
             invitation_id=response.invitation_id,
             accept=response.accept
         )
@@ -326,7 +328,7 @@ async def respond_to_fork_invitation(
 @router.post("/leave-community")
 async def leave_community(
     request: LeaveCommunityRequest,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Leave a community.
 
@@ -338,7 +340,7 @@ async def leave_community(
     try:
         service = ForkRightsService()
         service.leave_community(
-            user_id=user_id,
+            user_id=current_user.id,
             cell_id=request.cell_id
         )
 
@@ -354,7 +356,7 @@ async def leave_community(
 # Cleanup
 @router.post("/admin/cleanup-expired")
 async def cleanup_expired_data(
-    admin_key: str  # TODO: Get from admin auth
+    auth: None = Depends(require_admin_key)
 ):
     """Clean up expired consent requests and declined invitations.
 

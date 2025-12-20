@@ -193,8 +193,8 @@ class NetworkMonitor:
                 info = json.loads(result.stdout)
                 return info.get("ssid", "").strip('"')
 
-        except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
+            logger.debug(f"nmcli SSID detection failed: {type(e).__name__}")
 
         try:
             # Try macOS
@@ -210,8 +210,8 @@ class NetworkMonitor:
                     if " SSID:" in line:
                         return line.split("SSID:")[1].strip()
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"macOS airport SSID detection failed: {type(e).__name__}")
 
         try:
             # Try Linux iwgetid
@@ -225,8 +225,8 @@ class NetworkMonitor:
             if result.returncode == 0:
                 return result.stdout.strip()
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Linux iwgetid SSID detection failed: {type(e).__name__}")
 
         return None
 
@@ -252,8 +252,8 @@ class NetworkMonitor:
                             info["ip_address"] = match.group(1)
                             info["subnet"] = f"/{match.group(2)}"
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"IP address detection failed: {type(e).__name__}")
 
         try:
             # Get gateway
@@ -271,8 +271,8 @@ class NetworkMonitor:
                         if match:
                             info["gateway"] = match.group(1)
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Gateway detection failed: {type(e).__name__}")
 
         return info
 

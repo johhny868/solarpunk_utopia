@@ -3,10 +3,12 @@
 Plain-language security information for users.
 Anti crypto-priesthood: explain, don't mystify.
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, List
 
+from app.auth.middleware import require_auth
+from app.auth.models import User
 from app.models.security_status import (
     SecurityStatus,
     SecurityExplanation,
@@ -30,7 +32,7 @@ class SetSecurityLevelRequest(BaseModel):
 
 @router.get("/status")
 async def get_security_status(
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Get your current security status in plain English.
 
@@ -49,7 +51,7 @@ async def get_security_status(
             warnings.append("No backup: If you lose your phone, you lose access")
 
         status = SecurityStatus(
-            user_id=user_id,
+            user_id=current_user.id,
             messages_encrypted=True,
             encryption_algorithm="X25519 + XSalsa20-Poly1305",
             identity_verified=True,
@@ -129,7 +131,7 @@ async def get_security_levels():
 @router.post("/set-level")
 async def set_security_level(
     request: SetSecurityLevelRequest,
-    user_id: str  # TODO: Get from auth middleware
+    current_user: User = Depends(require_auth)
 ):
     """Set your security level.
 
@@ -143,7 +145,7 @@ async def set_security_level(
             detail=f"Invalid level: {request.level}. Choose: basic, high, maximum"
         )
 
-    # TODO: Actually update user settings in database
+    # TODO: Actually update user settings in database for current_user.id
 
     level_info = SECURITY_LEVELS[request.level]
 

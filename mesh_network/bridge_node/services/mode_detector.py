@@ -212,8 +212,8 @@ class ModeDetector:
             if result.returncode == 0:
                 return "batman_adv" in result.stdout
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Batman-adv lsmod detection failed: {type(e).__name__}")
 
         return False
 
@@ -235,8 +235,8 @@ class ModeDetector:
                         if len(parts) >= 2:
                             return parts[1].strip()
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Batman interface detection failed: {type(e).__name__}")
 
         return None
 
@@ -253,8 +253,8 @@ class ModeDetector:
             if result.returncode == 0:
                 return "UP" in result.stdout and "state UP" in result.stdout
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Interface status check failed: {type(e).__name__}")
 
         return False
 
@@ -274,8 +274,8 @@ class ModeDetector:
                 if lines:
                     return lines[0]
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Batman version detection failed: {type(e).__name__}")
 
         return None
 
@@ -294,8 +294,8 @@ class ModeDetector:
                 lines = [l for l in result.stdout.split("\n") if l.strip() and not l.startswith("[")]
                 return len(lines)
 
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            logger.debug(f"Mesh peer count failed: {type(e).__name__}")
 
         return 0
 
