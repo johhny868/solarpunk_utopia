@@ -70,8 +70,8 @@ export const valueflowsApi = {
     if (listing_type) params.append('listing_type', listing_type);
     if (community_id) params.append('community_id', community_id);
     const url = `/listings${params.toString() ? '?' + params.toString() : ''}`;
-    const response = await api.get<{ listings: Intent[] }>(url);
-    return response.data.listings || response.data;
+    const response = await api.get<{ listings: Intent[] } | Intent[]>(url);
+    return Array.isArray(response.data) ? response.data : response.data.listings;
   },
 
   getListing: async (id: string): Promise<Intent> => {
@@ -129,8 +129,8 @@ export const valueflowsApi = {
     const params = new URLSearchParams();
     if (community_id) params.append('community_id', community_id);
     const url = `/matches${params.toString() ? '?' + params.toString() : ''}`;
-    const response = await api.get<{ matches: Match[]; count: number }>(url);
-    return response.data.matches || response.data;
+    const response = await api.get<{ matches: Match[]; count: number } | Match[]>(url);
+    return Array.isArray(response.data) ? response.data : response.data.matches;
   },
 
   getMatch: async (id: string): Promise<Match> => {
@@ -180,8 +180,8 @@ export const valueflowsApi = {
     const params = new URLSearchParams();
     if (community_id) params.append('community_id', community_id);
     const url = `/exchanges${params.toString() ? '?' + params.toString() : ''}`;
-    const response = await api.get<{ exchanges: Exchange[]; count: number }>(url);
-    return response.data.exchanges || response.data;
+    const response = await api.get<{ exchanges: Exchange[]; count: number } | Exchange[]>(url);
+    return Array.isArray(response.data) ? response.data : response.data.exchanges;
   },
 
   getExchange: async (id: string): Promise<Exchange> => {

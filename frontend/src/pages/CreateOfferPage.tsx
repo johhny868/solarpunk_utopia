@@ -24,7 +24,7 @@ export function CreateOfferPage() {
   const [availableFrom, setAvailableFrom] = useState('');
   const [availableUntil, setAvailableUntil] = useState('');
   const [note, setNote] = useState('');
-  const [visibility, setVisibility] = useState<string>('trusted_network');
+  const [visibility, setVisibility] = useState<'my_cell' | 'my_community' | 'trusted_network' | 'anyone_local' | 'network_wide'>('trusted_network');
   const [anonymous, setAnonymous] = useState(false);  // GAP-61: Emma Goldman
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -253,7 +253,7 @@ export function CreateOfferPage() {
           {/* Visibility */}
           <VisibilitySelector
             value={visibility}
-            onChange={setVisibility}
+            onChange={(val) => setVisibility(val as any)}
           />
 
           {/* GAP-61: Anonymous Gift Toggle */}

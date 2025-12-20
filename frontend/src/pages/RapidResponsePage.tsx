@@ -12,10 +12,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import Loading from '../components/Loading';
-import ErrorMessage from '../components/ErrorMessage';
+import { Button } from '../components/Button';
+import { Card } from '../components/Card';
+import { Loading } from '../components/Loading';
+import { ErrorMessage } from '../components/ErrorMessage';
 
 interface Alert {
   id: string;
@@ -55,7 +55,7 @@ const ALERT_LEVELS = ['critical', 'urgent', 'watch'] as const;
 const ALERT_TYPES = ['ice_raid', 'checkpoint', 'detention', 'workplace_raid', 'threat', 'other'] as const;
 
 const RapidResponsePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [activeAlerts, setActiveAlerts] = useState<Alert[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [responders, setResponders] = useState<Responder[]>([]);
@@ -103,7 +103,7 @@ const RapidResponsePage: React.FC = () => {
 
       const response = await fetch(`/api/rapid-response/alerts/active/${cellId}`, {
         headers: {
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -126,7 +126,7 @@ const RapidResponsePage: React.FC = () => {
     try {
       const response = await fetch(`/api/rapid-response/alerts/${alertId}`, {
         headers: {
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -153,7 +153,7 @@ const RapidResponsePage: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           alert_type: alertType,
@@ -191,7 +191,7 @@ const RapidResponsePage: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           alert_id: selectedAlert.id,
@@ -224,7 +224,7 @@ const RapidResponsePage: React.FC = () => {
       const response = await fetch(`/api/rapid-response/alerts/${alertId}/confirm`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -250,7 +250,7 @@ const RapidResponsePage: React.FC = () => {
       const response = await fetch(`/api/rapid-response/alerts/${alertId}/claim-coordinator`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${user.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -373,7 +373,7 @@ const RapidResponsePage: React.FC = () => {
                   <div className="ml-4 flex flex-col gap-2">
                     {!alert.confirmed && alert.alert_level === 'critical' && (
                       <Button
-                        size="small"
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           confirmAlert(alert.id);
@@ -384,7 +384,7 @@ const RapidResponsePage: React.FC = () => {
                     )}
                     {!alert.coordinator_id && (
                       <Button
-                        size="small"
+                        size="sm"
                         variant="secondary"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -395,7 +395,7 @@ const RapidResponsePage: React.FC = () => {
                       </Button>
                     )}
                     <Button
-                      size="small"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedAlert(alert);
