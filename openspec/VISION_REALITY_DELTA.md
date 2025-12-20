@@ -958,6 +958,296 @@ user_trust = 0.9  # Placeholder
 
 ---
 
+## Session 6 Gaps: Autonomous Deep Analysis (2025-12-20)
+
+### NEW CRITICAL GAPS
+
+---
+
+### GAP-134: Steward Verification Missing Across 15+ Endpoints
+**Severity**: CRITICAL (Security/Authorization)
+**Locations**:
+- `app/api/mycelial_strike.py:284, 314` - Strike override and user whitelist
+- `app/api/saturnalia.py:146, 184, 282, 306` - Saturnalia steward actions
+- `app/api/ancestor_voting.py:149, 282, 328, 390` - Memorial fund management
+- `app/api/economic_withdrawal.py:240, 387, 473` - Campaign management
+- `app/api/sanctuary.py:167` - Sanctuary verification
+- `app/api/resilience_metrics.py:334` - Cell-level trends
+
+**Claimed**: "Steward-only actions" across multiple features
+**Reality**: All endpoints have `# TODO: Check if user is a steward` - no actual verification
+```python
+# Example from mycelial_strike.py:284
+# TODO: Check if user is a steward
+# (verification code missing - proceeds to execute action)
+```
+**Fix**: Add steward verification dependency:
+```python
+async def verify_is_steward(trust_service, user_id):
+    trust = trust_service.compute_trust_score(user_id)
+    if trust.computed_trust < 0.9:
+        raise HTTPException(403, "Steward access required")
+```
+
+---
+
+### GAP-135: Panic Service "All Clear" Never Sent
+**Severity**: HIGH
+**Location**: `app/services/panic_service.py:264-265`
+**Claimed**: Burn notice resolution restores trust and notifies network
+**Reality**: Status updated but network never notified:
+```python
+# Mark as resolved
+self.repo.update_burn_notice_status(notice_id, BurnNoticeStatus.RESOLVED)
+
+# TODO: Send "all clear" message to network
+# TODO: Restore trust score
+```
+**Fix**: Integrate with bundle service to propagate "all clear" and call trust service to restore score.
+
+---
+
+### GAP-136: Resilience Metrics Flow Score Uses Zero Exchanges
+**Severity**: HIGH
+**Location**: `app/services/resilience_metrics_service.py:179-186`
+**Claimed**: "Resilience Metrics ✅ IMPLEMENTED - Full stack"
+**Reality**: Flow metric always returns score based on `total_exchanges = 0`:
+```python
+# Get exchange count in period (placeholder - need ValueFlows implementation)
+# For now, return placeholder values
+# TODO: Query actual exchanges from ValueFlows commitment/fulfillment tables
+
+# Placeholder: count some activity as proxy
+total_exchanges = 0  # ALWAYS ZERO!
+```
+**Fix**: Query actual exchange data from ValueFlows tables.
+
+---
+
+### GAP-137: Saturnalia Role Swap Not Implemented
+**Severity**: MEDIUM
+**Location**: `app/services/saturnalia_service.py:356-364`
+**Claimed**: "Saturnalia Protocol ✅ IMPLEMENTED" - Role rotation
+**Reality**: Core feature is placeholder:
+```python
+def _activate_role_swap_mode(self, event: SaturnaliaEvent) -> None:
+    """Activate role swap mode (placeholder - needs integration with actual roles system)."""
+    # TODO: This would need to:
+    # 1. Query current stewards
+    # 2. Select random new stewards from trusted members
+    # 3. Create role swaps
+    # 4. Update permissions
+    # For now, this is a placeholder
+    pass
+```
+**Fix**: Implement actual role swap using trust scores and permission system.
+
+---
+
+### GAP-138: Saturnalia Scheduled Events Return Empty
+**Severity**: MEDIUM
+**Location**: `app/services/saturnalia_service.py:391-396`
+**Reality**: Scheduled event check is stub:
+```python
+def check_scheduled_events(self) -> List[SaturnaliaEvent]:
+    """Check for configs that should trigger scheduled events."""
+    # This would be called periodically (e.g., daily cron)
+    # For now, return empty list
+    # TODO: Implement scheduled event triggering
+    return []
+```
+**Fix**: Implement scheduled event logic and cron integration.
+
+---
+
+### GAP-139: Care Outreach Resource Connection Not Implemented
+**Severity**: HIGH
+**Location**: `app/services/care_outreach_service.py:224-229`
+**Claimed**: "Saboteur Conversion" outreach connects users to resources
+**Reality**: Needs assessment saved but never acted on:
+```python
+# TODO: Actually connect to resources
+# This would integrate with:
+# - Housing cell
+# - Food distribution
+# - Work opportunities
+# - Community events
+```
+**Fix**: Implement resource routing after needs assessment.
+
+---
+
+### GAP-140: Frontend Auth Context Hardcoded in Multiple Pages
+**Severity**: HIGH
+**Locations**:
+- `frontend/src/pages/NeedsPage.tsx:21` - `// TODO: Get current user ID from auth context`
+- `frontend/src/pages/OffersPage.tsx:21` - Same issue
+- `frontend/src/pages/ExchangesPage.tsx:16` - Same issue
+- `frontend/src/pages/MessagesPage.tsx:17` - Same issue
+- `frontend/src/pages/MessageThreadPage.tsx:21` - Same issue
+- `frontend/src/pages/RapidResponsePage.tsx:101, 149` - Hardcoded cell_id
+- `frontend/src/components/Navigation.tsx:34` - Hardcoded user ID
+
+**Claimed**: Auth context provides user identity
+**Reality**: Many pages have hardcoded user IDs or placeholder comments
+**Fix**: Ensure all pages use `useUser()` hook consistently.
+
+---
+
+### GAP-141: Rapid Response Statistics Always Zero
+**Severity**: MEDIUM
+**Location**: `app/services/rapid_response_service.py:408-425`
+**Claimed**: Cell-level rapid response statistics
+**Reality**: Hardcoded zeros with TODO:
+```python
+def get_cell_statistics(self, cell_id: str, days: int = 30) -> dict:
+    # TODO: Implement statistics
+    return {
+        "total_alerts": 0,
+        "by_level": {"critical": 0, "urgent": 0, "watch": 0},
+        "avg_response_time_minutes": 0,
+        "avg_responders": 0,
+        "resolution_rate": 0.0
+    }
+```
+**Fix**: Query actual alerts from database and compute real statistics.
+
+---
+
+### GAP-142: Governance Service Cell Members is Placeholder
+**Severity**: HIGH
+**Location**: `app/services/governance_service.py:49-51, 230-233`
+**Claimed**: Voting sessions use actual cell membership
+**Reality**: Returns placeholder data:
+```python
+# TODO: This should query the cells/members system
+# For now, we'll require eligible_voters to be passed in or use a default
+# ...
+# Placeholder - in real implementation, query from cells table
+```
+**Fix**: Integrate with actual cell membership system.
+
+---
+
+### GAP-143: GPS Coordinates Never Obtained
+**Severity**: LOW
+**Location**: `app/api/rapid_response.py:128-132`
+**Reality**: Coordinates always None:
+```python
+# TODO: Get coordinates if requested
+coordinates = None
+if request.include_coordinates:
+    # In production, get from device GPS
+    coordinates = None  # Never actually gets coordinates
+```
+**Fix**: This is frontend responsibility - ensure frontend sends coordinates when available.
+
+---
+
+### GAP-144: Agent TODOs in Multiple Agents (Consolidated)
+**Severity**: MEDIUM
+**Locations** (77+ TODOs across agent files):
+- `app/agents/conscientization.py:94, 121, 155, 181` - Content analysis not implemented
+- `app/agents/governance_circle.py:87, 107, 126` - No database queries
+- `app/agents/inventory_agent.py:247` - No VF Events query
+- `app/agents/commons_router.py:83` - No cache state query
+- `app/agents/conquest_of_bread.py:93` - No inventory query
+- `app/agents/radical_inclusion.py:83, 164, 183, 271` - Multiple missing queries
+- `app/agents/gift_flow.py:100, 211, 244` - VF Events not queried
+- `app/agents/insurrectionary_joy.py:95, 119` - Work/play events not queried
+- `app/agents/education_pathfinder.py:88, 120` - Skills not queried
+- `app/agents/permaculture_planner.py:177` - LLM not called
+- `app/agents/work_party_scheduler.py:375` - Weather API not integrated
+- `app/agents/counter_power.py:102, 121, 142, 162` - Patterns not queried
+
+**Pattern**: Agents have analysis() methods but return mock data or empty results
+**Fix**: Systematically implement database queries and VFClient integration for each agent.
+
+---
+
+### GAP-145: Forwarding Service Body Empty
+**Severity**: MEDIUM
+**Location**: `app/services/forwarding_service.py:23`
+**Reality**: Abstract method with `pass`:
+```python
+def forward(self, ...):
+    pass
+```
+**Fix**: Implement actual forwarding logic.
+
+---
+
+### GAP-146: TTL Service Silently Swallows Errors
+**Severity**: LOW
+**Location**: `app/services/ttl_service.py:59`
+**Reality**: Exceptions caught with `pass` - no logging or error handling
+**Fix**: Add logging for debugging production issues.
+
+---
+
+### GAP-147: Inter-Community Trust Path Computation Missing
+**Severity**: MEDIUM
+**Location**: `valueflows_node/app/services/inter_community_service.py:119`
+**Claimed**: Cross-community discovery with trust-based filtering
+**Reality**: Uses absolute trust instead of bidirectional path:
+```python
+# For MVP, we use the creator's absolute trust score
+# In a full implementation, we'd compute trust path from viewer to creator
+# TODO: Implement bidirectional trust path computation
+return creator_trust.computed_trust
+```
+**Fix**: Implement bidirectional trust path when cross-community features are prioritized.
+
+---
+
+## Updated Summary Statistics (Session 6)
+
+### Total Gaps: 70 (Previously 56 + 14 New)
+
+| Severity | Count | Change |
+|----------|-------|--------|
+| CRITICAL | 15 | +1 (GAP-134) |
+| HIGH | 25 | +6 (GAP-135, 136, 139, 140, 142) |
+| MEDIUM | 21 | +5 (GAP-137, 138, 141, 144, 145, 147) |
+| LOW | 9 | +2 (GAP-143, 146) |
+
+### Key Pattern: Steward Verification Missing Everywhere
+
+**GAP-134 is systemic** - 15+ endpoints claim "steward-only" but have zero verification.
+This means:
+- Anyone can create memorial funds
+- Anyone can override mycelial strikes
+- Anyone can trigger saturnalia events
+- Anyone can whitelist users from abuse detection
+- Anyone can manage economic withdrawal campaigns
+
+**Recommended Fix**: Create reusable steward verification dependency and apply to all affected endpoints.
+
+---
+
+### Fix Priority Update (Session 6)
+
+**P0 - CRITICAL (Before Workshop):**
+- GAP-134: Steward verification across all endpoints (SYSTEMIC)
+- GAP-114: Private key wipe (from Session 4, still not verified fixed)
+
+**P1 - HIGH (First Week):**
+- GAP-135: Panic "all clear" network notification
+- GAP-136: Resilience metrics flow score
+- GAP-139: Care outreach resource connection
+- GAP-140: Frontend auth context integration
+- GAP-142: Governance cell membership
+
+**P2 - MEDIUM (First Month):**
+- GAP-137: Saturnalia role swap
+- GAP-138: Saturnalia scheduled events
+- GAP-141: Rapid response statistics
+- GAP-144: Agent database queries (can be done incrementally)
+- GAP-145: Forwarding service implementation
+- GAP-147: Bidirectional trust paths
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-19 (Session 5 - Autonomous Verification)
-**Next Review**: After Workshop Sprint items complete.
+**Last Updated**: 2025-12-20 (Session 6 - Autonomous Deep Analysis)
+**Next Review**: After P0 gaps resolved.
