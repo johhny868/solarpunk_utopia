@@ -8,6 +8,7 @@ it's to imagine what is possible."
 """
 
 import pytest
+import pytest_asyncio
 import asyncio
 import os
 import tempfile
@@ -22,8 +23,10 @@ from app.services.governance_service import GovernanceService
 class TestGovernanceE2E:
     """End-to-end governance flow tests"""
 
-    async def setup_method(self):
-        """Set up test database and service"""
+    @pytest_asyncio.fixture(autouse=True)
+    async def setup_and_teardown(self):
+        """Set up test database and service (pytest-asyncio fixture)"""
+        # Setup
         # Create temp database
         self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
 
@@ -42,8 +45,9 @@ class TestGovernanceE2E:
         # Mock cell members
         self.service._get_cell_members = self._mock_get_cell_members
 
-    async def teardown_method(self):
-        """Teardown test database"""
+        yield  # Run the test
+
+        # Teardown
         os.close(self.db_fd)
         os.unlink(self.db_path)
 
@@ -56,9 +60,9 @@ class TestGovernanceE2E:
 
     @pytest.mark.asyncio
     async def test_full_vote_flow_with_silence_check(self):
-        """E2E test - create vote, cast votes, check silence, extend, close"""
-        await self.setup_method()
         """
+        E2E test - create vote, cast votes, check silence, extend, close
+
         Complete flow: create vote → cast votes → check silence → extend → close
 
         Scenario:
@@ -82,7 +86,7 @@ class TestGovernanceE2E:
         assert session.id is not None
         assert len(session.eligible_voters) == 10
         assert len(session.votes) == 0
-        assert session.silence_weight == 1.0
+        assert session.silence_weight == pytest.approx(1.0)
 
         # Step 2: Three people vote (30% participation)
         await self.service.cast_vote(session.id, "alice", VoteChoice.YES)
@@ -92,8 +96,8 @@ class TestGovernanceE2E:
         # Step 3: Check silence metrics
         metrics = await self.service.check_silence_weight(session.id)
 
-        assert metrics.silence_weight == 0.7  # 7 silent out of 10
-        assert metrics.participation_rate == 0.3
+        assert metrics.silence_weight == pytest.approx(0.7)  # 7 silent out of 10
+        assert metrics.participation_rate == pytest.approx(0.3)
         assert metrics.should_pause == True  # More silent than voted
         assert metrics.has_quorum == False  # Below 50% quorum
         assert metrics.prompt is not None  # Should suggest action
@@ -125,9 +129,9 @@ class TestGovernanceE2E:
         # Step 7: Check metrics again
         metrics = await self.service.check_silence_weight(session.id)
 
-        assert metrics.participation_rate == 0.5  # 5 out of 10
+        assert metrics.participation_rate == pytest.approx(0.5)  # 5 out of 10
         assert metrics.has_quorum == True  # Met 50% quorum!
-        assert metrics.should_pause == True  # Still more silent (5) than voted (5) - edge case
+        assert metrics.should_pause == False  # Equal split (5 vs 5), not "more" silent
 
         # Step 8: One more vote tips the balance
         await self.service.cast_vote(session.id, "frank", VoteChoice.YES)
@@ -150,6 +154,7 @@ class TestGovernanceE2E:
             retrieved_outreach = await self.repo.get_outreach(outreach.id)
             assert retrieved_outreach is None  # Purged for privacy
 
+    @pytest.mark.asyncio
     async def test_critical_vote_requires_quorum(self):
         """
         Critical decisions need high quorum.
@@ -174,7 +179,7 @@ class TestGovernanceE2E:
 
         metrics = await self.service.check_silence_weight(session.id)
 
-        assert metrics.participation_rate == 0.6  # 60%
+        assert metrics.participation_rate == pytest.approx(0.6)  # 60%
         assert metrics.has_quorum == False  # Below 80% requirement
         assert metrics.silent_count == 4  # 4 people silent
 
@@ -184,6 +189,7 @@ class TestGovernanceE2E:
 
             assert final_session.result == "no_quorum"  # Failed due to quorum
 
+    @pytest.mark.asyncio
     async def test_no_shaming_when_all_silent(self):
         """
         When everyone is silent, system respects that.
@@ -204,7 +210,7 @@ class TestGovernanceE2E:
         # No one votes
         metrics = await self.service.check_silence_weight(session.id)
 
-        assert metrics.silence_weight == 1.0
+        assert metrics.silence_weight == pytest.approx(1.0)
         assert metrics.silent_count == 10
         assert metrics.should_pause == True
 
@@ -217,6 +223,7 @@ class TestGovernanceE2E:
         assert len(outreach.sent_to) == 10
         assert "Your voice matters, and so does your silence" in outreach.message
 
+    @pytest.mark.asyncio
     async def test_abstain_counts_as_participation(self):
         """
         Abstaining is a valid choice and counts toward quorum.
@@ -237,9 +244,10 @@ class TestGovernanceE2E:
 
         metrics = await self.service.check_silence_weight(session.id)
 
-        assert metrics.participation_rate == 0.5  # 50% participated
+        assert metrics.participation_rate == pytest.approx(0.5)  # 50% participated
         assert metrics.has_quorum == True  # Abstains count!
 
+    @pytest.mark.asyncio
     async def test_vote_extension_multiple_times(self):
         """Can extend vote multiple times for persistent low turnout"""
 
@@ -261,6 +269,7 @@ class TestGovernanceE2E:
         assert session.extended_count == 2
         assert session.closes_at == original_closes + timedelta(hours=72)
 
+    @pytest.mark.asyncio
     async def test_cannot_vote_after_close(self):
         """Voting after deadline is rejected"""
 
@@ -279,6 +288,7 @@ class TestGovernanceE2E:
             with pytest.raises(ValueError, match="Voting period has closed"):
                 await self.service.cast_vote(session.id, "bob", VoteChoice.YES)
 
+    @pytest.mark.asyncio
     async def test_cannot_vote_if_not_eligible(self):
         """Only eligible voters can vote"""
 
@@ -292,6 +302,7 @@ class TestGovernanceE2E:
         with pytest.raises(ValueError, match="not eligible"):
             await self.service.cast_vote(session.id, "outsider", VoteChoice.YES)
 
+    @pytest.mark.asyncio
     async def test_change_vote(self):
         """Users can change their vote before close"""
 
@@ -311,6 +322,7 @@ class TestGovernanceE2E:
         session = await self.service.get_session(session.id)
         assert session.votes["alice"] == VoteChoice.NO
 
+    @pytest.mark.asyncio
     async def test_vote_result_tie(self):
         """Equal yes/no votes results in tie"""
 
@@ -330,6 +342,7 @@ class TestGovernanceE2E:
             final_session = await self.service.get_session(session.id)
             assert final_session.result == "tie"
 
+    @pytest.mark.asyncio
     async def test_privacy_no_cross_session_tracking(self):
         """
         CRITICAL: Cannot track who is silent across multiple votes.
