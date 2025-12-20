@@ -110,22 +110,23 @@ logger.info(f"CORS configured for origins: {allowed_origins}")
 - [x] Environment variable controls origins (ALLOWED_ORIGINS)
 - [x] Production requires explicit configuration (logs warning if unset)
 - [x] Dev mode has safe defaults (localhost only)
-- [ ] All 5 services updated (app/main.py complete, 4 others remaining)
+- [x] All 5 services updated
 
 ## Implementation Notes (2025-12-19)
 
-COMPLETED for app/main.py:
+COMPLETED for all services:
 - Uses ALLOWED_ORIGINS environment variable
 - Defaults to localhost:3000,5173 and 127.0.0.1:3000,5173
 - Logs warning if env var not set
 - Restricts methods to GET, POST, PUT, DELETE, OPTIONS
 - Configuration documented in .env
 
-REMAINING WORK:
-- valueflows_node/app/main.py
-- discovery_search/main.py
-- file_chunking/main.py
-- mesh_network/bridge_node/main.py
+Services updated:
+- ✅ app/main.py
+- ✅ valueflows_node/app/main.py
+- ✅ discovery_search/main.py
+- ✅ file_chunking/main.py
+- ✅ mesh_network/bridge_node/main.py
 
 ## References
 

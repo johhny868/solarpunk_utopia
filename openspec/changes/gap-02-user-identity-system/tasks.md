@@ -12,7 +12,7 @@ CREATE TABLE users (
     email TEXT UNIQUE,
     name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP,
+    -- NO last_login field - we don't track user activity
     settings JSON DEFAULT '{}'
 );
 
@@ -78,7 +78,7 @@ class User(BaseModel):
     email: Optional[EmailStr] = None
     name: str
     created_at: datetime
-    last_login: Optional[datetime] = None
+    # NO last_login - we don't track when users login
     settings: dict = {}
 
 class UserCreate(BaseModel):
@@ -100,10 +100,10 @@ Methods:
 - `create_user(user_data: UserCreate) -> User`
 - `get_user_by_id(user_id: str) -> Optional[User]`
 - `get_user_by_email(email: str) -> Optional[User]`
-- `update_last_login(user_id: str)`
 - `create_session(user_id: str, ttl_days: int = 7) -> Session`
 - `get_session_by_token(token: str) -> Optional[Session]`
 - `delete_session(token: str)`
+# NOTE: No update_last_login() - we don't track when users login
 
 ### Task 2.3: Create AuthService
 **File**: `app/auth/auth_service.py` (new)

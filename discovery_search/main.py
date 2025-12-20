@@ -4,6 +4,7 @@ Discovery and Search System - Main Application
 Integrates the discovery system with the DTN bundle system.
 """
 
+import os
 import sys
 import asyncio
 import logging
@@ -150,11 +151,27 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Get allowed origins from environment variable
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS")
+
+if not allowed_origins_str:
+    # Development defaults (localhost only)
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+    ]
+    logger.warning("ALLOWED_ORIGINS not set, using development defaults: %s", allowed_origins)
+else:
+    allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+    logger.info("CORS configured for origins: %s", allowed_origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,  # Explicit list from env or dev defaults
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

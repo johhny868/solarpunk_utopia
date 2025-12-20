@@ -4,6 +4,8 @@ ValueFlows Node - FastAPI Application
 Main entry point for the ValueFlows gift economy coordination system.
 """
 
+import os
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -11,6 +13,8 @@ from contextlib import asynccontextmanager
 from .database import initialize_database
 from .api.vf import listings, matches, exchanges, events, agents, resource_specs, commitments, discovery
 from .api import communities, leakage_metrics
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -36,11 +40,27 @@ app = FastAPI(
 )
 
 # CORS middleware (for frontend)
+# Get allowed origins from environment variable
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS")
+
+if not allowed_origins_str:
+    # Development defaults (localhost only)
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+    ]
+    logger.warning("ALLOWED_ORIGINS not set, using development defaults: %s", allowed_origins)
+else:
+    allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+    logger.info("CORS configured for origins: %s", allowed_origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to specific origins
+    allow_origins=allowed_origins,  # Explicit list from env or dev defaults
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
