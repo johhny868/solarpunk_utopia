@@ -123,6 +123,9 @@ CREATE TABLE IF NOT EXISTS listings (
     status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'fulfilled', 'expired', 'cancelled')),
     resource_instance_id TEXT,
     community_id TEXT,
+    visibility TEXT CHECK(visibility IN (
+        'my_cell', 'my_community', 'trusted_network', 'anyone_local', 'network_wide'
+    )),  -- If NULL, use user's sharing_preference
     created_at TEXT NOT NULL,
     updated_at TEXT,
     author TEXT,
