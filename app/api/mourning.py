@@ -80,7 +80,7 @@ async def activate_mourning(
             honoring=request.honoring,
             description=request.description,
             duration_days=request.duration_days,
-            created_by=steward_id
+            created_by=steward.id
         )
 
         repo.create_mourning_period(mourning)

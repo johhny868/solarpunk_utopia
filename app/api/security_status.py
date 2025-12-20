@@ -9,6 +9,7 @@ from typing import Optional, List
 
 from app.auth.middleware import require_auth
 from app.auth.models import User
+from app.auth.service import get_auth_service
 from app.models.security_status import (
     SecurityStatus,
     SecurityExplanation,
@@ -40,13 +41,16 @@ async def get_security_status(
     No jargon. No techno-mysticism.
     """
     try:
-        # TODO: Get actual user settings from database
-        # For now, return example status
+        auth_service = get_auth_service()
+        settings = await auth_service.get_user_settings(current_user.id)
 
         warnings = []
 
         # Check if user has backup
-        has_backup = False  # TODO: Check actual backup status
+        has_backup = settings.get("has_backup", False)
+        backup_method = settings.get("backup_method")
+        security_level = settings.get("security_level", "basic")
+
         if not has_backup:
             warnings.append("No backup: If you lose your phone, you lose access")
 
@@ -57,8 +61,8 @@ async def get_security_status(
             identity_verified=True,
             signature_algorithm="Ed25519",
             has_backup=has_backup,
-            backup_method=None,
-            security_level="basic",
+            backup_method=backup_method,
+            security_level=security_level,
             warnings=warnings
         )
 
@@ -68,7 +72,7 @@ async def get_security_status(
             "plain_english": {
                 "messages": "✅ Encrypted - only recipients can read",
                 "identity": "✅ Verified - signed with your key",
-                "backup": "⚠️ Not backed up - save your seed phrase!"
+                "backup": "✅ Backed up" if has_backup else "⚠️ Not backed up - save your seed phrase!"
             }
         }
     except Exception as e:
@@ -109,7 +113,9 @@ async def explain_feature(feature: str):
 
 
 @router.get("/levels")
-async def get_security_levels():
+async def get_security_levels(
+    current_user: User = Depends(require_auth)
+):
     """Get available security levels.
 
     Basic → High → Maximum
@@ -117,13 +123,17 @@ async def get_security_levels():
     Each level adds more protection (and more friction).
     Choose what fits your threat model.
     """
+    auth_service = get_auth_service()
+    settings = await auth_service.get_user_settings(current_user.id)
+    current_level = settings.get("security_level", "basic")
+
     return {
         "status": "success",
         "levels": {
             level: data.dict()
             for level, data in SECURITY_LEVELS.items()
         },
-        "current": "basic",  # TODO: Get from user settings
+        "current": current_level,
         "note": "Higher levels = more security, more friction. Choose what you need."
     }
 
@@ -145,7 +155,11 @@ async def set_security_level(
             detail=f"Invalid level: {request.level}. Choose: basic, high, maximum"
         )
 
-    # TODO: Actually update user settings in database for current_user.id
+    # Update user settings in database
+    auth_service = get_auth_service()
+    settings = await auth_service.get_user_settings(current_user.id)
+    settings["security_level"] = request.level
+    await auth_service.update_user_settings(current_user.id, settings)
 
     level_info = SECURITY_LEVELS[request.level]
 

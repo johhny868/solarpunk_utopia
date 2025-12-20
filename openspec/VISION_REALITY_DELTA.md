@@ -10,19 +10,17 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 72 (14 CRITICAL, 24 HIGH, 21 MEDIUM, 9 LOW)
-**Session 7 Update**: 2 gaps VERIFIED FIXED (GAP-134, GAP-136), 6 new gaps discovered
+**Total Gaps Found**: 72 (14 CRITICAL, 21 HIGH, 21 MEDIUM, 9 LOW)
+**Session 8 Update**: 5 gaps FIXED (GAP-134, GAP-136, GAP-148, GAP-149, GAP-150)
 
-### Session 7 Progress (2025-12-20)
+### Session 8 Progress (2025-12-20)
 
 **FIXED:**
 - ✅ **GAP-134**: Steward verification now properly implemented (`require_steward` middleware)
 - ✅ **GAP-136**: Resilience metrics now queries actual ValueFlows database
-
-**NEW ISSUES:**
-- ❌ **GAP-148**: Fork Rights API - ALL 11 endpoints missing auth
-- ❌ **GAP-149**: Security Status API - Missing auth and settings persistence
-- ❌ **GAP-150**: Mourning API - Partial auth (3/5 endpoints fixed)
+- ✅ **GAP-148**: Fork Rights API - All 11 endpoints now use `current_user: User = Depends(require_auth)`
+- ✅ **GAP-149**: Security Status API - Auth integrated + settings persistence implemented via AuthService
+- ✅ **GAP-150**: Mourning API - All 5 endpoints now have proper auth (2 use `require_auth`, 3 use `require_steward`)
 
 ### Session 4 Alert: "Implemented" Features Are Facades
 

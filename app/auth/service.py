@@ -163,6 +163,33 @@ class AuthService:
 
         return True
 
+    async def update_user_settings(self, user_id: str, settings: dict) -> bool:
+        """Update user settings"""
+        db = await get_db()
+
+        await db.execute(
+            "UPDATE users SET settings = ? WHERE id = ?",
+            (json.dumps(settings), user_id)
+        )
+        await db.commit()
+
+        return True
+
+    async def get_user_settings(self, user_id: str) -> dict:
+        """Get user settings"""
+        db = await get_db()
+
+        cursor = await db.execute(
+            "SELECT settings FROM users WHERE id = ?",
+            (user_id,)
+        )
+        row = await cursor.fetchone()
+
+        if not row or not row[0]:
+            return {}
+
+        return json.loads(row[0])
+
     async def _create_session(self, user_id: str) -> Session:
         """Create a new session for user"""
         db = await get_db()
