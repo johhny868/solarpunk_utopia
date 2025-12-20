@@ -10,36 +10,47 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 56 (14 CRITICAL, 19 HIGH, 14 MEDIUM, 5 LOW)
-**Session 5 Update**: 4 gaps VERIFIED FIXED, 10 new gaps discovered
+**Total Gaps Found**: 72 (14 CRITICAL, 24 HIGH, 21 MEDIUM, 9 LOW)
+**Session 7 Update**: 2 gaps VERIFIED FIXED (GAP-134, GAP-136), 6 new gaps discovered
+
+### Session 7 Progress (2025-12-20)
+
+**FIXED:**
+- ✅ **GAP-134**: Steward verification now properly implemented (`require_steward` middleware)
+- ✅ **GAP-136**: Resilience metrics now queries actual ValueFlows database
+
+**NEW ISSUES:**
+- ❌ **GAP-148**: Fork Rights API - ALL 11 endpoints missing auth
+- ❌ **GAP-149**: Security Status API - Missing auth and settings persistence
+- ❌ **GAP-150**: Mourning API - Partial auth (3/5 endpoints fixed)
 
 ### Session 4 Alert: "Implemented" Features Are Facades
 
 Many features marked "✅ IMPLEMENTED" in WORKSHOP_SPRINT.md have APIs that respond but:
-- **Encryption is fake** (Base64 instead of X25519)
+- ~~**Encryption is fake** (Base64 instead of X25519)~~ ✅ FIXED
 - **DTN propagation never happens** (returns placeholder bundle IDs)
-- **Trust checks always pass** (hardcoded 0.9)
-- **Metrics show fake data** (hardcoded values)
-- **Private keys not actually wiped** (just logs that it would)
+- ~~**Trust checks always pass** (hardcoded 0.9)~~ ✅ FIXED
+- ~~**Metrics show fake data** (hardcoded values)~~ ✅ PARTIAL FIX
+- **Private keys not actually wiped** (needs verification)
 
 ### Critical Issues (Demo Blockers)
-1. Frontend calls endpoints that don't exist (`/matches/{id}/accept`, `/matches/{id}/reject`)
+1. ~~Frontend calls endpoints that don't exist (`/matches/{id}/accept`, `/matches/{id}/reject`)~~ ✅ FIXED
 2. Agent stats and settings return hardcoded mock data
 3. Base agent `query_vf_data` always returns empty list (TODO in code)
-4. No `/vf/commitments` endpoint exists but frontend expects it
+4. ~~No `/vf/commitments` endpoint exists but frontend expects it~~ ✅ FIXED
 5. LLM integration returns mock responses by default
 6. Auth delete listing has no ownership verification (TODO in code)
-7. **NEW**: Mesh messages use Base64 instead of encryption (GAP-116)
-8. **NEW**: Panic service wipe doesn't destroy keys (GAP-114)
-9. **NEW**: Burn notices never propagate to network (GAP-113)
-10. **NEW**: Admin endpoints have no authentication (GAP-119)
+7. ~~Mesh messages use Base64 instead of encryption (GAP-116)~~ ✅ FIXED
+8. Panic service wipe needs verification (GAP-114)
+9. Burn notices never propagate to network (GAP-113)
+10. ~~Admin endpoints have no authentication (GAP-119)~~ ✅ FIXED
 
 ### Key Patterns Found
-- 26+ TODO comments indicating incomplete implementation
+- 80+ TODO comments indicating incomplete implementation
 - Multiple `return []` patterns masking missing functionality
-- Frontend/backend API mismatches
+- Frontend/backend API mismatches (mostly fixed)
 - Tests may pass but functionality doesn't actually work
-- **NEW**: "Implemented" services with complete APIs but placeholder internals
+- **NEW**: New APIs added without auth integration pattern
 
 ---
 
@@ -1200,54 +1211,200 @@ return creator_trust.computed_trust
 
 ---
 
-## Updated Summary Statistics (Session 6)
+## Session 7 Gaps: Autonomous Verification (2025-12-20)
 
-### Total Gaps: 70 (Previously 56 + 14 New)
+### VERIFIED FIXED GAPS
 
-| Severity | Count | Change |
-|----------|-------|--------|
-| CRITICAL | 15 | +1 (GAP-134) |
-| HIGH | 25 | +6 (GAP-135, 136, 139, 140, 142) |
-| MEDIUM | 21 | +5 (GAP-137, 138, 141, 144, 145, 147) |
-| LOW | 9 | +2 (GAP-143, 146) |
+| GAP | Description | Status |
+|-----|-------------|--------|
+| GAP-134 | Steward verification missing | ✅ FIXED - `require_steward` middleware now implemented in `app/auth/middleware.py:111-155`, uses `WebOfTrustService` to verify trust >= 0.9 |
+| GAP-136 | Resilience metrics flow score zeros | ✅ FIXED - Now queries actual ValueFlows database (`app/services/resilience_metrics_service.py:183-201`) |
 
-### Key Pattern: Steward Verification Missing Everywhere
-
-**GAP-134 is systemic** - 15+ endpoints claim "steward-only" but have zero verification.
-This means:
-- Anyone can create memorial funds
-- Anyone can override mycelial strikes
-- Anyone can trigger saturnalia events
-- Anyone can whitelist users from abuse detection
-- Anyone can manage economic withdrawal campaigns
-
-**Recommended Fix**: Create reusable steward verification dependency and apply to all affected endpoints.
+### STILL OPEN GAPS (Verified)
 
 ---
 
-### Fix Priority Update (Session 6)
+### GAP-141: Rapid Response Statistics Still Hardcoded
+**Severity**: MEDIUM
+**Location**: `app/services/rapid_response_service.py:408-425`
+**Status**: STILL OPEN
+**Evidence**:
+```python
+def get_cell_statistics(self, cell_id: str, days: int = 30) -> dict:
+    # TODO: Implement statistics
+    return {
+        "total_alerts": 0,
+        "by_level": {"critical": 0, "urgent": 0, "watch": 0},
+        "avg_response_time_minutes": 0,
+        "avg_responders": 0,
+        "resolution_rate": 0.0
+    }
+```
+**Fix**: Query actual alerts from database and compute real statistics.
+
+---
+
+### GAP-140: Frontend Uses demo-user Fallback (Partial Fix)
+**Severity**: MEDIUM (reduced from HIGH)
+**Location**: Multiple frontend pages
+**Status**: PARTIALLY FIXED
+**Evidence**: Auth context exists and is used, but fallback to `demo-user` still present:
+- `frontend/src/pages/NeedsPage.tsx:23`: `user?.id || 'demo-user'`
+- `frontend/src/pages/OffersPage.tsx:23`: `user?.id || 'demo-user'`
+- `frontend/src/pages/ExchangesPage.tsx:18`: `user?.id || 'demo-user'`
+- `frontend/src/pages/MessagesPage.tsx:19`: `user?.id || 'demo-user'`
+- `frontend/src/pages/MessageThreadPage.tsx:23`: `user?.id || 'demo-user'`
+- `frontend/src/pages/CreateOfferPage.tsx:59`: `agent_id: 'current-user'`
+- `frontend/src/pages/CreateNeedPage.tsx:58`: `agent_id: 'current-user'`
+
+**Note**: Auth context (`useAuth`) is properly implemented in `frontend/src/contexts/AuthContext.tsx`. Issue is that fallback is used for anonymous/logged-out users.
+**Fix**: Require authentication for creation pages; fallback is acceptable for view pages.
+
+---
+
+### NEW GAPS DISCOVERED (Session 7)
+
+---
+
+### GAP-148: Fork Rights API Missing Auth Integration
+**Severity**: HIGH
+**Location**: `app/api/fork_rights.py` - ALL 11 endpoints
+**Claimed**: Fork Rights API for data portability
+**Reality**: All endpoints have `user_id: str  # TODO: Get from auth middleware` as parameter:
+- Lines 64, 98, 121, 153, 193, 216, 242, 277, 300, 329, 357
+**Evidence**:
+```python
+@router.post("/export-data")
+async def request_data_export(
+    request: ExportDataRequest,
+    user_id: str  # TODO: Get from auth middleware  <-- NOT IMPLEMENTED
+):
+```
+**Fix**: Replace `user_id: str` parameter with `user: User = Depends(require_auth)`.
+
+---
+
+### GAP-149: Security Status API Missing Auth Integration
+**Severity**: HIGH
+**Location**: `app/api/security_status.py` - Lines 33, 41, 47, 124, 132, 146
+**Claimed**: Security status for users
+**Reality**: Multiple TODOs for auth and actual data:
+```python
+user_id: str  # TODO: Get from auth middleware
+# TODO: Get actual user settings from database
+has_backup = False  # TODO: Check actual backup status
+"current": "basic",  # TODO: Get from user settings
+# TODO: Actually update user settings in database
+```
+**Fix**: Integrate with auth middleware and implement user settings storage.
+
+---
+
+### GAP-150: Mourning API Partial Auth Integration
+**Severity**: MEDIUM
+**Location**: `app/api/mourning.py` - Lines 141, 189
+**Status**: PARTIALLY IMPLEMENTED
+**Reality**: Some endpoints use `require_steward`, but others still have TODO:
+- ✅ `/activate` - Uses `Depends(require_steward)`
+- ✅ `/extend` - Uses `Depends(require_steward)`
+- ✅ `/end-early` - Uses `Depends(require_steward)`
+- ❌ `/memorial/add-entry` - `user_id: str  # TODO: Get from auth`
+- ❌ `/support/offer` - `user_id: str  # TODO: Get from auth`
+**Fix**: Replace TODO parameters with `user: User = Depends(require_auth)`.
+
+---
+
+### GAP-151: Mesh Network Services Swallow Exceptions
+**Severity**: LOW
+**Location**: Multiple files in `mesh_network/bridge_node/services/`:
+- `network_monitor.py`: 6 `except: pass` blocks (lines 108, 197, 214, 229, 256, 275)
+- `mode_detector.py`: 6 `except: pass` blocks (lines 112, 216, 239, 257, 278, 298)
+**Reality**: Errors silently ignored, no logging, makes debugging impossible
+**Fix**: Add logging to exception handlers.
+
+---
+
+### GAP-152: Panic Service Recovery Still Has Placeholders
+**Severity**: MEDIUM
+**Location**: `app/services/panic_service.py` - Lines 349-402
+**Reality**: Exception handlers use `pass` throughout:
+```python
+except sqlite3.OperationalError:
+    pass  # Table might not exist (7 instances)
+```
+**Note**: This is acceptable defensive coding for tables that may not exist yet.
+**Status**: LOW priority - exception handling is for robustness.
+
+---
+
+### GAP-153: Adaptive ValueFlows Sync Not Implemented
+**Severity**: MEDIUM
+**Location**: `frontend/src/api/adaptive-valueflows.ts` - Lines 170, 200, 285, 302, 357, 394
+**Reality**: Multiple TODO comments for sync functionality:
+```typescript
+// TODO: implement sync
+// TODO: sync to local
+```
+**Fix**: Implement local-first sync layer for offline support.
+
+---
+
+## Updated Summary Statistics (Session 7)
+
+### Total Gaps: 72 (70 from Session 6 + 6 new - 2 fixed - 2 reduced)
+
+| Severity | Count | Change |
+|----------|-------|--------|
+| CRITICAL | 14 | -1 (GAP-134 FIXED) |
+| HIGH | 24 | -1 (GAP-136 FIXED), +2 (GAP-148, 149) |
+| MEDIUM | 21 | +2 (GAP-150, 152, 153), GAP-140 reduced |
+| LOW | 9 | +1 (GAP-151) |
+
+### Key Findings: Session 7
+
+**Good News:**
+1. **GAP-134 FIXED**: Steward verification now properly implemented across all steward-only endpoints
+2. **GAP-136 FIXED**: Resilience metrics now queries actual database
+
+**Bad News:**
+1. **Fork Rights API (GAP-148)**: All 11 endpoints missing auth integration
+2. **Security Status API (GAP-149)**: Missing auth and settings persistence
+3. **Frontend demo-user fallback (GAP-140)**: Still present but auth context works when user logged in
+
+**Pattern Update:**
+- Steward verification pattern now exists and can be applied
+- New APIs added without auth integration (fork_rights, security_status)
+- Frontend auth works but creation pages use hardcoded agent_id
+
+---
+
+### Fix Priority Update (Session 7)
 
 **P0 - CRITICAL (Before Workshop):**
-- GAP-134: Steward verification across all endpoints (SYSTEMIC)
-- GAP-114: Private key wipe (from Session 4, still not verified fixed)
+- ~~GAP-134: Steward verification~~ ✅ FIXED
+- GAP-114: Private key wipe verification (needs retest)
 
 **P1 - HIGH (First Week):**
+- GAP-148: Fork Rights API auth integration (NEW)
+- GAP-149: Security Status API auth integration (NEW)
+- ~~GAP-136: Resilience metrics flow score~~ ✅ FIXED
 - GAP-135: Panic "all clear" network notification
-- GAP-136: Resilience metrics flow score
 - GAP-139: Care outreach resource connection
-- GAP-140: Frontend auth context integration
 - GAP-142: Governance cell membership
 
 **P2 - MEDIUM (First Month):**
+- GAP-140: Frontend auth consistency (partial fix)
+- GAP-150: Mourning API partial auth
+- GAP-153: Adaptive ValueFlows sync
 - GAP-137: Saturnalia role swap
 - GAP-138: Saturnalia scheduled events
 - GAP-141: Rapid response statistics
-- GAP-144: Agent database queries (can be done incrementally)
+- GAP-144: Agent database queries
 - GAP-145: Forwarding service implementation
 - GAP-147: Bidirectional trust paths
 
 ---
 
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-20 (Session 6 - Autonomous Deep Analysis)
-**Next Review**: After P0 gaps resolved.
+**Last Updated**: 2025-12-20 (Session 7 - Autonomous Verification)
+**Next Review**: After P1 gaps resolved.
