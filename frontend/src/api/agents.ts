@@ -97,4 +97,10 @@ export const agentsApi = {
     }
     return transformed as Record<AgentType, AgentStats>;
   },
+
+  // Get pending proposal count for current user
+  getPendingCount: async (): Promise<number> => {
+    const response = await api.get<{ user_id: string; pending_count: number }>('/proposals/pending/count');
+    return response.data.pending_count;
+  },
 };

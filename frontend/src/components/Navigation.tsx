@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import {
   Home,
   Gift,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { CommunitySelector } from './CommunitySelector';
+import { usePendingCount } from '@/hooks/useAgents';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
@@ -30,22 +30,10 @@ const navItems = [
 ];
 
 export function Navigation() {
-  // Poll for pending proposals count every 30 seconds
-  // TODO: Replace with actual user ID from auth context
-  const userId = 'current-user';
+  // Poll for pending proposals count every 30 seconds using new hook
+  const { data: pendingCount } = usePendingCount();
 
-  const { data: pendingData } = useQuery({
-    queryKey: ['pendingProposals', userId],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:8000/agents/proposals/pending/${userId}/count`);
-      if (!response.ok) return { pending_count: 0 };
-      return response.json();
-    },
-    refetchInterval: 30000, // Poll every 30 seconds
-    retry: false,
-  });
-
-  const pendingCount = pendingData?.pending_count || 0;
+  const count = pendingCount || 0;
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,9 +64,9 @@ export function Navigation() {
               >
                 <item.icon className="w-4 h-4" />
                 <span>{item.label}</span>
-                {item.showBadge && pendingCount > 0 && (
+                {item.showBadge && count > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {pendingCount > 9 ? '9+' : pendingCount}
+                    {count > 9 ? '9+' : count}
                   </span>
                 )}
               </NavLink>
@@ -121,9 +109,9 @@ export function Navigation() {
             >
               <item.icon className="w-4 h-4" />
               <span>{item.label}</span>
-              {item.showBadge && pendingCount > 0 && (
+              {item.showBadge && count > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {pendingCount > 9 ? '9+' : pendingCount}
+                  {count > 9 ? '9+' : count}
                 </span>
               )}
             </NavLink>

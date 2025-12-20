@@ -190,6 +190,10 @@ async def approve_proposal(
                 logger.info(
                     f"Executed proposal {proposal_id}: {execution_result}"
                 )
+                # Mark proposal as executed and save to database
+                await approval_tracker.mark_executed(proposal_id)
+                # Refresh proposal from database to get updated status
+                proposal = await approval_tracker.get_proposal(proposal_id)
             except Exception as e:
                 logger.error(f"Failed to execute proposal {proposal_id}: {e}")
                 # Don't fail the approval, just log the error

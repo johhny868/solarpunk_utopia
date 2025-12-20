@@ -113,3 +113,11 @@ export function useSetOptIn() {
     },
   });
 }
+
+export function usePendingCount() {
+  return useQuery({
+    queryKey: ['proposals', 'pending', 'count'],
+    queryFn: () => agentsApi.getPendingCount(),
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+}
