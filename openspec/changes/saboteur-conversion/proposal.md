@@ -177,44 +177,70 @@ These get noticed the old-fashioned way:
 
 **No algorithms. No thresholds. Just people paying attention.**
 
-### What's Visible Anyway (Not Surveillance)
+### Patterns We CAN Track vs CAN'T
 
-Some things are just... public. Anyone can see them:
+**CAN track (necessary for the app to work):**
+
+| Data | Why It Exists | Pattern It Reveals |
+|------|---------------|-------------------|
+| Offers posted | That's the point of the app | Are they contributing? |
+| Needs posted | That's the point of the app | Are they only taking? |
+| Exchanges completed | Need to know it happened | Do they follow through? |
+| Vouches given | Trust system needs this | Are they vouching responsibly? |
+| Vouches received | Trust system needs this | Is their trust earned? |
+| Revocations | Trust system needs this | Did their vouches go bad? |
+| Votes cast | Voting system needs this | Are they blocking everything? |
+| Proposals made | Governance needs this | Are they participating constructively? |
+
+This isn't surveillance - it's the app working. You can't have a gift economy without knowing who offered what.
+
+**Patterns That Are Visible:**
 
 ```
-VISIBLE (anyone can notice):
-- Someone's posted 10 needs and 0 offers (it's on their profile)
-- Someone vouched for 20 people this week (vouches are visible)
-- Someone's offers keep getting cancelled (their listings show this)
-- They've never completed an exchange (completion badges or lack thereof)
+TAKING WITHOUT GIVING:
+  12 needs, 0 offers → Visible. Address with care.
 
-NOT VISIBLE (would require tracking):
-- How often they log in
-- What profiles they've looked at
-- How long they spend on the app
-- Who they message
-- When they're active
+VOUCH FLOODING:
+  20 vouches in a week → Visible. Check in.
+
+VOTE BLOCKADING:
+  Joined last week, voted NO on 15 proposals → Visible.
+  Not automatically bad (maybe they have good reasons!)
+  But worth a conversation.
+
+PROPOSAL SPAMMING:
+  50 proposals in a day → Visible. What's going on?
+
+EXCHANGE NON-COMPLETION:
+  10 matches, 0 completions → Visible. Something's up.
 ```
 
-The visible stuff isn't surveillance - it's just looking at what they've chosen to share publicly. Like noticing someone at the community meal takes food but never brings a dish. You're not "tracking" them, you're just... there.
+All of these are "noticing what someone did publicly" not "tracking their private behavior."
 
-```python
-# This is fine - it's public info
-def get_public_activity(user_id: str):
-    return {
-        "offers_posted": count_public_offers(user_id),
-        "needs_posted": count_public_needs(user_id),
-        "exchanges_completed": count_completed_exchanges(user_id),
-        "vouches_given": count_vouches_given(user_id),  # These are public
-    }
+**CAN'T track (would require adding surveillance):**
 
-# This is NOT fine - it's surveillance
-def get_private_behavior(user_id: str):  # DON'T BUILD THIS
-    return {
-        "login_times": get_login_history(user_id),  # NO
-        "pages_viewed": get_browsing_history(user_id),  # NO
-        "time_on_app": get_session_durations(user_id),  # NO
-    }
+| Data | Why We Don't Have It | Would Require |
+|------|---------------------|---------------|
+| Login frequency | Don't log sessions | Adding session logging |
+| Time on app | Don't track this | Adding analytics |
+| Pages viewed | Don't track this | Adding analytics |
+| Who they looked at | Don't track this | Adding creepy tracking |
+| Message content | E2E encrypted | Breaking encryption |
+| Location history | Only used for matching | Adding location logging |
+
+We don't build the infrastructure to collect this. No analytics. No session tracking. No behavioral profiling.
+
+**The Difference:**
+
+```
+FUNCTIONAL DATA (have it because the app needs it):
+  "Jamie has 12 needs and 0 offers"
+  → We know this because needs and offers are... the app
+
+SURVEILLANCE DATA (would have to build spy infrastructure):
+  "Jamie logs in at 3am and browses for 2 hours"
+  → We'd have to deliberately build tracking to know this
+  → We don't. We won't.
 ```
 
 ### The "Lots of Needs, No Offers" Thing
@@ -364,44 +390,30 @@ But detection is not condemnation. It's an invitation to care.
 
 When someone is flagged, they don't get banned. They get a friend.
 
-```python
-class OutreachAssignment(BaseModel):
-    """Someone has been assigned to befriend a struggling member"""
-    flagged_user_id: str
-    outreach_volunteer_id: str  # Someone trained in care work
+**No databases. No case files. Just humans remembering humans.**
 
-    # What triggered this?
-    detection_reason: str  # "pattern_fake_offers", "vouch_velocity", etc.
+The care coordinator keeps it simple:
+- A mental note (or paper note) of "Sam is checking in on Jamie"
+- If Sam can't continue, they tell the next volunteer in person: "Here's what I know about Jamie"
+- That's it
 
-    # NOT shared with the flagged person - this is not a "you're in trouble" meeting
-    # They just get a new friend who happens to check in
+We don't build:
+- ❌ Outreach tracking databases
+- ❌ Case management systems
+- ❌ Notes attached to user profiles
+- ❌ Status tracking ("converted", "still_trying")
+- ❌ Metrics on "conversion rates"
 
-    status: Literal["active", "converted", "chose_to_leave", "still_trying"]
-    started_at: datetime
-    notes: List[OutreachNote]  # Private notes for continuity
-```
+That's a probation system. We're not building a probation system.
 
 The outreach volunteer:
-- Doesn't mention the detection
 - Just... becomes present
 - Offers help
 - Asks about their life
 - Shares their own story
 - Invites them to events
 - Makes sure they feel seen
-
-```python
-class OutreachNote(BaseModel):
-    """Private notes from outreach volunteer"""
-    timestamp: datetime
-    note: str
-
-    # Examples:
-    # "Met for coffee. They're struggling with rent. Connected them with housing cell."
-    # "They seemed suspicious at first but opened up about past co-op that failed them."
-    # "Invited them to the garden workday. They seemed genuinely happy."
-    # "They admitted they were paid to report on us. They're scared. I told them we'd help them find other work."
-```
+- **Remembers them like a friend remembers a friend**
 
 ### 3. Meet Their Needs
 

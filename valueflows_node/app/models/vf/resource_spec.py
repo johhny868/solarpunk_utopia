@@ -48,6 +48,12 @@ class ResourceSpec:
     # Unit of measure
     default_unit: Optional[str] = None  # e.g., "lbs", "hours", "items"
 
+    # GAP-64: Battery Warlord Detection (Bakunin) - Resource Criticality
+    # "Where there is authority, there is no freedom"
+    critical: bool = False  # Is this a critical resource that could create dependency?
+    criticality_reason: Optional[str] = None  # Why critical? e.g., "Only power source"
+    criticality_category: Optional[str] = None  # power, water, medical, communication, food, shelter, skills
+
     # Metadata
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -66,6 +72,9 @@ class ResourceSpec:
             "subcategory": self.subcategory,
             "image_url": self.image_url,
             "default_unit": self.default_unit,
+            "critical": self.critical,
+            "criticality_reason": self.criticality_reason,
+            "criticality_category": self.criticality_category,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "author": self.author,
@@ -83,6 +92,9 @@ class ResourceSpec:
             subcategory=data.get("subcategory"),
             image_url=data.get("image_url"),
             default_unit=data.get("default_unit"),
+            critical=data.get("critical", False),
+            criticality_reason=data.get("criticality_reason"),
+            criticality_category=data.get("criticality_category"),
             created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else None,
             updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else None,
             author=data.get("author"),

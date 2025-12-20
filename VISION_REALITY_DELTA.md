@@ -2,8 +2,8 @@
 
 This document lists specific gaps between the spec vision and current implementation, with actionable details for implementation.
 
-**Last Updated**: December 19, 2025 08:00 UTC
-**Session**: 3E - API Routing & E2E Testing
+**Last Updated**: December 19, 2025 16:45 UTC
+**Session**: 3F - Inter-Community Sharing
 
 **Agent Assignment Key**:
 - 🔵 Claude Agent 1 (Main) - Working on this
@@ -13,6 +13,23 @@ This document lists specific gaps between the spec vision and current implementa
 ---
 
 ## 📊 Progress Summary
+
+### Session 3F Completions (Agent 1)
+
+✅ **Inter-Community Sharing**: Trust-Based Discovery → **COMPLETE**
+- Full implementation of individual-choice visibility system
+- 5 graduated visibility levels (my_cell → network_wide)
+- Pull-based discovery API with trust filtering
+- Frontend UI: VisibilitySelector + NetworkResourcesPage
+- Backend: SharingPreference model, InterCommunityService, discovery endpoints
+- Archived to: `openspec/archive/2025-12-19-inter-community-sharing/`
+
+**Files Created**:
+- Backend: `discovery.py`, `sharing_preference.py`, `sharing_preference_repo.py`, `inter_community_service.py`
+- Frontend: `VisibilitySelector.tsx`, `NetworkResourcesPage.tsx`, `interCommunitySharing.ts`
+- Migration: `003_add_is_private_to_listings.sql`
+
+**Philosophy**: No gatekeepers - individuals control their own visibility. Pull not push.
 
 ### Session 3E Completions (Agent 1)
 
@@ -1571,20 +1588,26 @@ These gaps are identified by applying the philosophical frameworks of the 5 revi
 
 **Reality**:
 - Offers stay with their owner until explicitly matched
-- No inter-community resource flow
-- No "overflow" mechanism when one community has abundance
+- ✅ **UPDATED**: Inter-community resource flow is now available via trust-based discovery (Session 3F)
+  - Users can browse cross-community offers/needs at `/network-resources`
+  - Visibility controlled by individual choice, not stewards
+- No automated "overflow" mechanism when one community has abundance
+- No proactive osmosis proposals
 
 **Vision**:
 - When abundance > threshold, auto-notify nearby communities
 - "Osmosis" proposals: "Your community has excess tomatoes. The Elm Street Collective needs tomatoes. Shall we propose a transfer?"
 - Resources flow horizontally, not just between individuals
+- **Foundation complete**: Manual cross-community sharing now works
 
 **Files to create**:
 - `app/agents/osmosis_agent.py` - Detect abundance, propose inter-community transfers
+  - Can leverage existing `InterCommunityService` for visibility checks
+  - Can use existing discovery API to find matching needs
 
 **Philosophical anchor**: "Charity is vertical; Osmosis is horizontal."
 
-**Estimated effort**: 1 day
+**Estimated effort**: 1 day (reduced from original estimate - foundation now exists)
 
 ---
 

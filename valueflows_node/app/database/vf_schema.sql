@@ -72,12 +72,19 @@ CREATE TABLE IF NOT EXISTS resource_specs (
     created_at TEXT NOT NULL,
     updated_at TEXT,
     author TEXT,
-    signature TEXT
+    signature TEXT,
+
+    -- GAP-64: Battery Warlord Detection (Bakunin) - Resource Criticality
+    critical BOOLEAN DEFAULT FALSE,  -- Is this a critical resource?
+    criticality_reason TEXT,  -- Why is this critical? (e.g., "Only power source")
+    criticality_category TEXT  -- Category: power, water, medical, communication, food, shelter, skills
 );
 
 CREATE INDEX IF NOT EXISTS idx_resource_specs_category ON resource_specs(category);
 CREATE INDEX IF NOT EXISTS idx_resource_specs_subcategory ON resource_specs(subcategory);
 CREATE INDEX IF NOT EXISTS idx_resource_specs_name ON resource_specs(name);
+CREATE INDEX IF NOT EXISTS idx_resource_specs_critical ON resource_specs(critical) WHERE critical = TRUE;
+CREATE INDEX IF NOT EXISTS idx_resource_specs_criticality_category ON resource_specs(criticality_category) WHERE criticality_category IS NOT NULL;
 
 -- =============================================================================
 -- RESOURCE INSTANCES
