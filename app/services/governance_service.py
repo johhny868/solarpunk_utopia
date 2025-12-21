@@ -226,13 +226,10 @@ class GovernanceService:
     async def _get_cell_members(self, cell_id: str) -> List[str]:
         """
         Get list of user IDs who are members of the cell.
-
-        TODO: This should query the actual cells/membership system.
-        For now, returning a placeholder.
         """
-        # Placeholder - in real implementation, query from cells table
-        # return await self.cell_service.get_member_ids(cell_id)
-        return []
+        # Query actual cell memberships from database
+        members = await self.repo.get_cell_member_ids(cell_id)
+        return members
 
     def _generate_id(self) -> str:
         """Generate a unique ID"""

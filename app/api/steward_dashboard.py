@@ -9,6 +9,8 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 import json
+import aiosqlite
+from pathlib import Path
 
 from ..database import get_db
 from .cells import get_current_user
@@ -126,13 +128,41 @@ async def get_cell_metrics(db, cell_id: str, cell_name: str) -> CellMetrics:
     """, (cell_id, week_ago))
     new_members_this_week = (await cursor.fetchone())[0]
 
-    # TODO: Get active offers/needs from ValueFlows intents
-    # For now, return placeholder values
+    # Get cell member IDs to filter ValueFlows data
+    cursor = await db.execute("""
+        SELECT user_id FROM cell_memberships
+        WHERE cell_id = ? AND is_active = 1
+    """, (cell_id,))
+    member_ids = [row[0] for row in await cursor.fetchall()]
+
+    # Query ValueFlows database for active offers/needs
+    vf_db_path = Path(__file__).parent.parent.parent / "valueflows_node" / "app" / "database" / "valueflows.db"
     active_offers = 0
     active_needs = 0
     matches_this_week = 0
     exchanges_this_week = 0
     value_kept_local = 0.0
+
+    if vf_db_path.exists() and member_ids:
+        async with aiosqlite.connect(str(vf_db_path)) as vf_db:
+            # Get active offers from cell members
+            placeholders = ','.join('?' * len(member_ids))
+            cursor = await vf_db.execute(f"""
+                SELECT COUNT(*) FROM listings
+                WHERE listing_type = 'offer'
+                AND status = 'active'
+                AND agent_id IN ({placeholders})
+            """, member_ids)
+            active_offers = (await cursor.fetchone())[0]
+
+            # Get active needs from cell members
+            cursor = await vf_db.execute(f"""
+                SELECT COUNT(*) FROM listings
+                WHERE listing_type = 'need'
+                AND status = 'active'
+                AND agent_id IN ({placeholders})
+            """, member_ids)
+            active_needs = (await cursor.fetchone())[0]
 
     return CellMetrics(
         cell_id=cell_id,

@@ -208,6 +208,29 @@ class GovernanceRepository:
             await db.commit()
             return cursor.rowcount
 
+    async def get_cell_member_ids(self, cell_id: str) -> List[str]:
+        """
+        Get list of user IDs who are active members of a cell.
+
+        Args:
+            cell_id: ID of the cell
+
+        Returns:
+            List of user IDs who are active members
+        """
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute(
+                """
+                SELECT user_id FROM cell_memberships
+                WHERE cell_id = ? AND is_active = 1
+                ORDER BY joined_at ASC
+                """,
+                (cell_id,)
+            )
+            rows = await cursor.fetchall()
+
+        return [row[0] for row in rows]
+
     def _row_to_vote_session(self, row: aiosqlite.Row) -> VoteSession:
         """Convert database row to VoteSession model"""
         votes_dict = json.loads(row["votes"])

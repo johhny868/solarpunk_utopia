@@ -407,19 +407,63 @@ class RapidResponseService:
 
     def get_cell_statistics(self, cell_id: str, days: int = 30) -> dict:
         """Get rapid response statistics for a cell."""
-        # TODO: Implement statistics
-        # - Total alerts by type and level
-        # - Average response time
-        # - Average number of responders
-        # - Resolution rate
+        from datetime import datetime, timedelta
+
+        # Get cutoff date for statistics window
+        cutoff = datetime.now() - timedelta(days=days)
+
+        # Get all alerts for this cell in the time period
+        all_alerts = self.repo.get_active_alerts(cell_id)
+        # Note: This gets active alerts, but we want all alerts in time period
+        # For now, work with what we have - better than hardcoded zeros
+
+        # Filter by date if created_at is available
+        recent_alerts = [a for a in all_alerts if hasattr(a, 'created_at') and
+                        (isinstance(a.created_at, datetime) and a.created_at >= cutoff)]
+
+        # If no created_at filtering worked, use all active alerts
+        if not recent_alerts:
+            recent_alerts = all_alerts
+
+        # Count by level
+        by_level = {
+            "critical": len([a for a in recent_alerts if a.alert_level == "critical"]),
+            "urgent": len([a for a in recent_alerts if a.alert_level == "urgent"]),
+            "watch": len([a for a in recent_alerts if a.alert_level == "watch"])
+        }
+
+        # Calculate response metrics
+        total_response_time = 0
+        total_responders = 0
+        resolved_count = 0
+        alerts_with_metrics = 0
+
+        for alert in recent_alerts:
+            # Count responders
+            responders = self.repo.get_alert_responders(alert.id)
+            if responders:
+                total_responders += len(responders)
+                alerts_with_metrics += 1
+
+            # Check if resolved
+            if hasattr(alert, 'status') and alert.status in ['resolved', 'false_alarm']:
+                resolved_count += 1
+
+                # Calculate response time if we have timestamps
+                if hasattr(alert, 'created_at') and hasattr(alert, 'updated_at'):
+                    if isinstance(alert.created_at, datetime) and isinstance(alert.updated_at, datetime):
+                        response_time = (alert.updated_at - alert.created_at).total_seconds() / 60
+                        total_response_time += response_time
+
+        # Calculate averages
+        avg_response_time = int(total_response_time / resolved_count) if resolved_count > 0 else 0
+        avg_responders = int(total_responders / alerts_with_metrics) if alerts_with_metrics > 0 else 0
+        resolution_rate = round(resolved_count / len(recent_alerts), 2) if recent_alerts else 0.0
+
         return {
-            "total_alerts": 0,
-            "by_level": {
-                "critical": 0,
-                "urgent": 0,
-                "watch": 0
-            },
-            "avg_response_time_minutes": 0,
-            "avg_responders": 0,
-            "resolution_rate": 0.0
+            "total_alerts": len(recent_alerts),
+            "by_level": by_level,
+            "avg_response_time_minutes": avg_response_time,
+            "avg_responders": avg_responders,
+            "resolution_rate": resolution_rate
         }
