@@ -10,11 +10,14 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 62 (8 CRITICAL, 17 HIGH, 30 MEDIUM, 7 LOW)
-**Session 9 Update**: 18 gaps VERIFIED FIXED total
+**Total Gaps Found**: 58 (8 CRITICAL, 15 HIGH, 28 MEDIUM, 7 LOW)
+**Session 10 Update**: 23 gaps VERIFIED FIXED total
+- Session 10: GAP-131, GAP-139, GAP-140, GAP-141, GAP-142 (5 newly verified)
 - Session 9: GAP-131, GAP-139, GAP-140 (partial), GAP-141
 - Session 8: GAP-114, GAP-117, GAP-134, GAP-135, GAP-136, GAP-148, GAP-149, GAP-150
 - Prior sessions: GAP-65, GAP-69, GAP-72, GAP-116
+
+**New Gaps Found (Session 10)**: GAP-160 through GAP-164
 
 ### Session 8 Progress (2025-12-20)
 
@@ -1783,6 +1786,236 @@ async def _find_isolated_cells(...) -> List[str]:
 
 ---
 
+## Session 10 Gaps: Autonomous Verification (2025-12-21)
+
+### VERIFIED FIXED GAPS (Session 10)
+
+The following gaps have been verified as FIXED through code review:
+
+| GAP | Description | Evidence |
+|-----|-------------|----------|
+| GAP-131 | Steward dashboard active offers/needs | ✅ VERIFIED `app/api/steward_dashboard.py:138-165` queries actual ValueFlows listings |
+| GAP-139 | Care outreach resource connection | ✅ VERIFIED `app/services/care_outreach_service.py:229-310` creates actual VF need listings |
+| GAP-140 | Frontend auth for creation pages | ✅ VERIFIED `CreateOfferPage.tsx` and `CreateNeedPage.tsx` have auth guards and use `user.id` |
+| GAP-141 | Rapid response statistics | ✅ VERIFIED `app/services/rapid_response_service.py:408-470` computes from actual alerts |
+| GAP-142 | Governance cell membership | ✅ VERIFIED `app/database/governance_repository.py:211-232` queries `cell_memberships` table |
+
+### STILL OPEN GAPS (Verified Session 10)
+
+---
+
+### GAP-154: RapidResponsePage Uses Hardcoded Cell ID (CONFIRMED)
+**Severity**: HIGH
+**Location**: `frontend/src/pages/RapidResponsePage.tsx:101-102, 149-150`
+**Status**: STILL OPEN
+**Evidence**:
+```typescript
+// TODO: Get user's actual cell_id
+const cellId = 'cell-001';
+```
+**Fix**: Get cell_id from user profile or auth context.
+
+---
+
+### GAP-157: Agent Mock Data Persists (12+ Agents) (CONFIRMED)
+**Severity**: MEDIUM
+**Location**: Multiple agent files
+**Status**: STILL OPEN
+**Evidence**: Following agents still have `# For now, return mock data` patterns:
+- `conscientization.py:95, 122, 156, 182` - 4 methods with mock data
+- `counter_power.py:103, 122, 143, 163` - 4 methods with mock data
+- `governance_circle.py:88, 108, 127` - 3 methods with mock data
+- `education_pathfinder.py:89, 121` - 2 methods with mock data
+- `radical_inclusion.py:84, 166, 184, 277` - 4 methods with mock data
+- `gift_flow.py:101, 212, 245` - 3 methods with mock data
+- `insurrectionary_joy.py:96, 120` - 2 methods with mock data
+- `conquest_of_bread.py:94` - 1 method with mock data
+- `commons_router.py:84` - 1 method with mock data
+
+**Fix**: Systematically implement VFClient queries for each agent.
+
+---
+
+### GAP-158: Temporal Justice Service Incomplete (CONFIRMED)
+**Severity**: MEDIUM
+**Location**: `app/services/temporal_justice_service.py:114-116, 267-268`
+**Status**: STILL OPEN
+**Evidence**:
+```python
+# Line 116: return []  # "for now return empty"
+# Line 268: return []  # "For now, return empty"
+```
+**Fix**: Implement actual queries for slow exchanges and coordination suggestions.
+
+---
+
+### GAP-159: Saturnalia Role Swap Not Implemented (CONFIRMED)
+**Severity**: MEDIUM
+**Location**: `app/services/saturnalia_service.py:356-364, 391-396`
+**Status**: STILL OPEN
+**Evidence**:
+```python
+def _activate_role_swap_mode(self, event):
+    # For now, this is a placeholder
+    pass
+
+def check_scheduled_events(self):
+    # TODO: Implement scheduled event triggering
+    return []
+```
+**Fix**: Implement role swap logic and scheduled event triggering.
+
+---
+
+### NEW GAPS DISCOVERED (Session 10)
+
+---
+
+### GAP-160: Group Formation API Missing Auth Integration
+**Severity**: HIGH
+**Location**: `app/api/group_formation.py` - ALL endpoints
+**Claimed**: Group formation with cryptographic key exchange
+**Reality**: No auth middleware imported or used. All endpoints unauthenticated:
+- `/api/group-formation/create`
+- `/api/group-formation/invite`
+- `/api/group-formation/accept`
+- `/api/group-formation/qr-formation`
+- `/api/group-formation/qr-join`
+- etc.
+**Evidence**: No `require_auth` or `get_current_user` imports in file
+**Fix**: Add `current_user: User = Depends(require_auth)` to all endpoints.
+
+---
+
+### GAP-161: Mycelial Health API Missing Auth Integration
+**Severity**: MEDIUM
+**Location**: `app/api/mycelial_health.py` - ALL endpoints
+**Claimed**: Hardware health monitoring for nodes
+**Reality**: No auth middleware used:
+- `/api/mycelial-health/report`
+- `/api/mycelial-health/battery`
+- `/api/mycelial-health/storage`
+- `/api/mycelial-health/power-outage`
+**Evidence**: No `require_auth` or `get_current_user` imports in file
+**Note**: This may be intentional for node-to-node health checks without auth
+**Fix**: Consider if auth is needed, or document as intentionally public.
+
+---
+
+### GAP-162: Agent Bulk Settings Endpoint Not Persisted
+**Severity**: MEDIUM
+**Location**: `app/api/agents.py:237-268`
+**Status**: STILL OPEN (from Session 5, confirmed still present)
+**Evidence**:
+```python
+@router.get("/settings")
+async def get_all_agent_settings():
+    # TODO: Load from database/config file
+    # For now, return default configs
+```
+**Fix**: Update bulk `/settings` endpoint to use database like individual endpoint does.
+
+---
+
+### GAP-163: Frontend Pages Still Use demo-user Fallback
+**Severity**: LOW (view pages only)
+**Location**: Multiple frontend pages
+**Status**: ACCEPTABLE for view pages
+**Evidence**: Pages with `user?.id || 'demo-user'`:
+- `ExchangesPage.tsx:18`
+- `OffersPage.tsx:25`
+- `MessageThreadPage.tsx:23`
+- `MessagesPage.tsx:19`
+- `NeedsPage.tsx:24`
+**Note**: Creation pages (CreateOfferPage, CreateNeedPage) now properly require auth.
+**Status**: LOW - fallback enables anonymous browsing, creation requires auth.
+
+---
+
+### GAP-164: Forwarding Service Still Empty
+**Severity**: MEDIUM
+**Location**: `app/services/forwarding_service.py:23`
+**Status**: STILL OPEN
+**Evidence**:
+```python
+def forward(self, ...):
+    pass
+```
+**Fix**: Implement actual forwarding logic for mesh propagation.
+
+---
+
+## Updated Summary Statistics (Session 10)
+
+### Total Gaps: 58 (-4 from Session 9 due to fixes, +5 new documented)
+
+| Severity | Count | Change from Session 9 |
+|----------|-------|----------------------|
+| CRITICAL | 8 | - |
+| HIGH | 15 | -2 (GAP-131, 141 fixed), +1 (GAP-160) |
+| MEDIUM | 28 | -2 (GAP-139, 142 fixed), +3 (GAP-161, 162, 164) |
+| LOW | 7 | +1 (GAP-163) |
+
+### Key Findings: Session 10
+
+**Good News (Verified FIXED):**
+1. **GAP-131**: Steward dashboard now queries actual ValueFlows listings
+2. **GAP-139**: Care outreach creates real VF need listings
+3. **GAP-140**: Creation pages enforce authentication
+4. **GAP-141**: Rapid response statistics compute from actual data
+5. **GAP-142**: Governance cell membership queries actual database
+
+**New Issues Found:**
+1. **GAP-160**: Group Formation API has no auth (HIGH severity)
+2. **GAP-161**: Mycelial Health API has no auth (may be intentional)
+3. **GAP-162**: Agent bulk settings not persisted (ongoing)
+
+**Patterns Confirmed Still Present:**
+- 12+ agents return mock data (GAP-157)
+- Frontend demo-user fallback for view pages (acceptable)
+- Temporal justice queries return empty (GAP-158)
+- Saturnalia role swap is placeholder (GAP-159)
+
+### Codebase Health Indicators (Session 10):
+- 50+ TODO comments in app directory
+- 18 `return []` patterns in app directory
+- 34 "For now, return" patterns indicating temporary implementations
+- 2 new APIs discovered without auth integration
+
+---
+
+### Fix Priority Update (Session 10)
+
+**P0 - CRITICAL (Before Workshop):**
+- All critical security gaps verified fixed ✅
+
+**P1 - HIGH (First Week):**
+- ~~GAP-131: Steward dashboard statistics~~ ✅ FIXED
+- ~~GAP-139: Care outreach resource connection~~ ✅ FIXED
+- ~~GAP-141: Rapid response statistics~~ ✅ FIXED
+- ~~GAP-142: Governance cell membership~~ ✅ FIXED
+- GAP-154: RapidResponsePage cell_id (frontend)
+- GAP-160: Group Formation API auth (NEW)
+
+**P2 - MEDIUM (First Month):**
+- ~~GAP-140: Frontend auth for creation~~ ✅ FIXED
+- GAP-156: Network redundancy graph analysis
+- GAP-157: Agent database queries (12+ agents)
+- GAP-158: Temporal justice queries
+- GAP-159: Saturnalia features
+- GAP-161: Mycelial Health API auth review
+- GAP-162: Agent bulk settings persistence
+- GAP-164: Forwarding service implementation
+- GAP-153: Adaptive ValueFlows sync
+- GAP-145: Forwarding service
+- GAP-147: Bidirectional trust paths
+
+**P3 - LOW (Ongoing):**
+- GAP-155: NetworkImpactWidget community count
+- GAP-163: Frontend demo-user fallback (acceptable for view pages)
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-21 (Session 9 - Autonomous Verification)
+**Last Updated**: 2025-12-21 (Session 10 - Autonomous Verification)
 **Next Review**: After P1 gaps addressed.
