@@ -20,6 +20,7 @@ export function OffersPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'expiring' | 'nearest'>('newest');
+  const [viewMode, setViewMode] = useState<'all' | 'mine'>('all');
 
   const currentUserId = user?.id || 'demo-user';
 
@@ -62,7 +63,10 @@ export function OffersPage() {
     const matchesLocation = selectedLocation === 'all' ||
       offer.location === selectedLocation;
 
-    return matchesSearch && matchesCategory && matchesLocation && offer.status === 'active';
+    const matchesViewMode = viewMode === 'all' ||
+      (viewMode === 'mine' && offer.agent?.id === currentUserId);
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesViewMode && offer.status === 'active';
   }) || []).sort((a, b) => {
     if (sortBy === 'expiring') {
       // Sort by urgency (most urgent first)
@@ -96,6 +100,30 @@ export function OffersPage() {
             Create Offer
           </Button>
         </Link>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setViewMode('all')}
+          className={`px-6 py-3 font-medium transition-colors ${
+            viewMode === 'all'
+              ? 'border-b-2 border-solarpunk-500 text-solarpunk-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          All Offers
+        </button>
+        <button
+          onClick={() => setViewMode('mine')}
+          className={`px-6 py-3 font-medium transition-colors ${
+            viewMode === 'mine'
+              ? 'border-b-2 border-solarpunk-500 text-solarpunk-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          My Offers
+        </button>
       </div>
 
       {/* Filters */}

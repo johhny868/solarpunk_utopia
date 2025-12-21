@@ -19,6 +19,7 @@ export function NeedsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'all' | 'mine'>('all');
 
   const currentUserId = user?.id || 'demo-user';
 
@@ -47,7 +48,10 @@ export function NeedsPage() {
     const matchesLocation = selectedLocation === 'all' ||
       need.location === selectedLocation;
 
-    return matchesSearch && matchesCategory && matchesLocation && need.status === 'active';
+    const matchesViewMode = viewMode === 'all' ||
+      (viewMode === 'mine' && need.agent?.id === currentUserId);
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesViewMode && need.status === 'active';
   }) || [];
 
   // Get unique locations
@@ -71,6 +75,30 @@ export function NeedsPage() {
             Express a Need
           </Button>
         </Link>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setViewMode('all')}
+          className={`px-6 py-3 font-medium transition-colors ${
+            viewMode === 'all'
+              ? 'border-b-2 border-blue-500 text-blue-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          All Needs
+        </button>
+        <button
+          onClick={() => setViewMode('mine')}
+          className={`px-6 py-3 font-medium transition-colors ${
+            viewMode === 'mine'
+              ? 'border-b-2 border-blue-500 text-blue-700'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          My Needs
+        </button>
       </div>
 
       {/* Filters */}
