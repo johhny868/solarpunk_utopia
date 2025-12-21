@@ -72,6 +72,7 @@ export const RestModeToggle: React.FC<RestModeToggleProps> = ({
           </div>
 
           <button
+            data-testid="status-selector"
             onClick={() => setIsEditing(true)}
             className="text-green-600 hover:text-green-700 text-sm font-medium"
           >
@@ -82,54 +83,63 @@ export const RestModeToggle: React.FC<RestModeToggleProps> = ({
         <>
           {/* Status selector */}
           <div className="space-y-3 mb-4">
-            <label className="flex items-start space-x-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-              <input
-                type="radio"
-                name="status"
-                value="active"
-                checked={status === 'active'}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="mt-1 h-4 w-4 text-green-600"
-              />
+            <button
+              type="button"
+              onClick={() => setStatus('active')}
+              className={`w-full flex items-start space-x-3 p-3 border rounded-lg text-left ${
+                status === 'active'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex-shrink-0 mt-1">
+                {status === 'active' ? '●' : '○'}
+              </div>
               <div>
                 <div className="font-medium text-gray-900">🌱 Active</div>
                 <div className="text-sm text-gray-600">Participating normally</div>
               </div>
-            </label>
+            </button>
 
-            <label className="flex items-start space-x-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-              <input
-                type="radio"
-                name="status"
-                value="resting"
-                checked={status === 'resting'}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="mt-1 h-4 w-4 text-green-600"
-              />
+            <button
+              type="button"
+              onClick={() => setStatus('resting')}
+              className={`w-full flex items-start space-x-3 p-3 border rounded-lg text-left ${
+                status === 'resting'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex-shrink-0 mt-1">
+                {status === 'resting' ? '●' : '○'}
+              </div>
               <div>
                 <div className="font-medium text-gray-900">🌙 Resting</div>
                 <div className="text-sm text-gray-600">
                   Taking a break - no notifications, no pressure
                 </div>
               </div>
-            </label>
+            </button>
 
-            <label className="flex items-start space-x-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-              <input
-                type="radio"
-                name="status"
-                value="sabbatical"
-                checked={status === 'sabbatical'}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="mt-1 h-4 w-4 text-green-600"
-              />
+            <button
+              type="button"
+              onClick={() => setStatus('sabbatical')}
+              className={`w-full flex items-start space-x-3 p-3 border rounded-lg text-left ${
+                status === 'sabbatical'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex-shrink-0 mt-1">
+                {status === 'sabbatical' ? '●' : '○'}
+              </div>
               <div>
                 <div className="font-medium text-gray-900">✨ Sabbatical</div>
                 <div className="text-sm text-gray-600">
                   Extended break - will return when ready
                 </div>
               </div>
-            </label>
+            </button>
           </div>
 
           {/* Optional note */}
