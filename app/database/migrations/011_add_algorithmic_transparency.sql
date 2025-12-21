@@ -68,14 +68,15 @@ CREATE TABLE IF NOT EXISTS matching_weights (
     -- Metadata
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by TEXT,  -- User who created this config
+    created_by TEXT  -- User who created this config
 
-    -- Ensure only one active config per community
-    UNIQUE(community_id, is_active) WHERE is_active = TRUE
+    -- Note: Unique constraint on active configs handled by application logic via index
+    -- SQLite partial unique constraints in CREATE TABLE not well supported
 );
 
 CREATE INDEX idx_matching_weights_community_id ON matching_weights(community_id);
 CREATE INDEX idx_matching_weights_active ON matching_weights(is_active) WHERE is_active = TRUE;
+CREATE UNIQUE INDEX idx_matching_weights_active_per_community ON matching_weights(community_id) WHERE is_active = TRUE;
 
 -- Insert default system weights
 INSERT INTO matching_weights (

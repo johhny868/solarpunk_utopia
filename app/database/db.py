@@ -67,6 +67,10 @@ async def init_db() -> None:
     _db_connection = await aiosqlite.connect(str(DB_PATH))
     _db_connection.row_factory = aiosqlite.Row
 
+    # Enable foreign key enforcement (GAP-45)
+    await _db_connection.execute("PRAGMA foreign_keys = ON")
+    await _db_connection.commit()
+
     # Create bundles table
     await _db_connection.execute("""
         CREATE TABLE IF NOT EXISTS bundles (
