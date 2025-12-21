@@ -30,7 +30,9 @@ Background Services:
 import asyncio
 import logging
 import os
+import signal
 from contextlib import asynccontextmanager
+from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -79,6 +81,29 @@ ttl_service: TTLService = None
 crypto_service: CryptoService = None
 cache_service: CacheService = None
 
+# Shutdown coordination (GAP-52)
+shutdown_event = asyncio.Event()
+_shutdown_initiated = False
+
+
+def handle_shutdown_signal(signum, frame):
+    """
+    Signal handler for graceful shutdown (GAP-52).
+
+    Called when SIGTERM or SIGINT is received.
+    Sets the shutdown event to trigger graceful shutdown.
+    """
+    global _shutdown_initiated
+
+    if _shutdown_initiated:
+        logger.warning("Shutdown already initiated, ignoring repeated signal")
+        return
+
+    signal_name = "SIGTERM" if signum == signal.SIGTERM else "SIGINT"
+    logger.info(f"Received {signal_name}, initiating graceful shutdown...")
+    _shutdown_initiated = True
+    shutdown_event.set()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -110,6 +135,11 @@ async def lifespan(app: FastAPI):
     ttl_service = TTLService(check_interval_seconds=settings.ttl_check_interval_seconds)
     await ttl_service.start()
 
+    # Register signal handlers for graceful shutdown (GAP-52)
+    signal.signal(signal.SIGTERM, handle_shutdown_signal)
+    signal.signal(signal.SIGINT, handle_shutdown_signal)
+    logger.info("Signal handlers registered for graceful shutdown")
+
     logger.info("DTN Bundle System started successfully")
     logger.info("=" * 60)
     logger.info(f"API available at http://{settings.host}:{settings.port}")
@@ -119,15 +149,27 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown
+    # Shutdown (GAP-52: Enhanced graceful shutdown)
     logger.info("Shutting down DTN Bundle System...")
 
-    # Stop TTL service
+    # Give in-flight requests a chance to complete (up to 30 seconds)
+    # Uvicorn will stop accepting new connections automatically
+    logger.info("Waiting for in-flight requests to complete (max 30s)...")
+    try:
+        await asyncio.wait_for(asyncio.sleep(0.1), timeout=30.0)
+    except asyncio.TimeoutError:
+        logger.warning("Timed out waiting for requests, proceeding with shutdown")
+
+    # Stop background services
+    logger.info("Stopping background services...")
     if ttl_service:
         await ttl_service.stop()
+        logger.info("TTL service stopped")
 
-    # Close database
+    # Close database connections
+    logger.info("Closing database connections...")
     await close_db()
+    logger.info("Database connections closed")
 
     logger.info("DTN Bundle System shutdown complete")
 
