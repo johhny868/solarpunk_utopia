@@ -1,10 +1,10 @@
 # GAP-09: Notification/Awareness System
 
-**Status**: IMPLEMENTED (MVP)
-**Implemented**: 2025-12-19
+**Status**: ✅ FULLY IMPLEMENTED
+**Implemented**: 2025-12-19 (Backend), 2025-12-21 (Frontend verified)
 **Priority**: P2 - Core Experience
 **Estimated Effort**: MVP 2-3 hours, Full 1-2 days
-**Assigned**: Unclaimed
+**Assigned**: Claude Agent
 
 ## Problem Statement
 
@@ -44,19 +44,22 @@ Full:
 ## Success Criteria
 
 - [x] Users see pending proposal count - Endpoint exists at GET /agents/proposals/pending/{user_id}/count
-- [ ] Badge updates when proposals arrive - Frontend implementation needed
-- [ ] No need to manually check agents page - Frontend implementation needed
+- [x] Badge updates when proposals arrive - Navigation badge implemented with polling
+- [x] No need to manually check agents page - HomePage shows pending proposals card
 
-## Implementation Notes (2025-12-19)
+## Implementation Notes
 
-The backend MVP is COMPLETE:
+**Backend (2025-12-19):**
 - Endpoint: `GET /agents/proposals/pending/{user_id}/count`
 - Returns: `{"user_id": "...", "pending_count": 3}`
 - Located in: `app/api/agents.py` lines 120-132
 
-Frontend still needs:
-- Navigation badge component
-- Homepage proposal card
-- Polling logic (every 30 seconds)
+**Frontend (Verified 2025-12-21):**
+- ✅ `usePendingCount` hook in `frontend/src/hooks/useAgents.ts` (line 117-123)
+- ✅ Polls endpoint every 30 seconds using `refetchInterval: 30000`
+- ✅ Navigation badge in `frontend/src/components/Navigation.tsx` (lines 67-71, 112-116)
+- ✅ Shows red badge with count on "AI Agents" nav item
+- ✅ HomePage displays "AI Proposals Pending Review" section (lines 138-157)
+- ✅ Shows up to 3 pending proposals with link to view all
 
 **Reference**: `VISION_REALITY_DELTA.md:GAP-09`
