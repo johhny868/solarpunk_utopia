@@ -28,6 +28,7 @@ import { StewardDashboardPage } from './pages/StewardDashboardPage'
 import RapidResponsePage from './pages/RapidResponsePage'
 import { CommunitiesPage } from './pages/CommunitiesPage'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { CommunityShelfPage } from './pages/CommunityShelfPage'
 import './App.css'
 
 // Import API interceptors to add auth token to requests
@@ -108,6 +109,7 @@ function App() {
                     <Route path="/steward/:cellId" element={<StewardDashboardPage />} />
                     <Route path="/rapid-response" element={<RapidResponsePage />} />
                     <Route path="/communities" element={<CommunitiesPage />} />
+                    <Route path="/community-shelf" element={<CommunityShelfPage />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

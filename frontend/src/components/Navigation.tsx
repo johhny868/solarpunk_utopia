@@ -10,7 +10,8 @@ import {
   Bot,
   Plus,
   Users,
-  MessageCircle
+  MessageCircle,
+  Package
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { CommunitySelector } from './CommunitySelector';
@@ -20,6 +21,7 @@ const navItems = [
   { path: '/', label: 'Home', icon: Home },
   { path: '/offers', label: 'Offers', icon: Gift },
   { path: '/needs', label: 'Needs', icon: Heart },
+  { path: '/community-shelf', label: 'Community Shelf', icon: Package },
   { path: '/exchanges', label: 'Exchanges', icon: ArrowLeftRight },
   { path: '/cells', label: 'Cells', icon: Users },
   { path: '/messages', label: 'Messages', icon: MessageCircle },
