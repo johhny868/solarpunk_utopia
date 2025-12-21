@@ -1,0 +1,20 @@
+# Example cron schedule for automated backups (GAP-58)
+#
+# To install:
+#   crontab -e
+#   (paste the desired schedule below)
+#
+# Logs are written to /var/log/dtn-backup.log
+# Monitor backups: tail -f /var/log/dtn-backup.log
+
+# Daily backup at 3 AM
+0 3 * * * /path/to/solarpunk_utopia/scripts/backup.sh >> /var/log/dtn-backup.log 2>&1
+
+# Hourly backup (for high-value data)
+# 0 * * * * /path/to/solarpunk_utopia/scripts/backup.sh >> /var/log/dtn-backup.log 2>&1
+
+# Every 6 hours
+# 0 */6 * * * /path/to/solarpunk_utopia/scripts/backup.sh >> /var/log/dtn-backup.log 2>&1
+
+# With environment variables for custom configuration
+# 0 3 * * * DATABASE_PATH=/custom/path.db BACKUP_DIR=/backups BACKUP_S3_BUCKET=my-bucket /path/to/scripts/backup.sh >> /var/log/dtn-backup.log 2>&1
