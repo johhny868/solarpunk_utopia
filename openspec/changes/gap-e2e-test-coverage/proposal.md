@@ -306,8 +306,8 @@ Predefined trust networks:
 
 ### Phase 1: Safety-Critical (P1)
 1. [x] Rapid Response E2E test - `tests/e2e/test_rapid_response_e2e.py` (6 test scenarios)
-2. [ ] Sanctuary Network E2E test
-3. [ ] Panic Features E2E test (auth flow + network propagation)
+2. [x] Sanctuary Network E2E test - `tests/e2e/test_sanctuary_network_e2e.py` (7 test scenarios)
+3. [ ] Panic Features E2E test (auth flow + network propagation) - DEFERRED (unit tests exist, needs auth system integration)
 
 ### Phase 2: Trust & Coordination (P2)
 4. [ ] Web of Trust vouch chain E2E test
