@@ -221,14 +221,151 @@ class CareOutreachService:
         # Save assessment
         self.outreach_repo.save_needs_assessment(assessment)
 
-        # TODO: Actually connect to resources
-        # This would integrate with:
-        # - Housing cell
-        # - Food distribution
-        # - Work opportunities
-        # - Community events
+        # Connect to resources based on needs
+        await self._connect_to_resources(assessment)
 
         return assessment
+
+    async def _connect_to_resources(self, assessment: NeedsAssessment):
+        """Connect user to resources based on needs assessment
+
+        Creates need listings in the ValueFlows system so the community
+        can respond with offers.
+
+        Args:
+            assessment: The completed needs assessment
+        """
+        import uuid
+        from pathlib import Path
+        import sqlite3
+        import sys
+
+        # Import VF components
+        vf_path = Path(__file__).parent.parent.parent / "valueflows_node"
+        sys.path.insert(0, str(vf_path))
+
+        from app.models.vf.listing import Listing, ListingType
+        from app.repositories.vf.listing_repo import ListingRepository
+        from app.repositories.vf.resource_spec_repo import ResourceSpecRepository
+
+        # Connect to ValueFlows database
+        vf_db_path = str(Path(__file__).parent.parent.parent / "valueflows_node" / "app" / "database" / "valueflows.db")
+        conn = sqlite3.connect(vf_db_path)
+        conn.row_factory = sqlite3.Row
+
+        try:
+            listing_repo = ListingRepository(conn)
+            resource_spec_repo = ResourceSpecRepository(conn)
+            resources_connected = []
+
+            # Create needs based on assessment
+            if assessment.housing_insecure:
+                # Find or create housing resource spec
+                specs = resource_spec_repo.find_by_category("housing")
+                if specs:
+                    spec_id = specs[0].id
+                else:
+                    # Use a generic ID - in production, ensure resource specs exist
+                    spec_id = "housing-general"
+
+                listing = Listing(
+                    id=str(uuid.uuid4()),
+                    listing_type=ListingType.NEED,
+                    resource_spec_id=spec_id,
+                    agent_id=assessment.user_id,
+                    anonymous=True,  # Privacy for vulnerable users
+                    location_id=None,
+                    quantity=1.0,
+                    unit="unit",
+                    title="Need: Safe Housing",
+                    description="Looking for safe, stable housing. Connected through care outreach.",
+                    status="active"
+                )
+                listing_repo.create(listing)
+                resources_connected.append("housing")
+
+            if assessment.food_insecure:
+                specs = resource_spec_repo.find_by_category("food")
+                spec_id = specs[0].id if specs else "food-general"
+
+                listing = Listing(
+                    id=str(uuid.uuid4()),
+                    listing_type=ListingType.NEED,
+                    resource_spec_id=spec_id,
+                    agent_id=assessment.user_id,
+                    anonymous=True,
+                    location_id=None,
+                    quantity=1.0,
+                    unit="unit",
+                    title="Need: Food Access",
+                    description="Need access to food. Connected through care outreach.",
+                    status="active"
+                )
+                listing_repo.create(listing)
+                resources_connected.append("food")
+
+            if assessment.employment_unstable:
+                specs = resource_spec_repo.find_by_category("work")
+                spec_id = specs[0].id if specs else "work-general"
+
+                listing = Listing(
+                    id=str(uuid.uuid4()),
+                    listing_type=ListingType.NEED,
+                    resource_spec_id=spec_id,
+                    agent_id=assessment.user_id,
+                    anonymous=True,
+                    location_id=None,
+                    quantity=1.0,
+                    unit="unit",
+                    title="Need: Work Opportunity",
+                    description="Looking for work or income opportunities. Connected through care outreach.",
+                    status="active"
+                )
+                listing_repo.create(listing)
+                resources_connected.append("work")
+
+            if assessment.healthcare_access:
+                listing = Listing(
+                    id=str(uuid.uuid4()),
+                    listing_type=ListingType.NEED,
+                    resource_spec_id="healthcare-general",
+                    agent_id=assessment.user_id,
+                    anonymous=True,
+                    location_id=None,
+                    quantity=1.0,
+                    unit="unit",
+                    title="Need: Healthcare Access",
+                    description="Need healthcare access or support. Connected through care outreach.",
+                    status="active"
+                )
+                listing_repo.create(listing)
+                resources_connected.append("healthcare")
+
+            if assessment.isolated:
+                # Create need for community connection
+                listing = Listing(
+                    id=str(uuid.uuid4()),
+                    listing_type=ListingType.NEED,
+                    resource_spec_id="community-connection",
+                    agent_id=assessment.user_id,
+                    anonymous=True,
+                    location_id=None,
+                    quantity=1.0,
+                    unit="unit",
+                    title="Need: Community Connection",
+                    description="Looking to connect with local community. Connected through care outreach.",
+                    status="active"
+                )
+                listing_repo.create(listing)
+                resources_connected.append("community")
+
+            # Update assessment with resources connected
+            assessment.resources_connected = resources_connected
+            self.outreach_repo.save_needs_assessment(assessment)
+
+            conn.commit()
+        finally:
+            conn.close()
 
     # --- Access Level Determination ---
 
