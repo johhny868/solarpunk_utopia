@@ -140,14 +140,19 @@ export const CommunityShelfPage: React.FC = () => {
           {gifts.map(gift => (
             <div
               key={gift.id}
-              className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
+              className="listing-card bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
             >
               {/* Gift content */}
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {gift.title || 'Anonymous Gift'}
-                  </h3>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {gift.title || 'Anonymous Gift'}
+                    </h3>
+                    <span className="anonymous-badge inline-block mt-1 px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded">
+                      Anonymous Gift
+                    </span>
+                  </div>
                   <span className="text-2xl">🎁</span>
                 </div>
 
@@ -182,7 +187,7 @@ export const CommunityShelfPage: React.FC = () => {
                   onClick={() => takeGift(gift.id)}
                   className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-medium"
                 >
-                  Take this gift
+                  Take
                 </button>
                 <p className="text-xs text-gray-500 mt-2 text-center">
                   No need to say thank you - the gift is thanks enough

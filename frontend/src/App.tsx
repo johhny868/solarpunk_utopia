@@ -88,8 +88,10 @@ function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/offers" element={<OffersPage />} />
                     <Route path="/offers/create" element={<CreateOfferPage />} />
+                    <Route path="/listings/create/offer" element={<CreateOfferPage />} />
                     <Route path="/needs" element={<NeedsPage />} />
                     <Route path="/needs/create" element={<CreateNeedPage />} />
+                    <Route path="/listings/create/need" element={<CreateNeedPage />} />
                     <Route path="/exchanges" element={<ExchangesPage />} />
                     <Route path="/discovery" element={<DiscoveryPage />} />
                     <Route path="/network-resources" element={<NetworkResourcesPage />} />

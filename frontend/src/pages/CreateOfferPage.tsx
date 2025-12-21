@@ -279,6 +279,7 @@ export function CreateOfferPage() {
             <label className="flex items-start space-x-3 cursor-pointer">
               <input
                 type="checkbox"
+                name="anonymous"
                 checked={anonymous}
                 onChange={(e) => setAnonymous(e.target.checked)}
                 className="mt-1 h-5 w-5 text-green-600 rounded focus:ring-green-500"
