@@ -69,7 +69,7 @@ from .api.fork_rights import router as fork_rights_router
 from .api.security_status import router as security_status_router
 from .api.mourning import router as mourning_router
 from .services import TTLService, CryptoService, CacheService
-from .middleware import CSRFMiddleware
+from .middleware import CSRFMiddleware, PrometheusMetricsMiddleware, metrics_endpoint, init_metrics
 from .middleware.correlation_id import CorrelationIdMiddleware
 
 # Configure structured logging
@@ -140,6 +140,10 @@ async def lifespan(app: FastAPI):
     signal.signal(signal.SIGINT, handle_shutdown_signal)
     logger.info("Signal handlers registered for graceful shutdown")
 
+    # Initialize Prometheus metrics (GAP-54)
+    init_metrics(version="1.0.0", node_id=fingerprint)
+    logger.info("Prometheus metrics initialized")
+
     logger.info("DTN Bundle System started successfully")
     logger.info("=" * 60)
     logger.info(f"API available at http://{settings.host}:{settings.port}")
@@ -198,6 +202,10 @@ app.add_middleware(
 # Correlation ID middleware (GAP-53: Request Tracing)
 # Must be added before other middleware to ensure correlation IDs are available
 app.add_middleware(CorrelationIdMiddleware)
+
+# Prometheus Metrics middleware (GAP-54: Metrics Collection)
+# Tracks HTTP requests, durations, and in-progress counts
+app.add_middleware(PrometheusMetricsMiddleware)
 
 # CSRF Protection middleware (GAP-56)
 app.add_middleware(
@@ -331,6 +339,25 @@ async def node_info():
         "public_key": public_key,
         "version": "1.0.0"
     }
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """
+    Prometheus metrics endpoint (GAP-54).
+
+    Returns metrics in Prometheus text format for scraping.
+    Includes HTTP request metrics, bundle metrics, and service health.
+
+    Example prometheus.yml:
+        scrape_configs:
+          - job_name: 'dtn-bundle-system'
+            static_configs:
+              - targets: ['localhost:8000']
+            metrics_path: '/metrics'
+            scrape_interval: 15s
+    """
+    return await metrics_endpoint()
 
 
 if __name__ == "__main__":
