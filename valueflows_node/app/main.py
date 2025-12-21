@@ -10,10 +10,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from .config import settings
 from .database import initialize_database
 from .api.vf import listings, matches, exchanges, events, agents, resource_specs, commitments, discovery, bakunin_analytics
 from .api import communities, abundance_osmosis
 
+# Configure logging (use config for level)
+logging.basicConfig(
+    level=getattr(logging, settings.log_level.upper()),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
@@ -40,21 +46,9 @@ app = FastAPI(
 )
 
 # CORS middleware (for frontend)
-# Get allowed origins from environment variable
-allowed_origins_str = os.getenv("ALLOWED_ORIGINS")
-
-if not allowed_origins_str:
-    # Development defaults (localhost only)
-    allowed_origins = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173"
-    ]
-    logger.warning("ALLOWED_ORIGINS not set, using development defaults: %s", allowed_origins)
-else:
-    allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
-    logger.info("CORS configured for origins: %s", allowed_origins)
+# Use config-managed allowed origins
+allowed_origins = settings.allowed_origins
+logger.info("CORS configured for origins: %s", allowed_origins)
 
 app.add_middleware(
     CORSMiddleware,

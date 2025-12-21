@@ -35,6 +35,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .config import settings
 from .database import init_db, close_db
 from .api import bundles_router, sync_router, agents_router
 from .api.auth import router as auth_router
@@ -67,9 +68,9 @@ from .api.mourning import router as mourning_router
 from .services import TTLService, CryptoService, CacheService
 from .middleware import CSRFMiddleware
 
-# Configure logging
+# Configure logging (use config for level)
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, settings.log_level.upper()),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -100,19 +101,21 @@ async def lifespan(app: FastAPI):
     fingerprint = crypto_service.get_public_key_fingerprint()
     logger.info(f"Crypto service initialized (fingerprint: {fingerprint})")
 
-    # Initialize cache service (2GB default budget)
-    cache_service = CacheService(storage_budget_bytes=2 * 1024 * 1024 * 1024)
+    # Initialize cache service (use config for budget)
+    cache_budget_bytes = settings.cache_budget_mb * 1024 * 1024
+    cache_service = CacheService(storage_budget_bytes=cache_budget_bytes)
     cache_stats = await cache_service.get_cache_stats()
     logger.info(f"Cache service initialized (budget: {cache_stats['budget_bytes']} bytes)")
 
-    # Start TTL enforcement service
-    ttl_service = TTLService(check_interval_seconds=60)
+    # Start TTL enforcement service (use config for interval)
+    ttl_service = TTLService(check_interval_seconds=settings.ttl_check_interval_seconds)
     await ttl_service.start()
 
     logger.info("DTN Bundle System started successfully")
     logger.info("=" * 60)
-    logger.info("API available at http://localhost:8000")
-    logger.info("Docs available at http://localhost:8000/docs")
+    logger.info(f"API available at http://{settings.host}:{settings.port}")
+    logger.info(f"Docs available at http://{settings.host}:{settings.port}/docs")
+    logger.info(f"Debug mode: {settings.debug}")
     logger.info("=" * 60)
 
     yield
@@ -139,24 +142,9 @@ app = FastAPI(
 )
 
 # CORS middleware (GAP-41: Secure CORS configuration)
-# Get allowed origins from environment variable, default to secure localhost origins
-allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
-if allowed_origins_env:
-    # Parse comma-separated origins from environment
-    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",")]
-    logger.info(f"CORS: Using configured origins: {allowed_origins}")
-else:
-    # Fail-safe default: localhost origins only for development
-    allowed_origins = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-    ]
-    logger.warning(
-        "CORS: No ALLOWED_ORIGINS env var set, using localhost-only defaults. "
-        "This will block production traffic! Set ALLOWED_ORIGINS in production."
-    )
+# Use config-managed allowed origins
+allowed_origins = settings.allowed_origins
+logger.info(f"CORS: Configured origins: {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
