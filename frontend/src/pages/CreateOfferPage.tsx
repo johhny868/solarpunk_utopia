@@ -24,6 +24,15 @@ export function CreateOfferPage() {
     }
   }, [loading, isAuthenticated, navigate]);
 
+  // Don't render form if not authenticated
+  if (loading) {
+    return <div className="max-w-2xl mx-auto p-8 text-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect will handle this
+  }
+
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [item, setItem] = useState('');
@@ -65,7 +74,7 @@ export function CreateOfferPage() {
     try {
       await createOffer.mutateAsync({
         listing_type: 'offer',
-        agent_id: anonymous ? undefined : user?.id, // No agent for anonymous gifts (GAP-61)
+        agent_id: anonymous ? undefined : user.id, // No agent for anonymous gifts (GAP-61); user exists due to auth check
         anonymous,  // GAP-61: Emma Goldman - anonymous gifts
         resource_spec_id: resourceName,
         quantity: parseFloat(quantity),

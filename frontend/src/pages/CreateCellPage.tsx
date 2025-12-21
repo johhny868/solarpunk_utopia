@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateCell } from '@/hooks/useCells';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { ArrowLeft } from 'lucide-react';
@@ -8,7 +9,24 @@ import { ArrowLeft } from 'lucide-react';
 export function CreateCellPage() {
   const navigate = useNavigate();
   const createCellMutation = useCreateCell();
+  const { user, isAuthenticated, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/login?redirect=/cells/create');
+    }
+  }, [loading, isAuthenticated, navigate]);
+
+  // Don't render form if not authenticated
+  if (loading) {
+    return <div className="max-w-2xl mx-auto p-8 text-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect will handle this
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

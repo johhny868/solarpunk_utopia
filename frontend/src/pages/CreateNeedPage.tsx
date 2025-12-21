@@ -24,6 +24,15 @@ export function CreateNeedPage() {
     }
   }, [loading, isAuthenticated, navigate]);
 
+  // Don't render form if not authenticated
+  if (loading) {
+    return <div className="max-w-2xl mx-auto p-8 text-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null; // Redirect will handle this
+  }
+
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [item, setItem] = useState('');
@@ -64,7 +73,7 @@ export function CreateNeedPage() {
     try {
       await createNeed.mutateAsync({
         listing_type: 'need',
-        agent_id: user?.id,
+        agent_id: user.id, // user is guaranteed to exist due to auth check above
         resource_spec_id: resourceName,
         quantity: parseFloat(quantity),
         unit,
