@@ -1,7 +1,7 @@
 import { Intent } from '@/types/valueflows';
 import { Card } from './Card';
 import { Button } from './Button';
-import { MapPin, Calendar, Package, Edit, Trash2 } from 'lucide-react';
+import { MapPin, Calendar, Package, Edit, Trash2, Clock } from 'lucide-react';
 import { formatTimeAgo, formatQuantity, formatDate } from '@/utils/formatters';
 
 interface OfferCardProps {
@@ -13,12 +13,38 @@ interface OfferCardProps {
   isOwner?: boolean;
 }
 
+type UrgencyLevel = 'critical' | 'high' | 'medium' | null;
+
+function calculateUrgency(availableUntil?: string): { level: UrgencyLevel; hoursRemaining: number | null; message: string | null } {
+  if (!availableUntil) {
+    return { level: null, hoursRemaining: null, message: null };
+  }
+
+  const now = new Date();
+  const expiryDate = new Date(availableUntil);
+  const hoursRemaining = (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+  if (hoursRemaining < 0) {
+    return { level: 'critical', hoursRemaining: 0, message: 'Expired' };
+  } else if (hoursRemaining < 24) {
+    return { level: 'critical', hoursRemaining, message: `${Math.floor(hoursRemaining)}h remaining` };
+  } else if (hoursRemaining < 72) {
+    return { level: 'high', hoursRemaining, message: `${Math.floor(hoursRemaining / 24)}d remaining` };
+  } else if (hoursRemaining < 168) { // 7 days
+    return { level: 'medium', hoursRemaining, message: `${Math.floor(hoursRemaining / 24)}d remaining` };
+  }
+
+  return { level: null, hoursRemaining, message: null };
+}
+
 export function OfferCard({ offer, onAccept, onEdit, onDelete, showActions = true, isOwner = false }: OfferCardProps) {
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this offer? This action cannot be undone.')) {
       onDelete?.(offer);
     }
   };
+
+  const urgency = calculateUrgency(offer.available_until);
 
   return (
     <Card hoverable>
@@ -33,6 +59,20 @@ export function OfferCard({ offer, onAccept, onEdit, onDelete, showActions = tru
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {urgency.level && (
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
+                  urgency.level === 'critical'
+                    ? 'bg-red-100 text-red-800'
+                    : urgency.level === 'high'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}
+              >
+                <Clock className="w-3 h-3" />
+                {urgency.message}
+              </span>
+            )}
             <span className="px-3 py-1 bg-solarpunk-100 text-solarpunk-800 rounded-full text-sm font-medium">
               {offer.status}
             </span>

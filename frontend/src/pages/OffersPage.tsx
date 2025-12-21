@@ -19,8 +19,22 @@ export function OffersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'expiring' | 'nearest'>('newest');
 
   const currentUserId = user?.id || 'demo-user';
+
+  // Utility to calculate urgency score (higher = more urgent)
+  const calculateUrgencyScore = (availableUntil?: string): number => {
+    if (!availableUntil) return 0;
+    const now = new Date();
+    const expiryDate = new Date(availableUntil);
+    const hoursRemaining = (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    if (hoursRemaining < 0) return 1000; // Expired = highest urgency
+    if (hoursRemaining < 24) return 100 - hoursRemaining; // 0-24h = very urgent
+    if (hoursRemaining < 168) return 50 - (hoursRemaining / 24); // 0-7 days = medium
+    return 0; // >7 days = no urgency
+  };
 
   const handleEdit = (offer: Intent) => {
     // Navigate to edit page (could be same as create with ID param)
@@ -36,8 +50,8 @@ export function OffersPage() {
     }
   };
 
-  // Filter offers
-  const filteredOffers = offers?.filter((offer) => {
+  // Filter and sort offers
+  const filteredOffers = (offers?.filter((offer) => {
     const matchesSearch = !searchTerm ||
       offer.resource_specification?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       offer.note?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -49,7 +63,17 @@ export function OffersPage() {
       offer.location === selectedLocation;
 
     return matchesSearch && matchesCategory && matchesLocation && offer.status === 'active';
-  }) || [];
+  }) || []).sort((a, b) => {
+    if (sortBy === 'expiring') {
+      // Sort by urgency (most urgent first)
+      return calculateUrgencyScore(b.available_until) - calculateUrgencyScore(a.available_until);
+    } else if (sortBy === 'newest') {
+      // Sort by creation date (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    // 'nearest' would require location data - keeping as fallback to newest
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   // Get unique locations
   const locations = Array.from(new Set(offers?.map(o => o.location).filter(Boolean))) as string[];
@@ -80,7 +104,7 @@ export function OffersPage() {
           <Filter className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">Filters</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
@@ -125,6 +149,20 @@ export function OffersPage() {
                   {location}
                 </option>
               ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sort By
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'newest' | 'expiring' | 'nearest')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
+            >
+              <option value="newest">Newest First</option>
+              <option value="expiring">Expiring Soon</option>
+              <option value="nearest">Nearest (coming soon)</option>
             </select>
           </div>
         </div>
