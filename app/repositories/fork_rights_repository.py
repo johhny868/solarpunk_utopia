@@ -26,8 +26,10 @@ class ForkRightsRepository:
 
     def _get_connection(self):
         """Get database connection."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30.0)
         conn.row_factory = sqlite3.Row
+        # Enable WAL mode for better concurrency
+        conn.execute("PRAGMA journal_mode=WAL")
         return conn
 
     def _init_tables(self):
@@ -274,17 +276,21 @@ class ForkRightsRepository:
             fork.forked_at.isoformat()
         ))
 
-        # Create invitations
+        # Create invitations (using same connection to avoid locks)
         for invitee_id in fork.members_invited:
-            invitation = ForkInvitation(
-                id=f"{fork.id}-{invitee_id}",
-                fork_id=fork.id,
-                inviter_id=fork.forked_by,
-                invitee_id=invitee_id,
-                invited_at=datetime.utcnow(),
-                expires_at=datetime.utcnow() + timedelta(days=30)
-            )
-            self.create_fork_invitation(invitation)
+            cursor.execute("""
+                INSERT INTO fork_invitations
+                (id, fork_id, inviter_id, invitee_id, status, invited_at, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                f"{fork.id}-{invitee_id}",
+                fork.id,
+                fork.forked_by,
+                invitee_id,
+                "pending",
+                datetime.utcnow().isoformat(),
+                (datetime.utcnow() + timedelta(days=30)).isoformat()
+            ))
 
         conn.commit()
         conn.close()

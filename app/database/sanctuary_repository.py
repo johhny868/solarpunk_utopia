@@ -26,9 +26,17 @@ class SanctuaryRepository:
         self.db_path = db_path
         self._init_tables()
 
+    def _get_connection(self):
+        """Get database connection with WAL mode for better concurrency."""
+        conn = sqlite3.connect(self.db_path, timeout=30.0)
+        conn.row_factory = sqlite3.Row
+        # Enable WAL mode for better concurrency
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
+
     def _init_tables(self):
         """Create sanctuary tables if they don't exist."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         # Sanctuary resources table
@@ -131,7 +139,7 @@ class SanctuaryRepository:
 
     def create_resource(self, resource: SanctuaryResource) -> SanctuaryResource:
         """Create a new sanctuary resource offer."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -173,7 +181,7 @@ class SanctuaryRepository:
         verified_only: bool = True
     ) -> List[SanctuaryResource]:
         """Get sanctuary resources for a cell."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         query = """
@@ -203,7 +211,7 @@ class SanctuaryRepository:
 
     def verify_resource(self, resource_id: str, verified_by: str, notes: str):
         """Mark a resource as verified by a steward."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         verified_at = datetime.utcnow().isoformat()
@@ -225,7 +233,7 @@ class SanctuaryRepository:
 
     def create_request(self, request: SanctuaryRequest) -> SanctuaryRequest:
         """Create a new sanctuary request."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -259,7 +267,7 @@ class SanctuaryRepository:
 
     def get_pending_requests(self, cell_id: str) -> List[SanctuaryRequest]:
         """Get pending sanctuary requests for a cell."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -278,7 +286,7 @@ class SanctuaryRepository:
 
     def mark_request_completed(self, request_id: str):
         """Mark a sanctuary request as completed."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         completed_at = datetime.utcnow().isoformat()
@@ -296,7 +304,7 @@ class SanctuaryRepository:
 
     def create_match(self, match: SanctuaryMatch) -> SanctuaryMatch:
         """Create a sanctuary match."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -322,7 +330,7 @@ class SanctuaryRepository:
 
     def mark_match_completed(self, match_id: str):
         """Mark a match as completed (triggers 24h purge timer)."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         from datetime import timedelta
@@ -344,7 +352,7 @@ class SanctuaryRepository:
 
     def create_alert(self, alert: RapidAlert) -> RapidAlert:
         """Create a rapid alert."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -377,7 +385,7 @@ class SanctuaryRepository:
 
     def get_active_alerts(self, cell_id: str) -> List[RapidAlert]:
         """Get active alerts for a cell."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         now = datetime.utcnow().isoformat()
@@ -403,7 +411,7 @@ class SanctuaryRepository:
 
         Returns count of purged records.
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         now = datetime.utcnow().isoformat()
@@ -506,7 +514,7 @@ class SanctuaryRepository:
         """Create a verification record for a sanctuary resource."""
         from app.models.sanctuary import VerificationRecord
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -535,7 +543,7 @@ class SanctuaryRepository:
         """Get all verifications for a sanctuary resource."""
         from app.models.sanctuary import VerificationRecord, VerificationMethod
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -574,7 +582,7 @@ class SanctuaryRepository:
         verifications = self.get_verifications_for_resource(resource_id)
 
         # Get resource metadata for verification fields
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -606,7 +614,7 @@ class SanctuaryRepository:
         expires_at: datetime
     ):
         """Update verification metadata for a resource."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         # If first_verified_at is provided, update it
@@ -649,7 +657,7 @@ class SanctuaryRepository:
         status: VerificationStatus
     ):
         """Update verification status for a resource."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -666,7 +674,7 @@ class SanctuaryRepository:
         """Record a sanctuary use."""
         from app.models.sanctuary import SanctuaryUse
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -689,7 +697,7 @@ class SanctuaryRepository:
 
     def increment_successful_uses(self, resource_id: str):
         """Increment successful_uses counter for a resource."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -715,7 +723,7 @@ class SanctuaryRepository:
                 'expiring': [resources expiring in next 14 days]
             }
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_connection()
         cursor = conn.cursor()
 
         # Get resources needing 2nd verification (only 1 verification so far)

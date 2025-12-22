@@ -9,7 +9,13 @@ Provides utilities for complex test scenarios:
 
 from .multi_node import MultiNodeHarness, MockNode
 from .time_control import TimeController, freeze_time, advance_time
-from .trust_fixtures import TrustGraphFixture, create_trust_chain, create_disjoint_communities
+from .trust_fixtures import (
+    TrustGraphFixture,
+    create_trust_chain,
+    create_disjoint_communities,
+    create_ring_topology,
+    create_star_topology
+)
 
 __all__ = [
     'MultiNodeHarness',
@@ -20,4 +26,6 @@ __all__ = [
     'TrustGraphFixture',
     'create_trust_chain',
     'create_disjoint_communities',
+    'create_ring_topology',
+    'create_star_topology',
 ]
