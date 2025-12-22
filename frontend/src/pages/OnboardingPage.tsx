@@ -23,6 +23,22 @@ export function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const navigate = useNavigate()
 
+  const handleSkip = () => {
+    // Mark onboarding as complete
+    localStorage.setItem('onboarding_completed', 'true')
+    // Navigate to homepage
+    navigate('/')
+  }
+
+  const stepTitles = [
+    'Welcome',
+    'Gift Economy',
+    'Create Offer',
+    'Browse Offers',
+    'Smart Helpers',
+    'Complete'
+  ]
+
   const steps = [
     <WelcomeStep onNext={() => setCurrentStep(1)} />,
     <GiftEconomyStep
@@ -64,27 +80,69 @@ export function OnboardingPage() {
         maxWidth: '800px',
         width: '100%'
       }}>
-        {/* Progress indicator */}
+        {/* Progress indicator with step info and skip button */}
         <div style={{
           display: 'flex',
-          justifyContent: 'center',
-          gap: '0.5rem',
+          flexDirection: 'column',
+          gap: '1rem',
           marginBottom: '2rem'
         }}>
-          {steps.map((_, index) => (
-            <div
-              key={index}
+          {/* Step counter and skip button */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            color: 'white'
+          }}>
+            <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+              Step {currentStep + 1} of {steps.length}: {stepTitles[currentStep]}
+            </div>
+            <button
+              onClick={handleSkip}
               style={{
-                width: '2rem',
-                height: '0.5rem',
-                borderRadius: '0.25rem',
-                background: index === currentStep
-                  ? 'white'
-                  : 'rgba(255, 255, 255, 0.3)',
-                transition: 'all 0.3s ease'
+                background: 'transparent',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                transition: 'all 0.2s ease'
               }}
-            />
-          ))}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.borderColor = 'white'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)'
+              }}
+            >
+              Skip to App
+            </button>
+          </div>
+
+          {/* Progress dots */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}>
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                style={{
+                  width: '2rem',
+                  height: '0.5rem',
+                  borderRadius: '0.25rem',
+                  background: index === currentStep
+                    ? 'white'
+                    : 'rgba(255, 255, 255, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Current step */}
