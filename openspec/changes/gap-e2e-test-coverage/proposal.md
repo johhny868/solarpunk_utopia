@@ -1,8 +1,9 @@
 # GAP-E2E: End-to-End Test Coverage Gaps
 
-**Status:** Draft
+**Status:** In Progress
 **Priority:** P1 - Reliability
 **Effort:** 20-30 hours (across multiple sessions)
+**Last Updated:** 2025-12-21
 
 ## Problem
 
@@ -315,8 +316,8 @@ Predefined trust networks:
 6. [x] Blocking with silent failure E2E test - `tests/e2e/test_blocking_silent_failure_e2e.py` (10 test scenarios, all passing)
 
 ### Phase 3: Multi-Node (P3)
-7. [ ] DTN Mesh Sync E2E test (requires multi-node harness)
-8. [ ] Cross-Community Discovery E2E test
+7. [x] DTN Mesh Sync E2E test - `tests/e2e/test_dtn_mesh_sync_e2e.py` (9 test scenarios, skeleton complete, needs bundle creation fix)
+8. [x] Cross-Community Discovery E2E test - `tests/e2e/test_cross_community_discovery_e2e.py` (11 test scenarios covering all visibility levels)
 
 ### Phase 4: Governance (P4)
 9. [ ] Saturnalia E2E test
