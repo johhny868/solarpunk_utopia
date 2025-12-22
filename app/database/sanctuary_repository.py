@@ -59,7 +59,11 @@ class SanctuaryRepository:
                 available_until TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
-                purge_at TEXT
+                purge_at TEXT,
+                first_verified_at TEXT,
+                last_check TEXT,
+                expires_at TEXT,
+                successful_uses INTEGER DEFAULT 0
             )
         """)
 
@@ -118,6 +122,36 @@ class SanctuaryRepository:
                 purge_at TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 expires_at TEXT NOT NULL
+            )
+        """)
+
+        # Sanctuary verifications table (multi-steward verification)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sanctuary_verifications (
+                id TEXT PRIMARY KEY,
+                resource_id TEXT NOT NULL,
+                steward_id TEXT NOT NULL,
+                verified_at TEXT NOT NULL,
+                verification_method TEXT NOT NULL,
+                notes TEXT,
+                escape_routes_verified INTEGER DEFAULT 0,
+                capacity_verified INTEGER DEFAULT 0,
+                buddy_protocol_available INTEGER DEFAULT 0,
+                created_at TEXT NOT NULL,
+                UNIQUE(resource_id, steward_id)
+            )
+        """)
+
+        # Sanctuary uses table (for tracking successful uses)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sanctuary_uses (
+                id TEXT PRIMARY KEY,
+                resource_id TEXT NOT NULL,
+                request_id TEXT NOT NULL,
+                completed_at TEXT NOT NULL,
+                outcome TEXT NOT NULL,
+                purge_at TEXT NOT NULL,
+                created_at TEXT NOT NULL
             )
         """)
 
