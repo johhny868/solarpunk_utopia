@@ -325,17 +325,17 @@ Predefined trust networks:
 11. [x] Bakunin Analytics E2E test - `tests/e2e/test_bakunin_analytics_e2e.py` (6 test scenarios, all passing)
 
 ### Phase 5: Philosophical (P5)
-12. [ ] Silence Weight E2E test
-13. [ ] Temporal Justice E2E test
-14. [ ] Care Outreach E2E test
+12. [x] Silence Weight E2E test - `tests/e2e/test_governance_e2e.py` (10 test scenarios covering silence tracking, quorum, and privacy)
+13. [x] Temporal Justice E2E test - `valueflows_node/tests/e2e/test_temporal_justice_e2e.py` (9 test scenarios covering slow exchanges, fragmented availability, care work acknowledgment)
+14. [x] Care Outreach E2E test - `valueflows_node/tests/e2e/test_care_outreach_e2e.py` (11 test scenarios covering detection, conversion, access levels, no-shaming approach)
 
 ### Phase 6: Frontend (P6)
-15. [ ] Onboarding E2E test
-16. [ ] Steward Dashboard E2E test
+15. [x] Onboarding E2E test - `tests/e2e/test_onboarding_flow_e2e.spec.ts` (9 Playwright test scenarios covering full onboarding flow, validation, navigation, education)
+16. [x] Steward Dashboard E2E test - `tests/e2e/test_steward_dashboard_e2e.spec.ts` (13 Playwright test scenarios covering metrics, actions, trust issues, celebrations without rankings)
 
 ## Success Criteria
 
-- [ ] All P1 (safety-critical) flows have passing E2E tests
+- [x] All P1 (safety-critical) flows have passing E2E tests
 - [ ] E2E tests run in CI on every PR
 - [ ] Multi-node test harness enables mesh testing
 - [ ] Trust graph fixtures enable complex scenarios
