@@ -10,15 +10,16 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 55 (8 CRITICAL, 13 HIGH, 27 MEDIUM, 7 LOW)
-**Session 11 Update**: 25 gaps VERIFIED FIXED total
+**Total Gaps Found**: 59 (8 CRITICAL, 15 HIGH, 30 MEDIUM, 6 LOW)
+**Session 12 Update**: 25 gaps VERIFIED FIXED total
+- Session 12: Confirmed GAP-164/145 fixed (Forwarding Service fully implemented)
 - Session 11: GAP-164, GAP-145 (2 newly verified - Forwarding Service implemented)
 - Session 10: GAP-131, GAP-139, GAP-140, GAP-141, GAP-142 (5 verified)
 - Session 9: GAP-131, GAP-139, GAP-140 (partial), GAP-141
 - Session 8: GAP-114, GAP-117, GAP-134, GAP-135, GAP-136, GAP-148, GAP-149, GAP-150
 - Prior sessions: GAP-65, GAP-69, GAP-72, GAP-116
 
-**New Gaps Found (Session 11)**: GAP-165, GAP-166
+**New Gaps Found (Session 12)**: GAP-167, GAP-168, GAP-169, GAP-170, GAP-171, GAP-172, GAP-173, GAP-174, GAP-175, GAP-176
 
 ### Session 8 Progress (2025-12-20)
 
@@ -2207,6 +2208,218 @@ def check_scheduled_events(self):
 
 ---
 
+## Session 12 Gaps: Autonomous Verification (2025-12-22)
+
+### VERIFIED STATUS OF PREVIOUS GAPS
+
+| GAP | Description | Status |
+|-----|-------------|----------|
+| GAP-164/145 | Forwarding Service | ✅ VERIFIED FIXED - Full implementation with priority-based forwarding, audience enforcement, hop tracking at `app/services/forwarding_service.py` |
+| GAP-160 | Group Formation API auth | ❌ STILL OPEN - No `require_auth` import or usage in `app/api/group_formation.py` |
+| GAP-154 | RapidResponsePage cell_id | ❌ STILL OPEN - Hardcoded `'cell-001'` at lines 102, 150 |
+| GAP-157 | Agent mock data (12+ agents) | ❌ STILL OPEN - Pattern confirmed in 10+ agent files |
+| GAP-158 | Temporal justice queries | ❌ STILL OPEN - `return []` at lines 116, 268 |
+| GAP-159 | Saturnalia role swap | ❌ STILL OPEN - `pass` at line 364, `return []` at line 396 |
+
+### NEW GAPS DISCOVERED (Session 12)
+
+---
+
+### GAP-167: ValueFlows Matches API Uses TODO Auth Pattern
+**Severity**: MEDIUM
+**Location**: `valueflows_node/app/api/vf/matches.py:154, 191`
+**Claimed**: Match accept/reject uses authenticated user
+**Reality**: Uses TODO pattern instead of actual auth:
+```python
+# Line 154: TODO: Use authenticated user to determine provider vs receiver
+# Line 191: TODO: Use authenticated user to verify participant
+```
+**Fix**: Integrate with auth middleware like other VF endpoints.
+
+---
+
+### GAP-168: ValueFlows Commitments Missing Ownership Verification
+**Severity**: MEDIUM
+**Location**: `valueflows_node/app/api/vf/commitments.py:162`
+**Reality**: Delete endpoint lacks ownership check:
+```python
+# TODO: Add ownership verification when auth is implemented
+```
+**Fix**: Add ownership verification using authenticated user.
+
+---
+
+### GAP-169: ValueFlows Listings Delete Missing Ownership Verification
+**Severity**: HIGH (Security)
+**Location**: `valueflows_node/app/api/vf/listings.py:279`
+**Reality**: Delete endpoint lacks ownership check:
+```python
+# TODO (GAP-71): Add ownership verification when auth is implemented
+```
+**Note**: This is a duplicate documentation of GAP-71 - still unresolved.
+**Fix**: Add auth check: `if listing.agent_id != current_user.id: raise HTTPException(403)`.
+
+---
+
+### GAP-170: Governance Service Notification Not Implemented
+**Severity**: MEDIUM
+**Location**: `app/services/governance_service.py:174`
+**Reality**: Vote check-in notifications not sent:
+```python
+# TODO: Send actual notifications via notification system
+# await self.notification_service.send_batch(...)
+```
+**Fix**: Implement notification service integration for vote reminders.
+
+---
+
+### GAP-171: Proposal Executor Cache/Forwarding Integration Missing
+**Severity**: MEDIUM
+**Location**: `app/services/proposal_executor.py:411, 425, 440`
+**Reality**: Three TODOs for service integration:
+```python
+# TODO: Integrate with CacheService (2 instances)
+# TODO: Integrate with ForwardingService
+```
+**Note**: ForwardingService is now implemented (GAP-164 fixed), but not integrated here.
+**Fix**: Integrate ForwardingService.forward_bundle() into proposal execution flow.
+
+---
+
+### GAP-172: Agent Bulk Settings Endpoint Uses Defaults
+**Severity**: MEDIUM
+**Location**: `app/api/agents.py:244-245`
+**Status**: STILL OPEN (from earlier sessions)
+**Reality**: Bulk settings endpoint ignores database:
+```python
+# TODO: Load from database/config file
+# For now, return default configs
+```
+**Note**: Individual settings endpoint uses database, but bulk does not.
+**Fix**: Update `/settings` to query database like `/settings/{agent_name}`.
+
+---
+
+### GAP-173: Agent Scheduling Not Implemented
+**Severity**: LOW
+**Location**: `app/api/agents.py:665`
+**Reality**: Agent next run always None:
+```python
+"next_scheduled_run": None,  # TODO: implement scheduling
+```
+**Fix**: Implement agent scheduling system if needed.
+
+---
+
+### GAP-174: Auth Cookie Not Secure in Production
+**Severity**: HIGH (Security)
+**Location**: `app/api/auth.py:83`
+**Status**: STILL OPEN
+**Reality**: Cookie security disabled:
+```python
+secure=False,  # TODO: Set to True in production with HTTPS
+```
+**Risk**: Session cookies sent over unencrypted connections in production.
+**Fix**: Use environment variable to enable secure cookies in production.
+
+---
+
+### GAP-175: Android Bluetooth Discovery Not Implemented
+**Severity**: MEDIUM
+**Location**: `frontend/android/app/src/main/java/org/solarpunk/mesh/MeshNetworkPlugin.java:287, 304`
+**Reality**: Bluetooth fallback is stub:
+```java
+// TODO: Implement Bluetooth fallback
+result.put("started", true);
+// ...
+result.put("bluetoothEnabled", false); // TODO: Check BT status
+```
+**Note**: WiFi Direct works, Bluetooth is secondary fallback.
+**Fix**: Implement Bluetooth discovery for areas without WiFi Direct.
+
+---
+
+### GAP-176: Frontend Adaptive ValueFlows Sync Incomplete
+**Severity**: MEDIUM
+**Location**: `frontend/src/api/adaptive-valueflows.ts:170, 200, 285, 302, 357, 394`
+**Status**: CONFIRMED (same as GAP-166)
+**Reality**: 6 `// TODO: implement sync` or `// TODO: sync to local` comments
+**Fix**: Implement IndexedDB local-first sync layer for offline support.
+
+---
+
+## Updated Summary Statistics (Session 12)
+
+### Total Gaps: 59 (+4 new documented, confirmed existing)
+
+| Severity | Count | Change from Session 11 |
+|----------|-------|----------------------|
+| CRITICAL | 8 | - |
+| HIGH | 15 | +2 (GAP-169, 174 newly documented) |
+| MEDIUM | 30 | +5 (GAP-167, 168, 170, 171, 172, 175, 176) |
+| LOW | 6 | +1 (GAP-173) |
+
+### Key Findings: Session 12
+
+**Confirmed Fixed:**
+1. **GAP-164/145**: ForwardingService is now fully implemented with priority-based forwarding
+
+**Still Open (High Priority):**
+1. **GAP-160**: Group Formation API has no authentication (8 endpoints exposed)
+2. **GAP-154**: RapidResponsePage hardcoded cell_id (breaks multi-cell support)
+3. **GAP-169/71**: Delete listing has no ownership verification (anyone can delete)
+4. **GAP-174**: Auth cookies not secure in production
+
+**Patterns Confirmed Still Present:**
+- 50+ TODO comments in Python app directory
+- 18 `return []` patterns indicating incomplete queries
+- 47 "For now, return" patterns for mock data
+- 12+ agents returning mock data instead of database queries
+
+### Codebase Health Indicators (Session 12):
+```
+TODO comments in app/:        50+
+'return []' patterns:         18
+'For now, return' patterns:   47
+Agents with mock data:        12+
+Unauthenticated API files:    2 (group_formation, mycelial_health)
+Frontend hardcoded IDs:       7 occurrences
+```
+
+---
+
+### Fix Priority Update (Session 12)
+
+**P0 - CRITICAL (Before Workshop):**
+- All critical security gaps verified fixed ✅
+
+**P1 - HIGH (First Week):**
+- GAP-160: Group Formation API auth integration
+- GAP-154: RapidResponsePage cell_id from user context
+- GAP-169: Listings delete ownership verification
+- GAP-174: Auth cookie security for production
+
+**P2 - MEDIUM (First Month):**
+- GAP-167: Matches API auth integration
+- GAP-168: Commitments delete ownership
+- GAP-170: Governance notification system
+- GAP-171: Proposal executor forwarding integration
+- GAP-172: Agent bulk settings persistence
+- GAP-157: Agent database queries (12+ agents)
+- GAP-158: Temporal justice queries
+- GAP-159: Saturnalia features
+- GAP-175: Android Bluetooth discovery
+- GAP-176: Frontend adaptive sync
+
+**P3 - LOW (Ongoing):**
+- GAP-155: NetworkImpactWidget community count
+- GAP-163: Frontend demo-user fallback (acceptable for view pages)
+- GAP-161: Mycelial Health API auth (intentional by design)
+- GAP-165: Discovery distance filter (needs location data first)
+- GAP-173: Agent scheduling
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-21 (Session 11 - Autonomous Verification)
+**Last Updated**: 2025-12-22 (Session 12 - Autonomous Verification)
 **Next Review**: After P1 gaps addressed.
