@@ -314,7 +314,7 @@ class BakuninAnalyticsService:
                                 risk_level=risk_level,
                                 analysis=analysis,
                                 suggestions=suggestions,
-                                criticality_category=skill.get('criticality_category')
+                                criticality_category=skill['criticality_category'] if 'criticality_category' in skill.keys() else None
                             )
 
                             alerts.append(alert)
