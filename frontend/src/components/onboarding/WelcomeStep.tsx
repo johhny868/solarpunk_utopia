@@ -51,6 +51,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
       </div>
 
       <button
+        data-testid="onboarding-next"
         onClick={onNext}
         style={{
           width: '100%',

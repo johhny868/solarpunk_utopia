@@ -13,30 +13,11 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api/dtn': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/dtn/, '')
-      },
-      '/api/vf': {
-        target: 'http://localhost:8001',
+      // Proxy all /api requests to backend, removing /api prefix
+      '/api': {
+        target: 'http://localhost:8888',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      '/api/bridge': {
-        target: 'http://localhost:8002',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/bridge/, '')
-      },
-      '/api/discovery': {
-        target: 'http://localhost:8003',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/discovery/, '')
-      },
-      '/api/files': {
-        target: 'http://localhost:8004',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/files/, '')
       },
     },
   },

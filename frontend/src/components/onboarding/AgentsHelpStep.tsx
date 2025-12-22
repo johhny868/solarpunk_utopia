@@ -92,6 +92,7 @@ export function AgentsHelpStep({ onNext, onBack }: AgentsHelpStepProps) {
           ← Back
         </button>
         <button
+          data-testid="onboarding-next"
           onClick={onNext}
           style={{
             flex: 2,

@@ -65,6 +65,7 @@ export function BrowseOffersStep({ onNext, onBack }: BrowseOffersStepProps) {
           ← Back
         </button>
         <button
+          data-testid="onboarding-next"
           onClick={onNext}
           style={{
             flex: 2,

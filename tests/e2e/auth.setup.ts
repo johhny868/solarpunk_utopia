@@ -26,26 +26,36 @@ setup('authenticate', async ({ page }) => {
   // The app might redirect to /onboarding for first-time users or / for returning users
   await page.waitForURL(new RegExp(`${BASE_URL}/(onboarding)?`), { timeout: 10000 });
 
-  // If redirected to onboarding, skip it
+  // If redirected to onboarding, complete it by clicking through all steps
   const url = page.url();
   if (url.includes('/onboarding')) {
-    // Look for a skip or continue button
-    const skipButton = page.locator('button:has-text("Skip")');
-    const continueButton = page.locator('button:has-text("Continue")');
-    const getStartedButton = page.locator('button:has-text("Get Started")');
+    // Click through onboarding steps using data-testid
+    // Keep clicking "next" buttons until we get to the finish button
+    let maxSteps = 10; // Safety limit
+    while (maxSteps > 0) {
+      maxSteps--;
 
-    if (await skipButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await skipButton.click();
-    } else if (await continueButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await continueButton.click();
-    } else if (await getStartedButton.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await getStartedButton.click();
+      const nextButton = page.locator('[data-testid="onboarding-next"]');
+      const finishButton = page.locator('[data-testid="onboarding-finish"]');
+
+      // Check if we're on the last step
+      if (await finishButton.isVisible({ timeout: 500 }).catch(() => false)) {
+        await finishButton.click();
+        break;
+      }
+
+      // Otherwise click next
+      if (await nextButton.isVisible({ timeout: 500 }).catch(() => false)) {
+        await nextButton.click();
+        await page.waitForTimeout(300); // Brief wait for transition
+      } else {
+        // No more buttons, we're done
+        break;
+      }
     }
 
     // Wait for redirect to home
-    await page.waitForURL(`${BASE_URL}/`, { timeout: 5000 }).catch(() => {
-      // Might already be on home, that's ok
-    });
+    await page.waitForURL(`${BASE_URL}/`, { timeout: 10000 });
   }
 
   // Verify we're logged in - should be on home page or have navigation visible

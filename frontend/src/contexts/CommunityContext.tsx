@@ -42,7 +42,7 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
   const loadCommunities = async () => {
     try {
       // Fetch user's communities from API
-      const response = await axios.get('/api/vf/communities');
+      const response = await axios.get('/api/communities');
       const userCommunities: Community[] = response.data;
 
       setCommunities(userCommunities);
@@ -86,7 +86,7 @@ export function CommunityProvider({ children }: { children: React.ReactNode }) {
 
   const createCommunity = async (name: string, description?: string): Promise<Community> => {
     try {
-      const response = await axios.post('/api/vf/communities', {
+      const response = await axios.post('/api/communities', {
         name,
         description,
         is_public: true

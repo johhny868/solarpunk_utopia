@@ -90,6 +90,7 @@ export function CreateOfferStep({ onNext, onBack }: CreateOfferStepProps) {
           Create Offer Now →
         </button>
         <button
+          data-testid="onboarding-next"
           onClick={onNext}
           style={{
             flex: 1,

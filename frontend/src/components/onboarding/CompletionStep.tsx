@@ -53,6 +53,7 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
       </div>
 
       <button
+        data-testid="onboarding-finish"
         onClick={onFinish}
         style={{
           width: '100%',

@@ -92,6 +92,7 @@ export function GiftEconomyStep({ onNext, onBack }: GiftEconomyStepProps) {
           ← Back
         </button>
         <button
+          data-testid="onboarding-next"
           onClick={onNext}
           style={{
             flex: 2,

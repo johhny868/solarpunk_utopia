@@ -9,7 +9,7 @@ import type {
 } from '@/types/agents';
 
 const api = axios.create({
-  baseURL: '/api/agents', // Agents API on DTN service
+  baseURL: '/api/vf/agents', // Agents API (ValueFlows routes)
 });
 
 export const agentsApi = {
