@@ -117,7 +117,17 @@ class AncestorVotingService:
 
     def request_memorial_removal(self, fund_id: str) -> None:
         """Request removal of a Memorial Fund (family request)."""
+        # Mark fund for removal
         self.repo.request_fund_removal(fund_id)
+
+        # Refund all active allocations
+        allocations = self.repo.list_allocations_for_fund(fund_id)
+        for allocation in allocations:
+            if allocation.status == AllocationStatus.ACTIVE:
+                self.refund_allocation(
+                    allocation_id=allocation.id,
+                    refund_reason="Family requested memorial removal"
+                )
 
     # ===== Ghost Reputation Allocation =====
 
@@ -143,6 +153,10 @@ class AncestorVotingService:
         fund = self.repo.get_memorial_fund(fund_id)
         if not fund:
             raise ValueError(f"Memorial Fund {fund_id} not found")
+
+        # Check if fund has been marked for removal
+        if fund.family_requested_removal:
+            raise ValueError("Memorial Fund removal requested - no new allocations allowed")
 
         # Check sufficient balance
         if fund.current_balance < amount:
@@ -232,7 +246,7 @@ class AncestorVotingService:
         )
 
         # Update impact tracking
-        self._update_impact_tracking(fund_id, priority)
+        self._update_impact_tracking(fund_id, amount, priority)
 
         return allocation
 
@@ -270,6 +284,9 @@ class AncestorVotingService:
             new_balance = fund.current_balance + allocation.amount
             self.repo.update_memorial_fund_balance(allocation.fund_id, new_balance)
 
+        # Update impact tracking - record refund
+        self._update_impact_tracking_refund(allocation.fund_id, allocation.amount)
+
         # Log audit
         self._log_audit(
             allocation_id=allocation_id,
@@ -281,6 +298,8 @@ class AncestorVotingService:
                 'refunded_amount': allocation.amount,
             })
         )
+
+        return self.repo.get_allocation(allocation_id)
 
     def refund_allocation(
         self,
@@ -306,6 +325,9 @@ class AncestorVotingService:
         # Mark as refunded
         self.repo.refund_allocation(allocation_id, refund_reason)
 
+        # Update impact tracking - record refund
+        self._update_impact_tracking_refund(allocation.fund_id, allocation.amount)
+
         # Log audit
         self._log_audit(
             allocation_id=allocation_id,
@@ -322,7 +344,7 @@ class AncestorVotingService:
         self,
         allocation_id: str,
         proposal_status: ProposalStatus
-    ) -> None:
+    ) -> GhostReputationAllocation:
         """
         Mark allocation as completed (proposal implemented).
         """
@@ -360,6 +382,8 @@ class AncestorVotingService:
                 'proposal_status': proposal_status.value,
             })
         )
+
+        return self.repo.get_allocation(allocation_id)
 
     # ===== Queries and Reporting =====
 
@@ -469,23 +493,35 @@ class AncestorVotingService:
         """
         score = 0
 
-        # New member check (<3 months)
-        is_new_member = proposal_metadata.get('author_tenure_months', 999) < 3
+        # New member check (<3 months) - support both naming conventions
+        is_new_member = (
+            proposal_metadata.get('is_new_member', False) or
+            proposal_metadata.get('author_tenure_months', 999) < 3
+        )
         if is_new_member:
             score += 3
 
-        # Low reputation check
-        has_low_reputation = proposal_metadata.get('author_reputation', 999) < 50
+        # Low reputation check - support both naming conventions
+        has_low_reputation = (
+            proposal_metadata.get('has_low_reputation', False) or
+            proposal_metadata.get('author_reputation', 999) < 50
+        )
         if has_low_reputation:
             score += 2
 
-        # Controversial flag
-        is_controversial = proposal_metadata.get('flagged_controversial', False)
+        # Controversial flag - support both naming conventions
+        is_controversial = (
+            proposal_metadata.get('is_controversial', False) or
+            proposal_metadata.get('flagged_controversial', False)
+        )
         if is_controversial:
             score += 2
 
-        # Marginalized identity (self-disclosed)
-        is_marginalized_identity = proposal_metadata.get('author_marginalized_identity', False)
+        # Marginalized identity (self-disclosed) - support both naming conventions
+        is_marginalized_identity = (
+            proposal_metadata.get('is_marginalized_identity', False) or
+            proposal_metadata.get('author_marginalized_identity', False)
+        )
         if is_marginalized_identity:
             score += 3
 
@@ -500,6 +536,7 @@ class AncestorVotingService:
     def _update_impact_tracking(
         self,
         fund_id: str,
+        amount: float,
         priority: Dict[str, Any]
     ) -> None:
         """Update impact tracking after allocation."""
@@ -518,6 +555,7 @@ class AncestorVotingService:
                 last_updated=datetime.utcnow(),
             )
 
+        tracking.total_allocated += amount
         tracking.proposals_boosted += 1
 
         if priority['is_new_member']:
@@ -529,6 +567,19 @@ class AncestorVotingService:
         tracking.last_updated = datetime.utcnow()
 
         self.repo.create_or_update_impact_tracking(tracking)
+
+    def _update_impact_tracking_refund(
+        self,
+        fund_id: str,
+        amount: float
+    ) -> None:
+        """Update impact tracking after refund (veto or family removal)."""
+        tracking = self.repo.get_impact_tracking(fund_id)
+        if tracking:
+            tracking.total_allocated -= amount  # Subtract from allocated
+            tracking.total_refunded += amount
+            tracking.last_updated = datetime.utcnow()
+            self.repo.create_or_update_impact_tracking(tracking)
 
     def _log_audit(
         self,

@@ -659,7 +659,7 @@ class AncestorVotingRepository:
         cursor.execute("""
             SELECT * FROM allocation_audit_log
             WHERE allocation_id = ?
-            ORDER BY logged_at DESC
+            ORDER BY logged_at ASC
         """, (allocation_id,))
 
         rows = cursor.fetchall()

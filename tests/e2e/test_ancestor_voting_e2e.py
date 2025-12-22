@@ -199,7 +199,7 @@ class TestAncestorVotingE2E:
         vetoed_allocation = self.service.veto_allocation(
             allocation_id=allocation.id,
             vetoed_by="steward-dave",
-            reason="This doesn't align with Alice's values - she opposed corporate partnerships"
+            veto_reason="This doesn't align with Alice's values - she opposed corporate partnerships"
         )
 
         # Verify: Allocation vetoed
@@ -504,8 +504,8 @@ class TestAncestorVotingE2E:
 
         # Verify: Impact metrics correct
         tracking = self.service.get_impact_tracking(fund.id)
-        assert tracking.total_allocated == 0.20  # alloc1 + alloc2
-        assert tracking.total_refunded == 0.10  # alloc3
+        assert abs(tracking.total_allocated - 0.20) < 0.001  # alloc1 + alloc2 (floating point tolerance)
+        assert abs(tracking.total_refunded - 0.10) < 0.001  # alloc3 (floating point tolerance)
         assert tracking.proposals_boosted == 3
         assert tracking.proposals_approved == 1
         assert tracking.proposals_implemented == 1

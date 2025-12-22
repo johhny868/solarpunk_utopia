@@ -321,7 +321,7 @@ Predefined trust networks:
 
 ### Phase 4: Governance (P4)
 9. [x] Saturnalia E2E test - `tests/e2e/test_saturnalia_e2e.py` (14 test scenarios, all passing)
-10. [~] Ancestor Voting E2E test - `tests/e2e/test_ancestor_voting_e2e.py` (11 test scenarios, 4/11 passing, WIP)
+10. [x] Ancestor Voting E2E test - `tests/e2e/test_ancestor_voting_e2e.py` (11 test scenarios, all passing)
 11. [ ] Bakunin Analytics E2E test
 
 ### Phase 5: Philosophical (P5)
