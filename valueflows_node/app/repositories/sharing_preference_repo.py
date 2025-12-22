@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime
 from valueflows_node.app.models.sharing_preference import (
     SharingPreference,
+    SharingPreferenceCreate,
     VisibilityLevel,
     LocationPrecision,
 )
@@ -50,7 +51,7 @@ class SharingPreferenceRepository:
             updated_at=datetime.fromisoformat(row[4]) if row[4] else None,
         )
 
-    def set_preference(self, preference: SharingPreference) -> SharingPreference:
+    def set_preference(self, user_id: str, preference: SharingPreferenceCreate) -> SharingPreference:
         """Create or update sharing preference."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -62,7 +63,7 @@ class SharingPreferenceRepository:
             (user_id, visibility, location_precision, local_radius_km, updated_at)
             VALUES (?, ?, ?, ?, ?)
         """, (
-            preference.user_id,
+            user_id,
             preference.visibility,
             preference.location_precision,
             preference.local_radius_km,
@@ -72,8 +73,13 @@ class SharingPreferenceRepository:
         conn.commit()
         conn.close()
 
-        preference.updated_at = datetime.fromisoformat(updated_at)
-        return preference
+        return SharingPreference(
+            user_id=user_id,
+            visibility=preference.visibility,
+            location_precision=preference.location_precision,
+            local_radius_km=preference.local_radius_km,
+            updated_at=datetime.fromisoformat(updated_at)
+        )
 
     def delete_preference(self, user_id: str) -> bool:
         """Delete sharing preference (revert to default)."""

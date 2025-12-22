@@ -153,8 +153,13 @@ async def update_sharing_preference(
     if update.local_radius_km is not None:
         current_pref.local_radius_km = update.local_radius_km
 
-    # Save
-    return service.set_sharing_preference(current_pref)
+    # Save - convert to Create model
+    update_data = SharingPreferenceCreate(
+        visibility=current_pref.visibility,
+        location_precision=current_pref.location_precision,
+        local_radius_km=current_pref.local_radius_km
+    )
+    return service.set_sharing_preference(user_id, update_data)
 
 
 @router.post("/preferences/{user_id}", response_model=SharingPreference, status_code=201)
@@ -164,11 +169,4 @@ async def create_sharing_preference(
     service: InterCommunityService = Depends(get_inter_community_service),
 ):
     """Create sharing preference for user."""
-    preference = SharingPreference(
-        user_id=user_id,
-        visibility=create.visibility,
-        location_precision=create.location_precision,
-        local_radius_km=create.local_radius_km,
-    )
-
-    return service.set_sharing_preference(preference)
+    return service.set_sharing_preference(user_id, create)

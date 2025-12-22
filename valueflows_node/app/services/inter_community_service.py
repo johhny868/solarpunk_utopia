@@ -8,6 +8,7 @@ from typing import List, Optional
 import math
 from valueflows_node.app.models.sharing_preference import (
     SharingPreference,
+    SharingPreferenceCreate,
     VisibilityLevel,
 )
 from valueflows_node.app.repositories.sharing_preference_repo import SharingPreferenceRepository
@@ -155,6 +156,6 @@ class InterCommunityService:
         """Get user's sharing preference."""
         return self.sharing_pref_repo.get_preference(user_id)
 
-    def set_sharing_preference(self, preference: SharingPreference) -> SharingPreference:
+    def set_sharing_preference(self, user_id: str, preference: SharingPreferenceCreate) -> SharingPreference:
         """Set user's sharing preference."""
-        return self.sharing_pref_repo.set_preference(preference)
+        return self.sharing_pref_repo.set_preference(user_id, preference)

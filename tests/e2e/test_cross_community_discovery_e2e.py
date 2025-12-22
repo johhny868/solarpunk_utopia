@@ -84,6 +84,7 @@ class TestCrossCommunityDiscoveryE2E:
         CREATE TABLE IF NOT EXISTS sharing_preferences (
             user_id TEXT PRIMARY KEY,
             visibility TEXT NOT NULL,
+            location_precision TEXT NOT NULL DEFAULT 'neighborhood',
             local_radius_km REAL DEFAULT 10.0,
             updated_at TEXT NOT NULL
         );
@@ -137,9 +138,9 @@ class TestCrossCommunityDiscoveryE2E:
         local_radius_km: float = 10.0
     ):
         """Helper to set sharing preference"""
-        await self.sharing_pref_repo.set_preference(
+        self.sharing_pref_repo.set_preference(
+            user_id,
             SharingPreferenceCreate(
-                user_id=user_id,
                 visibility=visibility,
                 local_radius_km=local_radius_km
             )
