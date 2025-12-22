@@ -95,7 +95,7 @@ class TestCrossCommunityDiscoveryE2E:
 
         # Create repositories and service
         self.vouch_repo = VouchRepository(self.db_path)
-        self.sharing_pref_repo = SharingPreferenceRepository()
+        self.sharing_pref_repo = SharingPreferenceRepository(self.db_path)
         self.service = InterCommunityService(
             self.sharing_pref_repo,
             self.vouch_repo
