@@ -18,17 +18,17 @@ import { CommunitySelector } from './CommunitySelector';
 import { usePendingCount } from '@/hooks/useAgents';
 
 const navItems = [
-  { path: '/', label: 'Home', icon: Home },
-  { path: '/offers', label: 'Offers', icon: Gift },
-  { path: '/needs', label: 'Needs', icon: Heart },
-  { path: '/community-shelf', label: 'Community Shelf', icon: Package },
-  { path: '/exchanges', label: 'Exchanges', icon: ArrowLeftRight },
-  { path: '/cells', label: 'Cells', icon: Users },
-  { path: '/messages', label: 'Messages', icon: MessageCircle },
-  { path: '/discovery', label: 'Search', icon: Search },
-  { path: '/knowledge', label: 'Knowledge', icon: BookOpen },
-  { path: '/network', label: 'Network', icon: Radio },
-  { path: '/agents', label: 'AI Agents', icon: Bot, showBadge: true },
+  { path: '/', label: 'Home', icon: Home, tooltip: 'Dashboard and overview' },
+  { path: '/offers', label: 'Offers', icon: Gift, tooltip: 'Things people are sharing' },
+  { path: '/needs', label: 'Needs', icon: Heart, tooltip: 'Things people need' },
+  { path: '/community-shelf', label: 'Community Shelf', icon: Package, tooltip: 'Shared community resources' },
+  { path: '/exchanges', label: 'My Exchanges', icon: ArrowLeftRight, tooltip: 'Your active exchanges' },
+  { path: '/cells', label: 'Local Groups', icon: Users, tooltip: 'Connect with neighbors' },
+  { path: '/messages', label: 'Messages', icon: MessageCircle, tooltip: 'Direct messages' },
+  { path: '/discovery', label: 'Search', icon: Search, tooltip: 'Find offers and needs' },
+  { path: '/knowledge', label: 'Knowledge', icon: BookOpen, tooltip: 'Learn and share knowledge' },
+  { path: '/network', label: 'Network', icon: Radio, tooltip: 'Mesh network status' },
+  { path: '/agents', label: 'Smart Helpers', icon: Bot, showBadge: true, tooltip: 'AI that helps match offers with needs' },
 ];
 
 export function Navigation() {
@@ -55,6 +55,7 @@ export function Navigation() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                title={item.tooltip}
                 className={({ isActive }) =>
                   clsx(
                     'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors relative',
@@ -100,6 +101,7 @@ export function Navigation() {
             <NavLink
               key={item.path}
               to={item.path}
+              title={item.tooltip}
               className={({ isActive }) =>
                 clsx(
                   'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap relative',
