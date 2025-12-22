@@ -131,6 +131,25 @@ class TestCrossCommunityDiscoveryE2E:
         conn.commit()
         conn.close()
 
+    async def _create_genesis_node(self, user_id: str):
+        """Helper to create a genesis node"""
+        import sqlite3
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO genesis_nodes (user_id, added_at, notes)
+            VALUES (?, ?, ?)
+            """,
+            (
+                user_id,
+                datetime.now(timezone.utc).isoformat(),
+                "test genesis node"
+            )
+        )
+        conn.commit()
+        conn.close()
+
     async def _set_sharing_preference(
         self,
         user_id: str,
@@ -239,10 +258,14 @@ class TestCrossCommunityDiscoveryE2E:
         bob_id = "user:bob"
         carol_id = "user:carol"
 
+        # Create Alice as genesis node so her vouches create valid trust chains
+        await self._create_genesis_node(alice_id)
+
         # Alice sets TRUSTED_NETWORK visibility
         await self._set_sharing_preference(alice_id, VisibilityLevel.TRUSTED_NETWORK)
 
         # Create high trust vouch Alice -> Bob
+        # With trust attenuation of 0.85, Bob gets trust score of 0.85^1 = 0.85
         await self._create_vouch(alice_id, bob_id, trust=0.85)
 
         # Bob with high trust - should see

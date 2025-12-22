@@ -105,20 +105,23 @@ class InterCommunityService:
         """
         Compute trust from viewer's perspective to creator.
 
-        This uses the web of trust service to get creator's trust score.
-        In a full implementation, we'd want bidirectional trust computation,
-        but for MVP we use creator's absolute trust score.
+        For MVP, we check the viewer's trust score - if they are trusted in the network,
+        they can see resources from others with TRUSTED_NETWORK visibility.
+
+        In a full implementation, we'd compute bidirectional trust paths.
         """
         if viewer_id == creator_id:
             return 1.0  # Full trust in yourself
 
-        # Get creator's trust score from web of trust
-        creator_trust = self.web_of_trust.compute_trust_score(creator_id)
+        # Get viewer's trust score from web of trust
+        # If the viewer is trusted in the network (someone vouched for them),
+        # they can see TRUSTED_NETWORK resources
+        viewer_trust = self.web_of_trust.compute_trust_score(viewer_id)
 
-        # For MVP, we use the creator's absolute trust score
+        # For MVP, we use the viewer's trust score
         # In a full implementation, we'd compute trust path from viewer to creator
         # TODO: Implement bidirectional trust path computation
-        return creator_trust.computed_trust
+        return viewer_trust.computed_trust
 
     def _calculate_distance_km(
         self, lat1: float, lon1: float, lat2: float, lon2: float
