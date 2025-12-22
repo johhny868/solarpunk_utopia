@@ -435,6 +435,26 @@ class AncestorVotingService:
         """Get audit logs for an allocation (transparency)."""
         return self.repo.get_audit_logs_for_allocation(allocation_id)
 
+    def get_departure_record(self, user_id: str) -> Optional[UserDepartureRecord]:
+        """Get the departure record for a user."""
+        return self.repo.get_departure_record_by_user(user_id)
+
+    def get_impact_tracking(self, fund_id: str) -> Optional[MemorialImpactTracking]:
+        """Get impact tracking for a memorial fund."""
+        return self.repo.get_impact_tracking(fund_id)
+
+    def get_allocation(self, allocation_id: str) -> Optional[GhostReputationAllocation]:
+        """Get a specific allocation by ID."""
+        return self.repo.get_allocation(allocation_id)
+
+    def get_allocation_audit_logs(self, allocation_id: str) -> List[AllocationAuditLog]:
+        """Get audit logs for an allocation (alias for get_audit_logs)."""
+        return self.get_audit_logs(allocation_id)
+
+    def get_allocation_priority(self, allocation_id: str) -> Optional[AllocationPriority]:
+        """Get the priority information for an allocation."""
+        return self.repo.get_allocation_priority(allocation_id)
+
     # ===== Private Helper Methods =====
 
     def _calculate_priority(self, proposal_metadata: Dict[str, Any]) -> Dict[str, Any]:

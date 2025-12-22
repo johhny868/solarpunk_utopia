@@ -129,7 +129,7 @@ class TestAncestorVotingE2E:
         allocation = self.service.allocate_ghost_reputation(
             fund_id=fund.id,
             proposal_id="proposal-community-garden",
-            amount=0.20,  # 20% of fund
+            amount=0.17,  # 20% of 0.85 fund (max allowed per proposal)
             allocated_by="steward-bob",
             reason="Alice was passionate about urban agriculture and teaching permaculture to youth. This community garden proposal aligns perfectly with her values.",
             proposal_metadata={
@@ -144,7 +144,7 @@ class TestAncestorVotingE2E:
         assert allocation is not None
         assert allocation.fund_id == fund.id
         assert allocation.proposal_id == "proposal-community-garden"
-        assert allocation.amount == 0.20
+        assert allocation.amount == 0.17
         assert allocation.allocated_by == "steward-bob"
         assert allocation.status == AllocationStatus.ACTIVE
         assert allocation.vetoed is False
@@ -155,11 +155,11 @@ class TestAncestorVotingE2E:
 
         # Verify: Fund balance decreased
         updated_fund = self.service.get_memorial_fund(fund.id)
-        assert updated_fund.current_balance == 0.65  # 0.85 - 0.20
+        assert abs(updated_fund.current_balance - 0.68) < 0.001  # 0.85 - 0.17 (floating point tolerance)
 
         # Verify: Impact tracking updated
         tracking = self.service.get_impact_tracking(fund.id)
-        assert tracking.total_allocated == 0.20
+        assert tracking.total_allocated == 0.17
         assert tracking.proposals_boosted == 1
         assert tracking.new_members_helped == 1
 
