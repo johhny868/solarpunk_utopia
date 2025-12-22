@@ -35,10 +35,24 @@ class TestTemporalJusticeE2E:
         # Setup
         self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
 
-        # Run migration
+        # Run migrations
         import aiosqlite
+        import os
+        # Find project root (where both valueflows_node and app directories exist)
+        test_file_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(test_file_dir)))
+
         async with aiosqlite.connect(self.db_path) as db:
-            with open("app/database/migrations/012_add_temporal_justice.sql") as f:
+            # Load base schema first (has users, proposals, cells tables)
+            vf_schema_path = os.path.join(project_root, "valueflows_node", "app", "database", "vf_schema.sql")
+            with open(vf_schema_path) as f:
+                base_schema = f.read()
+            await db.executescript(base_schema)
+            await db.commit()
+
+            # Load temporal justice migration
+            temporal_migration_path = os.path.join(project_root, "app", "database", "migrations", "012_add_temporal_justice.sql")
+            with open(temporal_migration_path) as f:
                 migration_sql = f.read()
             await db.executescript(migration_sql)
             await db.commit()

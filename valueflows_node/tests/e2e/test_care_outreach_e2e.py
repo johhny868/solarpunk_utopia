@@ -39,15 +39,22 @@ class TestCareOutreachE2E:
 
         # Run migrations
         import aiosqlite
+        import os
+        # Find project root (where both valueflows_node and app directories exist)
+        test_file_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(test_file_dir)))
+
         async with aiosqlite.connect(self.db_path) as db:
-            # Care outreach migration
-            with open("app/database/migrations/008_care_outreach.sql") as f:
-                migration_sql = f.read()
-            await db.executescript(migration_sql)
+            # Load base schema first (has users table and other dependencies)
+            vf_schema_path = os.path.join(project_root, "valueflows_node", "app", "database", "vf_schema.sql")
+            with open(vf_schema_path) as f:
+                base_schema = f.read()
+            await db.executescript(base_schema)
             await db.commit()
 
-            # Web of trust migration (dependency)
-            with open("app/database/migrations/002_web_of_trust.sql") as f:
+            # Care outreach migration
+            care_migration_path = os.path.join(project_root, "app", "database", "migrations", "017_add_care_outreach.sql")
+            with open(care_migration_path) as f:
                 migration_sql = f.read()
             await db.executescript(migration_sql)
             await db.commit()
