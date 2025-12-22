@@ -310,8 +310,8 @@ Predefined trust networks:
 3. [ ] Panic Features E2E test (auth flow + network propagation) - DEFERRED (unit tests exist, needs auth system integration)
 
 ### Phase 2: Trust & Coordination (P2)
-4. [ ] Web of Trust vouch chain E2E test
-5. [ ] Mycelial Strike defense E2E test
+4. [x] Web of Trust vouch chain E2E test - `tests/e2e/test_web_of_trust_e2e.py` (10 test scenarios, all passing)
+5. [ ] Mycelial Strike defense E2E test (in progress - test file created, needs service method fixes)
 6. [ ] Blocking with silent failure E2E test
 
 ### Phase 3: Multi-Node (P3)
