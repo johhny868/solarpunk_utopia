@@ -10,8 +10,9 @@ This document identifies gaps between what the codebase claims to implement and 
 
 ## Executive Summary
 
-**Total Gaps Found**: 61 (8 CRITICAL, 16 HIGH, 28 MEDIUM, 9 LOW)
-**Session 14 Update**: Core security VERIFIED WORKING; auth gaps remain in bundles/governance/group_formation APIs
+**Total Gaps Found**: 65 (8 CRITICAL, 17 HIGH, 31 MEDIUM, 9 LOW)
+**Session 15 Update**: Core security verified; NEW auth gaps found in care_outreach/algorithmic_transparency APIs
+- Session 15: Found GAP-187 (care outreach API), GAP-188 (transparency API), GAP-189/190 (agent/service mock data)
 - Session 14: Verified encryption, key wipe, burn notices all working; documented GAP-183/184/185/186
 - Session 13: Confirmed GAP-131, GAP-141 still fixed; found GAP-177, GAP-179 (auth issues)
 - Session 12: Confirmed GAP-164/145 fixed (Forwarding Service fully implemented)
@@ -21,8 +22,8 @@ This document identifies gaps between what the codebase claims to implement and 
 - Session 8: GAP-114, GAP-117, GAP-134, GAP-135, GAP-136, GAP-148, GAP-149, GAP-150
 - Prior sessions: GAP-65, GAP-69, GAP-72, GAP-116
 
-**New Gaps Found (Session 14)**: GAP-183 (consolidated agent mock data), GAP-184 (match auth), GAP-185 (resilience graph), GAP-186 (temporal justice)
-**Still Open - HIGH**: GAP-177 (Bundles API), GAP-179 (Governance stubs), GAP-160 (Group Formation), GAP-154 (hardcoded cell_id)
+**New Gaps Found (Session 15)**: GAP-187 (care outreach API auth), GAP-188 (transparency API auth), GAP-189 (agent mock fallback), GAP-190 (temporal justice check-in)
+**Still Open - HIGH**: GAP-177 (Bundles API), GAP-179 (Governance stubs), GAP-160 (Group Formation), GAP-187 (Care Outreach), GAP-154 (hardcoded cell_id)
 
 ### Session 8 Progress (2025-12-20)
 
@@ -2792,6 +2793,187 @@ Stubbed auth:            1 file (governance.py)
 
 ---
 
+## Session 15 Gaps: Autonomous Verification (2025-12-22)
+
+### VERIFIED STATUS OF PREVIOUS GAPS
+
+| GAP | Description | Status |
+|-----|-------------|--------|
+| GAP-177 | Bundles API auth | ❌ STILL OPEN - Confirmed no `require_auth` import in `app/api/bundles.py` |
+| GAP-179 | Governance stubbed auth | ❌ STILL OPEN - Confirmed stubbed `get_current_user()` returns `"current-user-id"` at lines 26-28 |
+| GAP-160 | Group Formation API auth | ❌ STILL OPEN - Confirmed no `require_auth` import in `app/api/group_formation.py` |
+| GAP-154 | RapidResponsePage cell_id | ❌ STILL OPEN - Hardcoded `'cell-001'` at lines 102, 150 |
+| GAP-159 | Saturnalia role swap | ❌ STILL OPEN - `pass` at line 364, `return []` at line 396 |
+| GAP-186 | Temporal justice queries | ❌ STILL OPEN - `return []` at line 116 "for now return empty" |
+
+### NEW GAPS DISCOVERED (Session 15)
+
+---
+
+### GAP-187: Care Outreach API Missing Auth Integration
+**Severity**: HIGH (Security)
+**Location**: `app/api/care_outreach.py` - ALL 13 endpoints
+**Claimed**: Care outreach for converting struggling members
+**Reality**: No authentication on any endpoint. All endpoints accept unauthenticated requests:
+- POST `/api/care/volunteers` - Register as volunteer (no auth)
+- GET `/api/care/volunteers/available` - List volunteers (no auth)
+- POST `/api/care/flag` - Flag user for outreach (no auth)
+- GET `/api/care/assignments/active` - Get active assignments (no auth)
+- GET `/api/care/assignments/{user_id}` - Get assignment for user (no auth)
+- POST `/api/care/notes` - Add note to assignment (no auth)
+- POST `/api/care/convert` - Mark converted (no auth)
+- POST `/api/care/chose-to-leave` - Mark chose to leave (no auth)
+- POST `/api/care/assess` - Assess needs (no auth)
+- GET `/api/care/access/{user_id}` - Get access level (no auth)
+- GET `/api/care/metrics` - Get metrics (no auth)
+- GET `/api/care/experiences` - Get experiences (no auth)
+- POST `/api/care/infiltrator` - Handle infiltrator (no auth)
+**Risk**: Anyone can flag users, view sensitive outreach data, or manipulate conversion records
+**Fix**: Add `current_user: User = Depends(require_auth)` to all endpoints; some endpoints may need `require_steward`.
+
+---
+
+### GAP-188: Algorithmic Transparency API Missing Auth Integration
+**Severity**: MEDIUM (Security)
+**Location**: `app/api/algorithmic_transparency.py` - ALL 11 endpoints
+**Claimed**: Transparency into AI matching decisions
+**Reality**: No authentication on any endpoint. User preferences are queried/updated without verification:
+- GET `/transparency/matches/{match_id}/explanation` - Takes `user_id` as parameter, not from auth
+- GET `/transparency/weights` - Public (may be OK)
+- GET `/transparency/weights/active` - Public (may be OK)
+- POST `/transparency/weights` - Takes `user_id` as parameter, not from auth
+- PUT `/transparency/weights/{weights_id}` - No auth, anyone can update
+- POST `/transparency/bias-detection/run` - No auth
+- GET `/transparency/bias-detection/reports` - No auth
+- GET `/transparency/bias-detection/reports/{report_id}` - No auth
+- GET `/transparency/preferences/{user_id}` - Takes user_id in path, no ownership check
+- PUT `/transparency/preferences/{user_id}` - Takes user_id in path, anyone can update
+- GET `/transparency/stats/overview` - Public (may be OK)
+**Risk**: Anyone can update other users' preferences or create weights for any community
+**Fix**: Add auth and ownership verification for user-specific endpoints.
+
+---
+
+### GAP-189: Conscientization Agent Falls Back to Mock Data
+**Severity**: MEDIUM
+**Location**: `app/agents/conscientization.py:99-100, 154-156, 191-192`
+**Claimed**: "Algorithmic Transparency ✅ IMPLEMENTED" in WORKSHOP_SPRINT
+**Reality**: Falls back to mock data when db_client unavailable or query fails:
+```python
+# Line 99-100:
+if not self.db_client:
+    return self._get_mock_content_consumers()
+
+# Line 154-156:
+# TODO: Parse content metadata or use LLM to extract resource requirements
+# For now, return mock data
+```
+**Impact**: Learner identification and mentor matching use hardcoded values
+**Fix**: Ensure db_client is always available; implement actual resource gap analysis.
+
+---
+
+### GAP-190: Temporal Justice Slow Exchange Check-In Returns Empty
+**Severity**: MEDIUM
+**Location**: `app/services/temporal_justice_service.py:114-116`
+**Claimed**: "Temporal Justice ✅ IMPLEMENTED" in WORKSHOP_SPRINT
+**Reality**: Method returns empty list:
+```python
+async def get_slow_exchanges_needing_check_in(
+    self, days_since_contact: int = 7
+) -> List[SlowExchange]:
+    # This would need a custom query - for now return empty
+    return []
+```
+**Impact**: Users with ongoing slow exchanges won't get check-in reminders
+**Fix**: Add custom query to repository for last_contact_at filtering.
+
+---
+
+## Updated Summary Statistics (Session 15)
+
+### Total Gaps: 65 (+4 new documented, confirmed existing)
+
+| Severity | Count | Change from Session 14 |
+|----------|-------|----------------------|
+| CRITICAL | 8 | - |
+| HIGH | 17 | +1 (GAP-187 Care Outreach API) |
+| MEDIUM | 31 | +3 (GAP-188, 189, 190) |
+| LOW | 9 | - |
+
+### Key Findings: Session 15
+
+**Confirmed Fixed:**
+- All CRITICAL security gaps (encryption, key wipe, burn notices) remain verified
+
+**New Issues Found:**
+1. **GAP-187**: Care Outreach API has no authentication (13 endpoints exposed - HIGH PRIORITY)
+2. **GAP-188**: Algorithmic Transparency API has no authentication (11 endpoints)
+3. **GAP-189**: Conscientization agent mock data fallback
+4. **GAP-190**: Temporal justice slow exchange check-in returns empty
+
+**Still Open - High Priority:**
+1. **GAP-177**: Bundles API unauthenticated (9 endpoints)
+2. **GAP-179**: Governance API stubbed auth (all voting endpoints)
+3. **GAP-160**: Group Formation API unauthenticated (8 endpoints)
+4. **GAP-187**: Care Outreach API unauthenticated (13 endpoints - NEW)
+5. **GAP-154**: RapidResponsePage hardcoded cell_id
+6. **GAP-169**: Listings delete lacks ownership verification
+
+**Patterns Confirmed Still Present:**
+- 49 TODO/FIXME comments in Python app directory
+- 18 `return []` patterns indicating incomplete queries
+- 29 "For now, return" patterns for mock data
+- 12+ agents returning mock data instead of database queries
+- 5 unauthenticated API files (bundles, group_formation, care_outreach, algorithmic_transparency, sync)
+- 1 stubbed auth file (governance.py)
+
+### Codebase Health Snapshot (Session 15)
+
+```
+Python TODO comments:     49 (app/ directory)
+'return []' patterns:     18 (app/ directory)
+'For now' patterns:       29 (temporary implementations)
+'placeholder/mock':       117 occurrences
+Agents with mock data:    12+ (GAP-183)
+Unauthenticated APIs:     5 files (bundles, group_formation, care_outreach, algorithmic_transparency, sync)
+Stubbed auth:            1 file (governance.py)
+Frontend hardcoded IDs:   7 occurrences (cell-001, demo-user patterns)
+Frontend TODO comments:   11 (src/ directory)
+```
+
+---
+
+### Fix Priority Update (Session 15)
+
+**P0 - CRITICAL (Before Workshop):**
+- All critical security gaps verified fixed ✅
+
+**P1 - HIGH (First Week):**
+- GAP-187: Care Outreach API auth integration (NEW - 13 sensitive endpoints)
+- GAP-177: Bundles API auth review
+- GAP-179: Governance API real auth (replace stubs)
+- GAP-160: Group Formation API auth
+- GAP-154: RapidResponsePage cell_id from user context
+- GAP-169: Listings delete ownership verification
+
+**P2 - MEDIUM (First Month):**
+- GAP-188: Algorithmic Transparency API auth (NEW)
+- GAP-189: Conscientization agent mock data fallback (NEW)
+- GAP-190: Temporal justice check-in query (NEW)
+- GAP-183: Agent database queries (12+ agents)
+- GAP-184: Match accept/reject ownership
+- GAP-185: Network resilience graph analysis
+- GAP-186: Temporal justice queries
+- GAP-159: Saturnalia features
+
+**P3 - LOW (Ongoing):**
+- GAP-181: Frontend demo-user fallback (acceptable)
+- GAP-155: NetworkImpactWidget community count
+- Documentation improvements
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-22 (Session 14 - Autonomous Verification)
+**Last Updated**: 2025-12-22 (Session 15 - Autonomous Verification)
 **Next Review**: After P1 gaps addressed.
