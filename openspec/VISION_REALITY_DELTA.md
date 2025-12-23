@@ -2974,6 +2974,161 @@ Frontend TODO comments:   11 (src/ directory)
 
 ---
 
+## Session 16 Gaps: Autonomous Verification (2025-12-23)
+
+### VERIFIED STATUS OF PREVIOUS GAPS
+
+| GAP | Description | Status |
+|-----|-------------|--------|
+| GAP-177 | Bundles API auth | ❌ STILL OPEN - No `require_auth` import in `app/api/bundles.py` |
+| GAP-179 | Governance stubbed auth | ❌ STILL OPEN - `get_current_user()` returns `"current-user-id"` at lines 26-28 |
+| GAP-160 | Group Formation API auth | ❌ STILL OPEN - No `require_auth` import in `app/api/group_formation.py` |
+| GAP-187 | Care Outreach API auth | ❌ STILL OPEN - No `require_auth` import in `app/api/care_outreach.py` |
+| GAP-188 | Algorithmic Transparency auth | ❌ STILL OPEN - No `require_auth` import in `app/api/algorithmic_transparency.py` |
+| GAP-154 | RapidResponsePage cell_id | ❌ STILL OPEN - Hardcoded `'cell-001'` at lines 102, 150 |
+| GAP-159 | Saturnalia role swap | ❌ STILL OPEN - `pass` at line 364, `return []` at line 396 |
+| GAP-186 | Temporal justice queries | ❌ STILL OPEN - `return []` at lines 116, 268 |
+
+### NEW GAPS DISCOVERED (Session 16)
+
+---
+
+### GAP-191: Cells API Uses Custom Auth, Not Standard Middleware
+**Severity**: MEDIUM
+**Location**: `app/api/cells.py:57-79`
+**Claimed**: Cells API uses authentication
+**Reality**: Uses a custom `get_current_user()` that parses Authorization header manually instead of using standard `require_auth`:
+```python
+async def get_current_user(authorization: Optional[str] = Header(None)) -> str:
+    """Extract user ID from Authorization header."""
+    if not authorization:
+        return "anonymous"  # Falls back to anonymous!
+    if authorization.startswith("Bearer "):
+        return authorization[7:]
+    return authorization
+```
+**Risk**: Different auth behavior than other APIs; `anonymous` users can access cell operations
+**Fix**: Use standard `require_auth` middleware from `app/auth/middleware.py`.
+
+---
+
+### GAP-192: Steward Dashboard Uses Cells API Custom Auth
+**Severity**: MEDIUM
+**Location**: `app/api/steward_dashboard.py:16`
+**Claimed**: Steward dashboard for cell leaders
+**Reality**: Imports custom auth from cells API instead of standard middleware:
+```python
+from .cells import get_current_user
+```
+**Risk**: Inconsistent auth that allows anonymous access
+**Fix**: Replace with `from app.auth.middleware import require_auth, require_steward`.
+
+---
+
+### GAP-193: Messages API Uses Cells API Custom Auth
+**Severity**: MEDIUM
+**Location**: `app/api/messages.py:18`
+**Claimed**: E2E encrypted messaging requires authentication
+**Reality**: Imports custom auth from cells API:
+```python
+from .cells import get_current_user
+```
+**Risk**: Anonymous users might access message endpoints
+**Fix**: Replace with standard `require_auth` middleware.
+
+---
+
+### GAP-194: Resilience Metrics Uses Cells API Custom Auth
+**Severity**: MEDIUM
+**Location**: `app/api/resilience_metrics.py:25`
+**Claimed**: Network metrics with proper access control
+**Reality**: Uses custom auth pattern:
+```python
+from app.api.cells import get_current_user
+```
+**Risk**: Inconsistent auth allowing anonymous access to metrics
+**Fix**: Use standard middleware; cell-level metrics may need `require_steward`.
+
+---
+
+## Updated Summary Statistics (Session 16)
+
+### Total Gaps: 69 (+4 new documented)
+
+| Severity | Count | Change from Session 15 |
+|----------|-------|----------------------|
+| CRITICAL | 8 | - |
+| HIGH | 17 | - |
+| MEDIUM | 35 | +4 (GAP-191, 192, 193, 194) |
+| LOW | 9 | - |
+
+### Key Findings: Session 16
+
+**Pattern Discovered - Custom Auth vs Standard Middleware:**
+Several API files use a custom `get_current_user()` from `app/api/cells.py` that:
+1. Falls back to `"anonymous"` when no auth header present
+2. Just extracts Bearer token without validation
+3. Inconsistent with standard `require_auth` middleware
+
+**Affected APIs using custom auth pattern:**
+- `app/api/cells.py` (source of custom auth)
+- `app/api/steward_dashboard.py` (imports from cells)
+- `app/api/messages.py` (imports from cells)
+- `app/api/resilience_metrics.py` (imports from cells)
+
+**APIs using standard auth (reference):**
+- `app/api/fork_rights.py` - uses `require_auth`
+- `app/api/mourning.py` - uses `require_auth, require_steward`
+- `app/api/block.py` - uses `require_auth`
+- `app/api/security_status.py` - uses `require_auth`
+- `app/api/agents.py` - uses `require_auth, get_current_user`
+
+### Codebase Health Snapshot (Session 16)
+
+```
+Python TODO comments:     49 (app/ directory)
+'return []' patterns:     18 (app/ directory)
+'For now' patterns:       46 (temporary implementations)
+Agents with mock data:    12+ (GAP-183 consolidated)
+Unauthenticated APIs:     5 files (bundles, group_formation, care_outreach, algorithmic_transparency, sync)
+Stubbed auth:            1 file (governance.py)
+Custom weak auth:         4 files (cells, steward_dashboard, messages, resilience_metrics)
+Frontend hardcoded IDs:   7 occurrences (cell-001, demo-user patterns)
+```
+
+---
+
+### Fix Priority Update (Session 16)
+
+**P0 - CRITICAL (Before Workshop):**
+- All critical security gaps verified fixed ✅
+
+**P1 - HIGH (First Week):**
+- GAP-187: Care Outreach API auth integration (13 sensitive endpoints)
+- GAP-177: Bundles API auth review
+- GAP-179: Governance API real auth (replace stubs)
+- GAP-160: Group Formation API auth
+- GAP-154: RapidResponsePage cell_id from user context
+- GAP-169: Listings delete ownership verification
+
+**P2 - MEDIUM (First Month):**
+- GAP-191-194: Fix custom auth pattern in cells/messages/steward_dashboard/resilience_metrics (NEW)
+- GAP-188: Algorithmic Transparency API auth
+- GAP-189: Conscientization agent mock data fallback
+- GAP-190: Temporal justice check-in query
+- GAP-183: Agent database queries (12+ agents)
+- GAP-184: Match accept/reject ownership
+- GAP-185: Network resilience graph analysis
+- GAP-186: Temporal justice queries
+- GAP-159: Saturnalia features
+
+**P3 - LOW (Ongoing):**
+- GAP-181: Frontend demo-user fallback (acceptable)
+- GAP-155: NetworkImpactWidget community count
+- Documentation improvements
+
+---
+
 **Document Status**: Living document. Update as gaps are fixed.
-**Last Updated**: 2025-12-22 (Session 15 - Autonomous Verification)
+**Last Updated**: 2025-12-23 (Session 16 - Autonomous Verification)
 **Next Review**: After P1 gaps addressed.
