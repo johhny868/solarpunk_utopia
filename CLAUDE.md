@@ -4,9 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is the **Abstract Agent Team** meta-framework - a reusable template system for setting up multi-agent AI orchestration, OpenSpec workflows, and autonomous workers across projects. This is NOT an application codebase - it's a collection of patterns, templates, and agents extracted from production projects (AI Tutor, Super Alignment to Utopia, Multiverse School).
+This is the **Solarpunk Gift Economy Mesh Network** - a production application implementing a fully-distributed, offline-first gift economy on DTN-based mesh networks. This is a WORKING APPLICATION using proven multi-agent patterns, OpenSpec workflows, and ValueFlows economic coordination.
 
-**Primary use case:** Instantiating new projects with proven multi-agent patterns via `instantiate.py` or `scripts/init_new_project.sh`.
+**This is NOT a meta-framework or template system.** It's the actual implementation of a solarpunk resistance infrastructure for mutual aid, economic withdrawal, sanctuary networks, and community resilience.
+
+**Key Features:**
+- DTN (Delay-Tolerant Networking) mesh infrastructure with WiFi Direct/BATMAN-adv
+- ValueFlows v1.0 economic coordination (offers, needs, exchanges, commitments)
+- Web of Trust with vouch chains and trust scoring
+- 14 AI agents for matchmaking, scheduling, governance, and resource optimization
+- End-to-end encrypted messaging with panic features (duress codes, secure wipe)
+- Sanctuary network coordination for people at risk
+- Rapid response system for emergency situations
+- OpenSpec workflow for proposal management and quality gates
 
 ## Architecture Overview
 
@@ -45,21 +55,25 @@ This is the **Abstract Agent Team** meta-framework - a reusable template system 
 
 ## Key Commands
 
-### Project Instantiation
+### Running the Application
 
 ```bash
-# Instantiate Abstract Agent Team into a new project
-python instantiate.py /path/to/new/project
+# Start all services
+./run_all_services.sh
 
-# Or interactively
-python instantiate.py
+# Services started:
+# - DTN Bundle System (port 8000)
+# - ValueFlows Node (port 8001)
+# - Discovery & Search
+# - File Chunking
+# - Bridge Management (port 8002)
 
-# What gets installed:
-# - OpenSpec workflow structure
-# - Agent definitions (orchestrator, architect, implementers, validators)
-# - NATS configuration with project namespace
-# - MCP proxy system
-# - Documentation
+# Stop all services
+./stop_all_services.sh
+
+# Run tests
+source venv/bin/activate
+pytest tests/ -v
 ```
 
 ### NATS Operations
@@ -289,15 +303,18 @@ Add proxy to `.mcp.json` in target project:
 
 ## Common Tasks
 
-### Migrating Patterns to New Project
+### Development Workflow
 
-1. Run instantiation script: `python instantiate.py /path/to/new/project`
-2. Customize `openspec/project.md` with project conventions
-3. Edit `.env` with unique NATS_NAMESPACE
-4. Configure `.mcp.json` if using MCP proxy
-5. Set up NATS context: `source .env && nats context save ...`
-6. Restart Claude Code (one-time, to load MCP proxy)
-7. Test agent workflow with simple proposal
+1. Create a new proposal in `openspec/changes/{feature-name}/`
+   - Add `proposal.md` with requirements (SHALL/MUST statements)
+   - Add `tasks.md` with implementation breakdown
+2. Request architect review and approval
+3. Implement the feature following the task breakdown
+4. Write tests (unit + integration + E2E as needed)
+5. Run full test suite: `pytest tests/ -v`
+6. Update proposal status to "Implemented"
+7. Commit changes with descriptive message
+8. Archive completed proposal to `openspec/archive/`
 
 ### Adding New Agents
 
