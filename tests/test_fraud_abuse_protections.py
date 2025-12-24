@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 
 from app.models.vouch import MAX_VOUCHES_PER_MONTH, MIN_KNOWN_HOURS, VOUCH_COOLOFF_HOURS
 from app.models.block import BlockEntry
-from app.models.sanctuary import SanctuaryVerification, MIN_SANCTUARY_VERIFICATIONS
+from app.models.sanctuary import SanctuaryVerification, VerificationRecord, VerificationMethod, MIN_SANCTUARY_VERIFICATIONS
 from app.services.web_of_trust_service import WebOfTrustService
 from app.database.vouch_repository import VouchRepository
 from app.database.block_repository import BlockRepository
@@ -197,12 +197,31 @@ class TestSanctuaryVerification:
 
     def test_verification_valid_with_min_stewards(self):
         """Verify sanctuary is valid with 2+ steward verifications"""
+        now = datetime.now(UTC)
         verification = SanctuaryVerification(
             resource_id="space_001",
-            verified_by=["steward_1", "steward_2"],  # 2 stewards
-            escape_routes=["route_1", "route_2"],
-            has_buddy_protocol=True,
-            verified_at=datetime.now(UTC)
+            verifications=[
+                VerificationRecord(
+                    id="ver_1",
+                    resource_id="space_001",
+                    steward_id="steward_1",
+                    verified_at=now,
+                    verification_method=VerificationMethod.IN_PERSON,
+                    escape_routes_verified=True,
+                    buddy_protocol_available=True
+                ),
+                VerificationRecord(
+                    id="ver_2",
+                    resource_id="space_001",
+                    steward_id="steward_2",
+                    verified_at=now,
+                    verification_method=VerificationMethod.IN_PERSON,
+                    escape_routes_verified=True,
+                    buddy_protocol_available=True
+                )
+            ],
+            first_verified_at=now,
+            expires_at=now + timedelta(days=90)
         )
 
         # Valid with 2 verifications
@@ -224,11 +243,31 @@ class TestSanctuaryVerification:
 
     def test_high_trust_requires_successful_uses(self):
         """Verify high-trust spaces require 3+ successful uses"""
+        now = datetime.now(UTC)
         verification = SanctuaryVerification(
             resource_id="space_001",
-            verified_by=["steward_1", "steward_2"],
-            escape_routes=["route_1", "route_2"],
-            has_buddy_protocol=True,
+            verifications=[
+                VerificationRecord(
+                    id="ver_1",
+                    resource_id="space_001",
+                    steward_id="steward_1",
+                    verified_at=now,
+                    verification_method=VerificationMethod.IN_PERSON,
+                    escape_routes_verified=True,
+                    buddy_protocol_available=True
+                ),
+                VerificationRecord(
+                    id="ver_2",
+                    resource_id="space_001",
+                    steward_id="steward_2",
+                    verified_at=now,
+                    verification_method=VerificationMethod.IN_PERSON,
+                    escape_routes_verified=True,
+                    buddy_protocol_available=True
+                )
+            ],
+            first_verified_at=now,
+            expires_at=now + timedelta(days=90),
             successful_uses=2  # Only 2 uses
         )
 

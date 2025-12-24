@@ -218,7 +218,7 @@ async def reject_proposal(
     Reject a proposal.
 
     Convenience endpoint that sets approved=False.
-    Fixed GAP-72: Now uses current_user from auth instead of request.user_id
+    Fixed GAP-72: Now uses authenticated current_user
     """
     try:
         proposal = await approval_tracker.approve_proposal(

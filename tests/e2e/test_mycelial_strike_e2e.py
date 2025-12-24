@@ -555,7 +555,7 @@ class TestMycelialStrikeE2E:
             )
 
             # Verify expiration is 7 days from now
-            assert alert.expires_at == datetime(2025, 1, 8, 0, 0, 0)
+            assert alert.expires_at == datetime(2025, 1, 8, 0, 0, 0, tzinfo=UTC)
 
         # Fast-forward 8 days
         with freeze_time("2025-01-09 00:00:00"):

@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 import sqlite3
 
-from ...models.vf.match import Match
+from ...models.vf.match import Match, MatchStatus
 from ...models.requests.vf_objects import MatchCreate
 from ...database import get_database
 from ...repositories.vf.match_repo import MatchRepository
@@ -156,7 +156,7 @@ async def accept_match(match_id: str):
         match.receiver_approved = True
         match.provider_approved_at = datetime.now()
         match.receiver_approved_at = datetime.now()
-        match.status = "accepted"
+        match.status = MatchStatus.ACCEPTED
 
         updated_match = match_repo.update(match)
 
@@ -189,7 +189,7 @@ async def reject_match(match_id: str, reason: str = None):
             raise HTTPException(status_code=404, detail="Match not found")
 
         # TODO: Use authenticated user to verify participant
-        match.status = "rejected"
+        match.status = MatchStatus.REJECTED
 
         updated_match = match_repo.update(match)
 
