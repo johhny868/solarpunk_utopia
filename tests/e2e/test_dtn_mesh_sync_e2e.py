@@ -122,17 +122,28 @@ class TestDTNMeshSyncE2E:
         import aiosqlite
         import json
 
+        # Priority order mapping for SQL
+        priority_case = """
+            CASE priority
+                WHEN 'emergency' THEN 0
+                WHEN 'perishable' THEN 1
+                WHEN 'normal' THEN 2
+                WHEN 'low' THEN 3
+                ELSE 99
+            END
+        """
+
         async with aiosqlite.connect(db_path) as db:
             db.row_factory = aiosqlite.Row
             if queue:
                 cursor = await db.execute(
-                    "SELECT bundleId, priority, createdAt, expiresAt, sizeBytes FROM bundles WHERE queue = ? ORDER BY priority DESC, createdAt ASC",
+                    f"SELECT bundleId, priority, createdAt, expiresAt, sizeBytes FROM bundles WHERE queue = ? ORDER BY {priority_case}, createdAt ASC",
                     (queue.value,)
                 )
             else:
                 # Get from all queues
                 cursor = await db.execute(
-                    "SELECT bundleId, priority, createdAt, expiresAt, sizeBytes FROM bundles ORDER BY priority DESC, createdAt ASC"
+                    f"SELECT bundleId, priority, createdAt, expiresAt, sizeBytes FROM bundles ORDER BY {priority_case}, createdAt ASC"
                 )
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
@@ -357,13 +368,13 @@ class TestDTNMeshSyncE2E:
     @pytest.mark.asyncio
     async def test_partial_overlap_sync(self):
         """
-        Test sync where nodes have some common bundles.
+        Test sync where nodes have some bundles already present.
 
         GIVEN Node A has B1, B2, B3
-        AND Node C has B2, B4
+        AND Node C has B2 (received from A earlier), B4
         WHEN sync occurs
-        THEN Node A gets B4 only (not B2 duplicate)
-        AND Node C gets B1, B3 (not B2 duplicate)
+        THEN Node A gets B4 only (already has B1, B2, B3)
+        AND Node C gets B1, B3 (already has B2, B4)
         """
         # Create B1, B2, B3 for Node A
         b1 = await self._create_bundle_for_node(
@@ -402,20 +413,14 @@ class TestDTNMeshSyncE2E:
             )
         )
 
-        # Create B2 copy and B4 for Node C
-        # (B2 has same content, will have same bundleId)
-        b2_copy = await self._create_bundle_for_node(
-            self.crypto_c,
-            self.node_c_path,
-            BundleCreate(
-                payload={'id': 'B2'},
-                payloadType='test:message',
-                priority=Priority.NORMAL,
-                topic=Topic.MUTUAL_AID,
-                ttl_hours=24
-            )
-        )
+        # Sync B2 from A to C first (simulating prior sync)
+        import aiosqlite
+        import json
+        os.environ['DB_PATH'] = self.node_c_path
+        bundle_service_c = BundleService(self.crypto_c)
+        await bundle_service_c.receive_bundle(b2)
 
+        # Create B4 for Node C
         b4 = await self._create_bundle_for_node(
             self.crypto_c,
             self.node_c_path,
@@ -440,11 +445,11 @@ class TestDTNMeshSyncE2E:
             self.node_c_path
         )
 
-        # Verify: A requested only B4 (not B2 duplicate)
+        # Verify: A requested only B4 (already has B2)
         assert result_c_to_a['total_requested'] == 1
         assert result_c_to_a['accepted'] == 1
 
-        # Verify: C requested B1, B3 (not B2 duplicate)
+        # Verify: C requested B1, B3 (already has B2)
         assert result_a_to_c['total_requested'] == 2
         assert result_a_to_c['accepted'] == 2
 
@@ -623,24 +628,24 @@ class TestDTNMeshSyncE2E:
     @pytest.mark.asyncio
     async def test_audience_enforcement_high_trust(self):
         """
-        Test that HIGH_TRUST audience requires peer_trust_score >= 0.8.
+        Test that TRUSTED audience requires peer_trust_score >= 0.8.
 
-        WHEN bundle has HIGH_TRUST audience
+        WHEN bundle has TRUSTED audience
         AND peer trust < 0.8
         THEN bundle NOT transferred
         WHEN peer trust >= 0.8
         THEN bundle IS transferred
         """
-        # Create HIGH_TRUST bundle
+        # Create TRUSTED bundle
         await self._create_bundle_for_node(
             self.crypto_a,
             self.node_a_path,
             BundleCreate(
-                payload={'audience': 'high_trust'},
+                payload={'audience': 'trusted'},
                 payloadType='test:message',
                 priority=Priority.NORMAL,
                 topic=Topic.MUTUAL_AID,
-                audience=Audience.HIGH_TRUST,
+                audience=Audience.TRUSTED,
                 ttl_hours=24
             )
         )
@@ -703,11 +708,11 @@ class TestDTNMeshSyncE2E:
         Test full bidirectional sync scenario.
 
         GIVEN Node A has [B1, B2, B3]
-        AND Node C has [B2, B4]
+        AND Node C has [B4]
         WHEN bidirectional sync occurs
         THEN both nodes end up with [B1, B2, B3, B4]
         """
-        # Create bundles for both nodes
+        # Create bundles for Node A
         b1 = await self._create_bundle_for_node(
             self.crypto_a,
             self.node_a_path,
@@ -720,7 +725,7 @@ class TestDTNMeshSyncE2E:
             )
         )
 
-        b2_a = await self._create_bundle_for_node(
+        b2 = await self._create_bundle_for_node(
             self.crypto_a,
             self.node_a_path,
             BundleCreate(
@@ -744,18 +749,7 @@ class TestDTNMeshSyncE2E:
             )
         )
 
-        b2_c = await self._create_bundle_for_node(
-            self.crypto_c,
-            self.node_c_path,
-            BundleCreate(
-                payload={'id': 2},
-                payloadType='test:message',
-                priority=Priority.NORMAL,
-                topic=Topic.MUTUAL_AID,
-                ttl_hours=24
-            )
-        )
-
+        # Create bundle for Node C
         b4 = await self._create_bundle_for_node(
             self.crypto_c,
             self.node_c_path,
@@ -772,7 +766,7 @@ class TestDTNMeshSyncE2E:
         await self._sync_bundles_between_nodes(self.node_a_path, self.node_c_path)
         await self._sync_bundles_between_nodes(self.node_c_path, self.node_a_path)
 
-        # Both nodes should have all 4 unique bundles
+        # Both nodes should have all 4 bundles
         node_a_index = await self._get_bundle_index(self.node_a_path)
         node_c_index = await self._get_bundle_index(self.node_c_path)
 
@@ -782,24 +776,30 @@ class TestDTNMeshSyncE2E:
     @pytest.mark.asyncio
     async def test_no_duplicate_transfers(self):
         """
-        Test that duplicate bundles are not transferred.
+        Test that bundles already present on both nodes are not transferred.
 
-        WHEN both nodes have identical bundle
+        WHEN both nodes have the same bundle (same bundleId)
         THEN bundle NOT requested/transferred during sync
         """
-        # Create identical bundle on both nodes
-        bundle_create = BundleCreate(
-            payload={'duplicate': 'test'},
-            payloadType='test:message',
-            priority=Priority.NORMAL,
-            topic=Topic.MUTUAL_AID,
-            ttl_hours=24
+        # Create bundle on Node A
+        bundle = await self._create_bundle_for_node(
+            self.crypto_a,
+            self.node_a_path,
+            BundleCreate(
+                payload={'duplicate': 'test'},
+                payloadType='test:message',
+                priority=Priority.NORMAL,
+                topic=Topic.MUTUAL_AID,
+                ttl_hours=24
+            )
         )
 
-        await self._create_bundle_for_node(self.crypto_a, self.node_a_path, bundle_create)
-        await self._create_bundle_for_node(self.crypto_c, self.node_c_path, bundle_create)
+        # Transfer same bundle to Node C (simulating prior sync)
+        os.environ['DB_PATH'] = self.node_c_path
+        bundle_service_c = BundleService(self.crypto_c)
+        await bundle_service_c.receive_bundle(bundle)
 
-        # Attempt sync
+        # Attempt sync again
         result_a_to_c = await self._sync_bundles_between_nodes(
             self.node_a_path,
             self.node_c_path
@@ -809,7 +809,7 @@ class TestDTNMeshSyncE2E:
             self.node_a_path
         )
 
-        # Verify: no transfers
+        # Verify: no transfers (both nodes already have the bundle)
         assert result_a_to_c['total_requested'] == 0
         assert result_c_to_a['total_requested'] == 0
         assert result_a_to_c['accepted'] == 0

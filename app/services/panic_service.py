@@ -450,6 +450,15 @@ class PanicService:
         encrypted_bytes = base64.b64decode(encrypted_b64)
         return decrypt_seed_phrase(encrypted_bytes, password)
 
+    # Aliases for backward compatibility
+    def encrypt_seed_phrase(self, seed_phrase: str, password: str) -> str:
+        """Alias for encrypt_seed_phrase_service."""
+        return self.encrypt_seed_phrase_service(seed_phrase, password)
+
+    def decrypt_seed_phrase(self, encrypted_b64: str, password: str) -> str:
+        """Alias for decrypt_seed_phrase_service."""
+        return self.decrypt_seed_phrase_service(encrypted_b64, password)
+
     def recover_from_seed_phrase(self, seed_phrase: str) -> Dict[str, str]:
         """Recover identity from seed phrase.
 

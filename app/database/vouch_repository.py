@@ -1,6 +1,6 @@
 """Repository for Vouch and Trust Score data access"""
 import sqlite3
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime, UTC
 import uuid
 from app.models.vouch import Vouch, TrustScore
@@ -9,13 +9,32 @@ from app.models.vouch import Vouch, TrustScore
 class VouchRepository:
     """Database access for vouches and trust scores."""
 
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self, db_path_or_conn: Union[str, sqlite3.Connection]):
+        """Initialize repository with either a path or existing connection."""
+        if isinstance(db_path_or_conn, sqlite3.Connection):
+            self.conn = db_path_or_conn
+            self.db_path = None
+            self._owns_connection = False
+        else:
+            self.conn = None
+            self.db_path = db_path_or_conn
+            self._owns_connection = True
         self._init_tables()
+
+    def _get_conn(self) -> sqlite3.Connection:
+        """Get database connection (either owned or external)."""
+        if self.conn is not None:
+            return self.conn
+        return sqlite3.connect(self.db_path)
+
+    def _close_conn(self, conn: sqlite3.Connection):
+        """Close connection only if we own it."""
+        if self._owns_connection and conn is not None:
+            conn.close()
 
     def _init_tables(self):
         """Create vouch and trust_score tables if they don't exist."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         # Vouch table
@@ -63,14 +82,14 @@ class VouchRepository:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_vouches_revoked ON vouches(revoked)")
 
         conn.commit()
-        conn.close()
+        self._close_conn(conn)
 
     def create_vouch(self, voucher_id: str, vouchee_id: str, context: str) -> Vouch:
         """Create a new vouch."""
         vouch_id = f"vouch-{uuid.uuid4()}"
         created_at = datetime.now(UTC).isoformat()
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         try:
@@ -86,13 +105,13 @@ class VouchRepository:
                 FROM vouches WHERE voucher_id = ? AND vouchee_id = ?
             """, (voucher_id, vouchee_id))
             row = cursor.fetchone()
-            conn.close()
+            self._close_conn(conn)
             if row:
                 return self._row_to_vouch(row)
             raise
         finally:
             if conn:
-                conn.close()
+                self._close_conn(conn)
 
         return Vouch(
             id=vouch_id,
@@ -105,7 +124,7 @@ class VouchRepository:
 
     def get_vouch(self, vouch_id: str) -> Optional[Vouch]:
         """Get a vouch by ID."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -114,7 +133,7 @@ class VouchRepository:
         """, (vouch_id,))
 
         row = cursor.fetchone()
-        conn.close()
+        self._close_conn(conn)
 
         if not row:
             return None
@@ -123,7 +142,7 @@ class VouchRepository:
 
     def get_vouches_for_user(self, user_id: str, include_revoked: bool = False) -> List[Vouch]:
         """Get all vouches received by a user."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         if include_revoked:
@@ -138,13 +157,13 @@ class VouchRepository:
             """, (user_id,))
 
         rows = cursor.fetchall()
-        conn.close()
+        self._close_conn(conn)
 
         return [self._row_to_vouch(row) for row in rows]
 
     def get_vouches_by_user(self, user_id: str) -> List[Vouch]:
         """Get all vouches given by a user."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -153,7 +172,7 @@ class VouchRepository:
         """, (user_id,))
 
         rows = cursor.fetchall()
-        conn.close()
+        self._close_conn(conn)
 
         return [self._row_to_vouch(row) for row in rows]
 
@@ -167,7 +186,7 @@ class VouchRepository:
         Returns:
             List of Vouch objects created since the given datetime
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -177,13 +196,13 @@ class VouchRepository:
         """, (user_id, since.isoformat()))
 
         rows = cursor.fetchall()
-        conn.close()
+        self._close_conn(conn)
 
         return [self._row_to_vouch(row) for row in rows]
 
     def revoke_vouch(self, vouch_id: str, reason: str) -> bool:
         """Revoke a vouch."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         revoked_at = datetime.now(UTC).isoformat()
@@ -195,13 +214,13 @@ class VouchRepository:
 
         updated = cursor.rowcount > 0
         conn.commit()
-        conn.close()
+        self._close_conn(conn)
 
         return updated
 
     def add_genesis_node(self, user_id: str, added_by: Optional[str] = None, notes: Optional[str] = None) -> bool:
         """Add a user as a genesis node (trusted seed)."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         added_at = datetime.now(UTC).isoformat()
@@ -216,29 +235,29 @@ class VouchRepository:
         except sqlite3.IntegrityError:
             result = False  # Already a genesis node
         finally:
-            conn.close()
+            self._close_conn(conn)
 
         return result
 
     def get_genesis_nodes(self) -> List[str]:
         """Get list of all genesis node user IDs."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("SELECT user_id FROM genesis_nodes")
         rows = cursor.fetchall()
-        conn.close()
+        self._close_conn(conn)
 
         return [row[0] for row in rows]
 
     def is_genesis_node(self, user_id: str) -> bool:
         """Check if a user is a genesis node."""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("SELECT 1 FROM genesis_nodes WHERE user_id = ?", (user_id,))
         result = cursor.fetchone() is not None
-        conn.close()
+        self._close_conn(conn)
 
         return result
 
@@ -246,7 +265,7 @@ class VouchRepository:
         """Save a computed trust score to database (for caching)."""
         import json
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -266,13 +285,13 @@ class VouchRepository:
         ))
 
         conn.commit()
-        conn.close()
+        self._close_conn(conn)
 
     def get_trust_score(self, user_id: str) -> Optional[TrustScore]:
         """Get cached trust score for a user."""
         import json
 
-        conn = sqlite3.connect(self.db_path)
+        conn = self._get_conn()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -282,7 +301,7 @@ class VouchRepository:
         """, (user_id,))
 
         row = cursor.fetchone()
-        conn.close()
+        self._close_conn(conn)
 
         if not row:
             return None

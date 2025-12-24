@@ -418,8 +418,12 @@ class TestRapidResponseE2E:
 
             frozen_time.move_to("2025-12-19T11:00:00Z")
 
+            # Claim coordinator first
+            self.service.claim_coordinator(alert.id, "user-alice")
+
             resolved_alert = self.service.resolve_alert(
                 alert_id=alert.id,
+                coordinator_id="user-alice",
                 resolution_notes="Resolved peacefully"
             )
 
@@ -480,7 +484,7 @@ class TestRapidResponseE2E:
         )
 
         # Verify all responders tracked
-        responders = self.service.get_responders(alert.id)
+        responders = self.service.get_alert_responders(alert.id)
         assert len(responders) == 3
 
         # Verify roles

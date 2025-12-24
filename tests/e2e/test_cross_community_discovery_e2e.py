@@ -385,6 +385,9 @@ class TestCrossCommunityDiscoveryE2E:
         alice_id = "user:alice"
         bob_id = "user:bob"
 
+        # Set up trust chain with genesis node
+        await self._create_genesis_node(alice_id)
+
         # Alice sets NETWORK_WIDE visibility
         await self._set_sharing_preference(alice_id, VisibilityLevel.NETWORK_WIDE)
 
@@ -501,6 +504,9 @@ class TestCrossCommunityDiscoveryE2E:
         community_downtown = "community:downtown"
         community_riverside = "community:riverside"
 
+        # Set up trust chain with genesis node
+        await self._create_genesis_node(alice_id)
+
         # Alice sets NETWORK_WIDE (effectively PUBLIC for network)
         await self._set_sharing_preference(alice_id, VisibilityLevel.NETWORK_WIDE)
 
@@ -581,6 +587,9 @@ class TestCrossCommunityDiscoveryE2E:
 
         cell_a = "cell:alpha"
         cell_b = "cell:beta"
+
+        # Set up trust chain with genesis node
+        await self._create_genesis_node(bob_id)
 
         # Alice sets restrictive visibility
         await self._set_sharing_preference(alice_id, VisibilityLevel.MY_CELL)

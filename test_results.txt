@@ -1,871 +1,269 @@
-============================= test session starts ==============================
-platform darwin -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /Users/annhoward/src/solarpunk_utopia/venv/bin/python3
-cachedir: .pytest_cache
-rootdir: /Users/annhoward/src/solarpunk_utopia
-plugins: anyio-4.12.0, asyncio-1.3.0
-asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collecting ... collected 179 items
-
-tests/e2e/test_governance_complete_flow.py::test_complete_governance_flow PASSED [  0%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_full_vote_flow_with_silence_check PASSED [  1%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_critical_vote_requires_quorum PASSED [  1%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_no_shaming_when_all_silent PASSED [  2%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_abstain_counts_as_participation PASSED [  2%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_vote_extension_multiple_times PASSED [  3%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_cannot_vote_after_close PASSED [  3%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_cannot_vote_if_not_eligible PASSED [  4%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_change_vote PASSED [  5%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_vote_result_tie PASSED [  5%]
-tests/e2e/test_governance_e2e.py::TestGovernanceE2E::test_privacy_no_cross_session_tracking PASSED [  6%]
-tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_complete_offer_need_exchange_flow FAILED [  6%]
-tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_bundle_propagation_across_services FAILED [  7%]
-tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_agent_proposals_require_approval FAILED [  7%]
-tests/integration/test_knowledge_distribution.py::TestKnowledgeDistribution::test_complete_file_distribution_flow FAILED [  8%]
-tests/integration/test_knowledge_distribution.py::TestKnowledgeDistribution::test_library_node_caching FAILED [  8%]
-tests/test_algorithmic_transparency.py::test_match_explanation_creation PASSED [  9%]
-tests/test_algorithmic_transparency.py::test_explanation_formatting_minimal PASSED [ 10%]
-tests/test_algorithmic_transparency.py::test_explanation_formatting_detailed PASSED [ 10%]
-tests/test_algorithmic_transparency.py::test_weights_validation PASSED   [ 11%]
-tests/test_algorithmic_transparency.py::test_custom_weights PASSED       [ 11%]
-tests/test_algorithmic_transparency.py::test_geographic_bias_detection PASSED [ 12%]
-tests/test_algorithmic_transparency.py::test_category_bias_detection PASSED [ 12%]
-tests/test_algorithmic_transparency.py::test_audit_log_creation PASSED   [ 13%]
-tests/test_algorithmic_transparency.py::test_rejection_logging PASSED    [ 13%]
-tests/test_algorithmic_transparency.py::test_transparency_preferences PASSED [ 14%]
-tests/test_algorithmic_transparency.py::test_preference_defaults PASSED  [ 15%]
-tests/test_algorithmic_transparency.py::test_end_to_end_transparency PASSED [ 15%]
-tests/test_algorithmic_transparency.py::test_bias_report_generation PASSED [ 16%]
-tests/test_api_endpoint_fixes.py::TestMatchAcceptReject::test_accept_endpoint_exists PASSED [ 16%]
-tests/test_api_endpoint_fixes.py::TestMatchAcceptReject::test_reject_endpoint_exists PASSED [ 17%]
-tests/test_api_endpoint_fixes.py::TestMatchAcceptReject::test_accept_match_updates_status FAILED [ 17%]
-tests/test_api_endpoint_fixes.py::TestMatchAcceptReject::test_reject_match_updates_status FAILED [ 18%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_commitments_router_exists PASSED [ 18%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_get_commitments_endpoint_exists PASSED [ 19%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_create_commitment_endpoint_exists PASSED [ 20%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_get_commitment_by_id_endpoint_exists PASSED [ 20%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_update_commitment_endpoint_exists PASSED [ 21%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_delete_commitment_endpoint_exists PASSED [ 21%]
-tests/test_api_endpoint_fixes.py::TestCommitmentsEndpoint::test_get_commitments_returns_list PASSED [ 22%]
-tests/test_api_endpoint_fixes.py::TestListingDeletion::test_listing_delete_has_ownership_todo PASSED [ 22%]
-tests/test_api_endpoint_fixes.py::TestListingDeletion::test_listing_delete_works PASSED [ 23%]
-tests/test_api_endpoint_fixes.py::TestProposalRejection::test_reject_proposal_has_auth_dependency PASSED [ 24%]
-tests/test_api_endpoint_fixes.py::TestProposalRejection::test_reject_proposal_uses_current_user_id FAILED [ 24%]
-tests/test_api_endpoint_fixes.py::test_commitments_router_registered PASSED [ 25%]
-tests/test_care_outreach.py::TestVolunteerManagement::test_register_volunteer ERROR [ 25%]
-tests/test_care_outreach.py::TestVolunteerManagement::test_find_available_volunteer ERROR [ 26%]
-tests/test_care_outreach.py::TestOutreachAssignment::test_flag_for_outreach ERROR [ 26%]
-tests/test_care_outreach.py::TestOutreachAssignment::test_add_outreach_note ERROR [ 27%]
-tests/test_care_outreach.py::TestOutreachAssignment::test_mark_converted ERROR [ 27%]
-tests/test_care_outreach.py::TestNeedsAssessment::test_assess_and_provide ERROR [ 28%]
-tests/test_care_outreach.py::TestAccessLevels::test_access_level_receiving_care ERROR [ 29%]
-tests/test_care_outreach.py::TestAccessLevels::test_access_permissions_minimal_but_human ERROR [ 29%]
-tests/test_care_outreach.py::TestSuspectedInfiltrator::test_handle_suspected_infiltrator ERROR [ 30%]
-tests/test_care_outreach.py::TestConversionMetrics::test_get_metrics ERROR [ 30%]
-tests/test_care_outreach.py::TestConversionExperiences::test_suggest_experience_for_new_outreach ERROR [ 31%]
-tests/test_care_outreach.py::TestConversionExperiences::test_get_all_experiences ERROR [ 31%]
-tests/test_economic_withdrawal.py::test_create_campaign FAILED           [ 32%]
-tests/test_economic_withdrawal.py::test_pledge_to_campaign FAILED        [ 32%]
-tests/test_economic_withdrawal.py::test_campaign_activation FAILED       [ 33%]
-tests/test_economic_withdrawal.py::test_mark_avoided_target FAILED       [ 34%]
-tests/test_economic_withdrawal.py::test_create_corporate_alternative PASSED [ 34%]
-tests/test_economic_withdrawal.py::test_exit_progress_tracking PASSED    [ 35%]
-tests/test_economic_withdrawal.py::test_bulk_buy_creation FAILED         [ 35%]
-tests/test_economic_withdrawal.py::test_bulk_buy_commitment FAILED       [ 36%]
-tests/test_fork_rights.py::test_request_data_export PASSED               [ 36%]
-tests/test_fork_rights.py::test_export_user_data PASSED                  [ 37%]
-tests/test_fork_rights.py::test_export_respects_privacy PASSED           [ 37%]
-tests/test_fork_rights.py::test_connection_consent_request PASSED        [ 38%]
-tests/test_fork_rights.py::test_respond_to_consent PASSED                [ 39%]
-tests/test_fork_rights.py::test_fork_community FAILED                    [ 39%]
-tests/test_fork_rights.py::test_leave_community PASSED                   [ 40%]
-tests/test_fork_rights.py::test_no_exit_surveillance PASSED              [ 40%]
-tests/test_fork_rights.py::test_no_connection_export_without_consent PASSED [ 41%]
-tests/test_fork_rights.py::test_connection_export_with_consent PASSED    [ 41%]
-tests/test_fork_rights.py::test_local_first_export FAILED                [ 42%]
-tests/test_fork_rights.py::test_export_works_offline PASSED              [ 43%]
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced PASSED [ 43%]
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_allowed_under_limit PASSED [ 44%]
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_within_cooloff_no_consequence PASSED [ 44%]
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_after_cooloff_requires_reason PASSED [ 45%]
-tests/test_fraud_abuse_protections.py::TestBlockList::test_block_user_creates_entry PASSED [ 45%]
-tests/test_fraud_abuse_protections.py::TestBlockList::test_is_blocked_bidirectional PASSED [ 46%]
-tests/test_fraud_abuse_protections.py::TestBlockList::test_block_prevents_match PASSED [ 46%]
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_requires_min_stewards FAILED [ 47%]
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_valid_with_min_stewards FAILED [ 48%]
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_expires_after_90_days FAILED [ 48%]
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_high_trust_requires_successful_uses FAILED [ 49%]
-tests/test_fraud_abuse_protections.py::TestAutoLock::test_inactivity_timeout_constant PASSED [ 49%]
-tests/test_governance_silence_weight.py::TestSilenceWeightCalculations::test_silence_weight_with_no_votes PASSED [ 50%]
-tests/test_governance_silence_weight.py::TestSilenceWeightCalculations::test_silence_weight_with_partial_votes PASSED [ 50%]
-tests/test_governance_silence_weight.py::TestSilenceWeightCalculations::test_silence_weight_with_majority_voted PASSED [ 51%]
-tests/test_governance_silence_weight.py::TestSilenceWeightCalculations::test_silence_weight_with_all_voted PASSED [ 51%]
-tests/test_governance_silence_weight.py::TestQuorumRequirements::test_no_quorum_required_always_passes PASSED [ 52%]
-tests/test_governance_silence_weight.py::TestQuorumRequirements::test_quorum_not_met PASSED [ 53%]
-tests/test_governance_silence_weight.py::TestQuorumRequirements::test_quorum_met PASSED [ 53%]
-tests/test_governance_silence_weight.py::TestQuorumRequirements::test_abstain_counts_toward_quorum PASSED [ 54%]
-tests/test_governance_silence_weight.py::TestVoteResults::test_result_none_when_open PASSED [ 54%]
-tests/test_governance_silence_weight.py::TestVoteResults::test_result_passed PASSED [ 55%]
-tests/test_governance_silence_weight.py::TestVoteResults::test_result_failed PASSED [ 55%]
-tests/test_governance_silence_weight.py::TestVoteResults::test_result_no_quorum PASSED [ 56%]
-tests/test_governance_silence_weight.py::TestGovernanceRepository::test_create_and_get_vote_session PASSED [ 56%]
-tests/test_governance_silence_weight.py::TestGovernanceRepository::test_cast_vote PASSED [ 57%]
-tests/test_governance_silence_weight.py::TestGovernanceRepository::test_extend_vote_session PASSED [ 58%]
-tests/test_governance_silence_weight.py::TestGovernanceRepository::test_outreach_ephemeral PASSED [ 58%]
-tests/test_governance_silence_weight.py::TestPrivacyGuarantees::test_no_silence_history_tracking PASSED [ 59%]
-tests/test_governance_silence_weight.py::TestPrivacyGuarantees::test_silent_voters_computed_not_stored PASSED [ 59%]
-tests/test_governance_silence_weight.py::TestPrivacyGuarantees::test_outreach_auto_purge_prevents_tracking PASSED [ 60%]
-tests/test_governance_silence_weight.py::TestGovernanceService::test_check_silence_weight_gentle_prompt PASSED [ 60%]
-tests/test_network_import_offline.py::test_threshold_signature_attestation_offline PASSED [ 61%]
-tests/test_network_import_offline.py::test_in_person_attestation_claim_offline FAILED [ 62%]
-tests/test_network_import_offline.py::test_challenge_response_verification_offline FAILED [ 62%]
-tests/test_network_import_offline.py::test_mesh_vouch_verification_offline FAILED [ 63%]
-tests/test_network_import_offline.py::test_steward_bulk_vouch_offline PASSED [ 63%]
-tests/test_network_import_offline.py::test_steward_accountability_offline FAILED [ 64%]
-tests/test_network_import_offline.py::test_trust_bonus_calculation_offline PASSED [ 64%]
-tests/test_network_import_offline.py::test_no_external_dependencies PASSED [ 65%]
-tests/test_panic_features.py::test_duress_pin_set_and_verify PASSED      [ 65%]
-tests/test_panic_features.py::test_duress_pin_creates_burn_notice PASSED [ 66%]
-tests/test_panic_features.py::test_quick_wipe_configuration PASSED       [ 67%]
-tests/test_panic_features.py::test_quick_wipe_requires_confirmation PASSED [ 67%]
-tests/test_panic_features.py::test_quick_wipe_destroys_data FAILED       [ 68%]
-tests/test_panic_features.py::test_dead_mans_switch_configuration PASSED [ 68%]
-tests/test_panic_features.py::test_dead_mans_switch_checkin PASSED       [ 69%]
-tests/test_panic_features.py::test_decoy_mode_configuration PASSED       [ 69%]
-tests/test_panic_features.py::test_burn_notice_creation PASSED           [ 70%]
-tests/test_panic_features.py::test_burn_notice_resolution PASSED         [ 70%]
-tests/test_panic_features.py::test_seed_phrase_generation PASSED         [ 71%]
-tests/test_panic_features.py::test_seed_phrase_encryption_decryption FAILED [ 72%]
-tests/test_panic_features.py::test_panic_status_aggregation PASSED       [ 72%]
-tests/test_panic_features.py::test_overdue_dead_mans_switches PASSED     [ 73%]
-tests/test_sanctuary_multi_steward_verification.py::TestSingleStewardVerificationNotEnough::test_single_verification_keeps_status_pending FAILED [ 73%]
-tests/test_sanctuary_multi_steward_verification.py::TestSingleStewardVerificationNotEnough::test_single_verification_not_available_for_matching FAILED [ 74%]
-tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_two_stewards_changes_status_to_verified FAILED [ 74%]
-tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_two_stewards_makes_resource_available FAILED [ 75%]
-tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_verification_metadata_updated FAILED [ 75%]
-tests/test_sanctuary_multi_steward_verification.py::TestSameStewardCannotVerifyTwice::test_same_steward_rejected FAILED [ 76%]
-tests/test_sanctuary_multi_steward_verification.py::TestResourcesNeedingVerification::test_pending_verification_list FAILED [ 77%]
-tests/test_sanctuary_multi_steward_verification.py::TestResourcesNeedingVerification::test_pending_excludes_steward_who_verified FAILED [ 77%]
-tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_record_successful_use FAILED [ 78%]
-tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_failed_use_does_not_increment FAILED [ 78%]
-tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_multiple_successful_uses FAILED [ 79%]
-tests/test_sanctuary_multi_steward_verification.py::TestCriticalNeedsFilteringExcluded::test_new_sanctuary_not_high_trust FAILED [ 79%]
-tests/test_sanctuary_multi_steward_verification.py::TestCriticalNeedsFilteringExcluded::test_proven_sanctuary_is_high_trust FAILED [ 80%]
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_is_valid_property PASSED [ 81%]
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_invalid_if_too_few PASSED [ 81%]
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_invalid_if_expired PASSED [ 82%]
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_is_high_trust_requires_three_uses PASSED [ 82%]
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_is_high_trust_false_with_low_uses PASSED [ 83%]
-tests/unit/test_bundle_service.py::TestBundleCreation::test_create_simple_bundle PASSED [ 83%]
-tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_with_ttl_hours PASSED [ 84%]
-tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_auto_ttl PASSED [ 84%]
-tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_with_tags PASSED [ 85%]
-tests/unit/test_bundle_service.py::TestBundleCreation::test_bundle_id_is_content_addressed PASSED [ 86%]
-tests/unit/test_bundle_service.py::TestBundleValidation::test_validate_valid_bundle PASSED [ 86%]
-tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_tampered_payload PASSED [ 87%]
-tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_expired_bundle PASSED [ 87%]
-tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_invalid_signature PASSED [ 88%]
-tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_hop_limit_exceeded PASSED [ 88%]
-tests/unit/test_bundle_service.py::TestBundleReceiving::test_receive_valid_bundle PASSED [ 89%]
-tests/unit/test_bundle_service.py::TestBundleReceiving::test_reject_duplicate_bundle FAILED [ 89%]
-tests/unit/test_bundle_service.py::TestBundleReceiving::test_quarantine_invalid_bundle PASSED [ 90%]
-tests/unit/test_bundle_service.py::TestBundleProperties::test_bundle_snake_case_aliases PASSED [ 91%]
-tests/unit/test_bundle_service.py::TestBundleProperties::test_is_expired PASSED [ 91%]
-tests/unit/test_bundle_service.py::TestBundleProperties::test_is_hop_limit_exceeded PASSED [ 92%]
-tests/unit/test_web_of_trust.py::test_genesis_node_has_full_trust PASSED [ 92%]
-tests/unit/test_web_of_trust.py::test_single_hop_vouch PASSED            [ 93%]
-tests/unit/test_web_of_trust.py::test_two_hop_vouch_chain PASSED         [ 93%]
-tests/unit/test_web_of_trust.py::test_multiple_vouch_chains_uses_best PASSED [ 94%]
-tests/unit/test_web_of_trust.py::test_no_path_to_genesis PASSED          [ 94%]
-tests/unit/test_web_of_trust.py::test_revocation_reduces_trust PASSED    [ 95%]
-tests/unit/test_web_of_trust.py::test_revocation_cascade PASSED          [ 96%]
-tests/unit/test_web_of_trust.py::test_partial_revocation_cascade PASSED  [ 96%]
-tests/unit/test_web_of_trust.py::test_trust_threshold_check PASSED       [ 97%]
-tests/unit/test_web_of_trust.py::test_vouch_eligibility PASSED           [ 97%]
-tests/unit/test_web_of_trust.py::test_cached_trust_score PASSED          [ 98%]
-tests/unit/test_web_of_trust.py::test_vouch_count_and_revocation_count PASSED [ 98%]
-tests/unit/test_web_of_trust.py::test_genesis_node_list PASSED           [ 99%]
-tests/unit/test_web_of_trust.py::test_is_genesis_node PASSED             [100%]
-
+................................F..F.F.FF..F.FF....................FFFFF [ 24%]
+FFEEEEEE........................FFFFF...............FF..........F.EEEEEE [ 48%]
+EEEEEEFFFF..FF..........F........FFFF..............................FFFFF [ 73%]
+...F......FFF.F......F......F........FF..........FFFFFFFFF.FFFF......... [ 97%]
+.......                                                                  [100%]
 ==================================== ERRORS ====================================
+______ ERROR at setup of TestSanctuaryNetworkE2E.test_full_sanctuary_flow ______
+E   sqlite3.OperationalError: no such column: purge_at
+_ ERROR at setup of TestSanctuaryNetworkE2E.test_high_sensitivity_requires_high_trust _
+E   sqlite3.OperationalError: no such column: purge_at
+__ ERROR at setup of TestSanctuaryNetworkE2E.test_steward_cannot_verify_twice __
+E   sqlite3.OperationalError: no such column: purge_at
+_ ERROR at setup of TestSanctuaryNetworkE2E.test_verification_expires_after_90_days _
+E   sqlite3.OperationalError: no such column: purge_at
+_ ERROR at setup of TestSanctuaryNetworkE2E.test_high_trust_resources_for_critical_needs _
+E   sqlite3.OperationalError: no such column: purge_at
+_ ERROR at setup of TestSanctuaryNetworkE2E.test_needs_second_verification_flag _
+E   sqlite3.OperationalError: no such column: purge_at
 ______ ERROR at setup of TestVolunteerManagement.test_register_volunteer _______
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 ___ ERROR at setup of TestVolunteerManagement.test_find_available_volunteer ____
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _______ ERROR at setup of TestOutreachAssignment.test_flag_for_outreach ________
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _______ ERROR at setup of TestOutreachAssignment.test_add_outreach_note ________
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _________ ERROR at setup of TestOutreachAssignment.test_mark_converted _________
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 ________ ERROR at setup of TestNeedsAssessment.test_assess_and_provide _________
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _____ ERROR at setup of TestAccessLevels.test_access_level_receiving_care ______
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _ ERROR at setup of TestAccessLevels.test_access_permissions_minimal_but_human _
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _ ERROR at setup of TestSuspectedInfiltrator.test_handle_suspected_infiltrator _
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 ___________ ERROR at setup of TestConversionMetrics.test_get_metrics ___________
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _ ERROR at setup of TestConversionExperiences.test_suggest_experience_for_new_outreach _
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 _____ ERROR at setup of TestConversionExperiences.test_get_all_experiences _____
-tests/test_care_outreach.py:51: in vouch_repo
-    return VouchRepository(db_conn)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/vouch_repository.py:14: in __init__
-    self._init_tables()
-app/database/vouch_repository.py:18: in _init_tables
-    conn = sqlite3.connect(self.db_path)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 E   TypeError: expected str, bytes or os.PathLike object, not Connection
 =================================== FAILURES ===================================
-__________ TestGiftEconomyFlow.test_complete_offer_need_exchange_flow __________
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:101: in map_httpcore_exceptions
-    yield
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:394: in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:256: in handle_async_request
-    raise exc from None
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:236: in handle_async_request
-    response = await connection.handle_async_request(
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:101: in handle_async_request
-    raise exc
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:78: in handle_async_request
-    stream = await self._connect(request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:124: in _connect
-    stream = await self._network_backend.connect_tcp(**kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_backends/auto.py:31: in connect_tcp
-    return await self._backend.connect_tcp(
-venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py:113: in connect_tcp
-    with map_exceptions(exc_map):
-         ^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpcore/_exceptions.py:14: in map_exceptions
-    raise to_exc(exc) from exc
+E   assert False is True
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_cross_community_discovery_e2e.py:399: assert False is True
+E   assert False is True
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_cross_community_discovery_e2e.py:517: assert False is True
+E   assert False is True
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_cross_community_discovery_e2e.py:608: assert False is True
+E   assert 2 == 1
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_dtn_mesh_sync_e2e.py:444: assert 2 == 1
+E   AssertionError: assert 'perishable' == 'emergency'
+      
+      - emergency
+      + perishable
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_dtn_mesh_sync_e2e.py:521: AssertionError: assert 'perishable' == 'emergency'
+E   AttributeError: type object 'Audience' has no attribute 'HIGH_TRUST'
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_dtn_mesh_sync_e2e.py:643: AttributeError: type object 'Audience' has no attribute 'HIGH_TRUST'
+E   AssertionError: assert 5 == 4
+     +  where 5 = len([{'bundleId': 'b:sha256:7899c9dbe2f7139551d1a2486e3a8b0f620e8f0f090234a0e29ec153d3a6e91e', 'createdAt': '2025-12-23T23...edAt': '2025-12-23T23:37:37.140585+00:00', 'expiresAt': '2025-12-24T23:37:37.140577+00:00', 'priority': 'normal', ...}])
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_dtn_mesh_sync_e2e.py:779: AssertionError: assert 5 == 4
+E   assert 1 == 0
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_dtn_mesh_sync_e2e.py:813: assert 1 == 0
+E   AssertionError: assert FakeDatetime(2025, 1, 8, 0, 0, tzinfo=datetime.timezone.utc) == FakeDatetime(2025, 1, 8, 0, 0)
+     +  where FakeDatetime(2025, 1, 8, 0, 0, tzinfo=datetime.timezone.utc) = WarlordAlert(id='bda7beea-295e-436d-b8cc-285706fa84bd', target_user_id='bob', severity=6, abuse_type=<AbuseType.BATTER...sted_source=True, propagation_count=0, cancelled=False, cancelled_by=None, cancellation_reason=None, cancelled_at=None).expires_at
+     +  and   FakeDatetime(2025, 1, 8, 0, 0) = datetime(2025, 1, 8, 0, 0, 0)
+/Users/annhoward/src/solarpunk_utopia/tests/e2e/test_mycelial_strike_e2e.py:558: AssertionError: assert FakeDatetime(2025, 1, 8, 0, 0, tzinfo=datetime.timezone.utc) == FakeDatetime(2025, 1, 8, 0, 0)
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
 E   httpcore.ConnectError: All connection attempts failed
 
 The above exception was the direct cause of the following exception:
-tests/integration/test_end_to_end_gift_economy.py:41: in test_complete_offer_need_exchange_flow
-    alice_resp = await client.post(
-venv/lib/python3.12/site-packages/httpx/_client.py:1859: in post
-    return await self.request(
-venv/lib/python3.12/site-packages/httpx/_client.py:1540: in request
-    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1629: in send
-    response = await self._send_handling_auth(
-venv/lib/python3.12/site-packages/httpx/_client.py:1657: in _send_handling_auth
-    response = await self._send_handling_redirects(
-venv/lib/python3.12/site-packages/httpx/_client.py:1694: in _send_handling_redirects
-    response = await self._send_single_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1730: in _send_single_request
-    response = await transport.handle_async_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:393: in handle_async_request
-    with map_httpcore_exceptions():
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:118: in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
 E   httpx.ConnectError: All connection attempts failed
 ----------------------------- Captured stdout call -----------------------------
 
 === Step 1: Creating agents ===
-_________ TestGiftEconomyFlow.test_bundle_propagation_across_services __________
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:101: in map_httpcore_exceptions
-    yield
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:394: in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:256: in handle_async_request
-    raise exc from None
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:236: in handle_async_request
-    response = await connection.handle_async_request(
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:101: in handle_async_request
-    raise exc
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:78: in handle_async_request
-    stream = await self._connect(request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:124: in _connect
-    stream = await self._network_backend.connect_tcp(**kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_backends/auto.py:31: in connect_tcp
-    return await self._backend.connect_tcp(
-venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py:113: in connect_tcp
-    with map_exceptions(exc_map):
-         ^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpcore/_exceptions.py:14: in map_exceptions
-    raise to_exc(exc) from exc
-E   httpcore.ConnectError: All connection attempts failed
-
-The above exception was the direct cause of the following exception:
-tests/integration/test_end_to_end_gift_economy.py:254: in test_bundle_propagation_across_services
-    bundle_resp = await client.post(
-venv/lib/python3.12/site-packages/httpx/_client.py:1859: in post
-    return await self.request(
-venv/lib/python3.12/site-packages/httpx/_client.py:1540: in request
-    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1629: in send
-    response = await self._send_handling_auth(
-venv/lib/python3.12/site-packages/httpx/_client.py:1657: in _send_handling_auth
-    response = await self._send_handling_redirects(
-venv/lib/python3.12/site-packages/httpx/_client.py:1694: in _send_handling_redirects
-    response = await self._send_single_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1730: in _send_single_request
-    response = await transport.handle_async_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:393: in handle_async_request
-    with map_httpcore_exceptions():
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:118: in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
-E   httpx.ConnectError: All connection attempts failed
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/httpx/_transports/default.py:118: httpx.ConnectError: All connection attempts failed
+E   assert 500 == 200
+     +  where 500 = <Response [500 Internal Server Error]>.status_code
 ----------------------------- Captured stdout call -----------------------------
 
 === Testing Bundle Propagation ===
-__________ TestGiftEconomyFlow.test_agent_proposals_require_approval ___________
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:101: in map_httpcore_exceptions
-    yield
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:394: in handle_async_request
-    resp = await self._pool.handle_async_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:256: in handle_async_request
-    raise exc from None
-venv/lib/python3.12/site-packages/httpcore/_async/connection_pool.py:236: in handle_async_request
-    response = await connection.handle_async_request(
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:101: in handle_async_request
-    raise exc
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:78: in handle_async_request
-    stream = await self._connect(request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_async/connection.py:124: in _connect
-    stream = await self._network_backend.connect_tcp(**kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpcore/_backends/auto.py:31: in connect_tcp
-    return await self._backend.connect_tcp(
-venv/lib/python3.12/site-packages/httpcore/_backends/anyio.py:113: in connect_tcp
-    with map_exceptions(exc_map):
-         ^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpcore/_exceptions.py:14: in map_exceptions
-    raise to_exc(exc) from exc
-E   httpcore.ConnectError: All connection attempts failed
-
-The above exception was the direct cause of the following exception:
-tests/integration/test_end_to_end_gift_economy.py:305: in test_agent_proposals_require_approval
-    matchmaker_resp = await client.post(
-venv/lib/python3.12/site-packages/httpx/_client.py:1859: in post
-    return await self.request(
-venv/lib/python3.12/site-packages/httpx/_client.py:1540: in request
-    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1629: in send
-    response = await self._send_handling_auth(
-venv/lib/python3.12/site-packages/httpx/_client.py:1657: in _send_handling_auth
-    response = await self._send_handling_redirects(
-venv/lib/python3.12/site-packages/httpx/_client.py:1694: in _send_handling_redirects
-    response = await self._send_single_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_client.py:1730: in _send_single_request
-    response = await transport.handle_async_request(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:393: in handle_async_request
-    with map_httpcore_exceptions():
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:158: in __exit__
-    self.gen.throw(value)
-venv/lib/python3.12/site-packages/httpx/_transports/default.py:118: in map_httpcore_exceptions
-    raise mapped_exc(message) from exc
-E   httpx.ConnectError: All connection attempts failed
+/Users/annhoward/src/solarpunk_utopia/tests/integration/test_end_to_end_gift_economy.py:266: assert 500 == 200
+E   assert 500 == 200
+     +  where 500 = <Response [500 Internal Server Error]>.status_code
 ----------------------------- Captured stdout call -----------------------------
 
 === Testing Agent Approval Gates ===
-________ TestKnowledgeDistribution.test_complete_file_distribution_flow ________
-tests/integration/test_knowledge_distribution.py:66: in test_complete_file_distribution_flow
-    assert upload_resp.status_code == 200
+/Users/annhoward/src/solarpunk_utopia/tests/integration/test_end_to_end_gift_economy.py:309: assert 500 == 200
 E   assert 500 == 200
-E    +  where 500 = <Response [500 Internal Server Error]>.status_code
+     +  where 500 = <Response [500 Internal Server Error]>.status_code
 ----------------------------- Captured stdout call -----------------------------
 
 === Step 1: Creating test file ===
 Created test file: 8750 bytes
 
 === Step 2: Uploading file ===
-_____________ TestKnowledgeDistribution.test_library_node_caching ______________
-tests/integration/test_knowledge_distribution.py:190: in test_library_node_caching
-    print(f"Cache size: {stats['cache_size_bytes']} bytes")
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/tests/integration/test_knowledge_distribution.py:66: assert 500 == 200
 E   KeyError: 'cache_size_bytes'
 ----------------------------- Captured stdout call -----------------------------
 
 === Testing Library Node Caching ===
-____________ TestMatchAcceptReject.test_accept_match_updates_status ____________
-valueflows_node/app/api/vf/matches.py:170: in accept_match
-    "match": updated_match.to_dict(),
-             ^^^^^^^^^^^^^^^^^^^^^^^
-valueflows_node/app/models/vf/match.py:75: in to_dict
-    "status": self.status.value,
-              ^^^^^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/tests/integration/test_knowledge_distribution.py:190: KeyError: 'cache_size_bytes'
 E   AttributeError: 'str' object has no attribute 'value'
 
 During handling of the above exception, another exception occurred:
-tests/test_api_endpoint_fixes.py:61: in test_accept_match_updates_status
-    result = await accept_match("match:test")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-valueflows_node/app/api/vf/matches.py:176: in accept_match
-    raise HTTPException(status_code=400, detail=str(e))
 E   fastapi.exceptions.HTTPException: 400: 'str' object has no attribute 'value'
-____________ TestMatchAcceptReject.test_reject_match_updates_status ____________
-valueflows_node/app/api/vf/matches.py:203: in reject_match
-    "match": updated_match.to_dict(),
-             ^^^^^^^^^^^^^^^^^^^^^^^
-valueflows_node/app/models/vf/match.py:75: in to_dict
-    "status": self.status.value,
-              ^^^^^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/valueflows_node/app/api/vf/matches.py:176: fastapi.exceptions.HTTPException: 400: 'str' object has no attribute 'value'
 E   AttributeError: 'str' object has no attribute 'value'
 
 During handling of the above exception, another exception occurred:
-tests/test_api_endpoint_fixes.py:96: in test_reject_match_updates_status
-    result = await reject_match("match:test", "not interested")
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-valueflows_node/app/api/vf/matches.py:210: in reject_match
-    raise HTTPException(status_code=400, detail=str(e))
 E   fastapi.exceptions.HTTPException: 400: 'str' object has no attribute 'value'
-_______ TestProposalRejection.test_reject_proposal_uses_current_user_id ________
-tests/test_api_endpoint_fixes.py:235: in test_reject_proposal_uses_current_user_id
-    assert "request.user_id" not in source, "Should NOT use request.user_id"
+/Users/annhoward/src/solarpunk_utopia/valueflows_node/app/api/vf/matches.py:210: fastapi.exceptions.HTTPException: 400: 'str' object has no attribute 'value'
 E   AssertionError: Should NOT use request.user_id
-E   assert 'request.user_id' not in '@router.pos...il=str(e))\n'
-E     
-E     'request.user_id' is contained here:
-E       @router.post("/proposals/{proposal_id}/reject")
-E       async def reject_proposal(
-E           proposal_id: str,
-E           request: ApprovalRequest,
-E           current_user: User = Depends(require_auth),...
-E     
-E     ...Full output truncated (20 lines hidden), use '-vv' to show
-_____________________________ test_create_campaign _____________________________
-tests/test_economic_withdrawal.py:46: in test_create_campaign
-    campaign = service.create_campaign(
-app/services/economic_withdrawal_service.py:79: in create_campaign
-    self._propagate_campaign(campaign)
-app/services/economic_withdrawal_service.py:147: in _propagate_campaign
-    destination_audience=Audience.CELL if campaign.cell_id else Audience.NETWORK,
-                         ^^^^^^^^^^^^^
+    assert 'request.user_id' not in '@router.pos...il=str(e))\n'
+      
+      'request.user_id' is contained here:
+        nstead of request.user_id
+            """
+            try:
+                proposal = await approval_tracker.approve_proposal(
+                    proposal_id=proposal_id,...
+      
+      ...Full output truncated (9 lines hidden), use '-vv' to show
+/Users/annhoward/src/solarpunk_utopia/tests/test_api_endpoint_fixes.py:235: AssertionError: Should NOT use request.user_id
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-___________________________ test_pledge_to_campaign ____________________________
-tests/test_economic_withdrawal.py:71: in test_pledge_to_campaign
-    campaign = service.create_campaign(
-app/services/economic_withdrawal_service.py:79: in create_campaign
-    self._propagate_campaign(campaign)
-app/services/economic_withdrawal_service.py:147: in _propagate_campaign
-    destination_audience=Audience.CELL if campaign.cell_id else Audience.NETWORK,
-                         ^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:147: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-___________________________ test_campaign_activation ___________________________
-tests/test_economic_withdrawal.py:108: in test_campaign_activation
-    campaign = service.create_campaign(
-app/services/economic_withdrawal_service.py:79: in create_campaign
-    self._propagate_campaign(campaign)
-app/services/economic_withdrawal_service.py:147: in _propagate_campaign
-    destination_audience=Audience.CELL if campaign.cell_id else Audience.NETWORK,
-                         ^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:147: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-___________________________ test_mark_avoided_target ___________________________
-tests/test_economic_withdrawal.py:150: in test_mark_avoided_target
-    campaign = service.create_campaign(
-app/services/economic_withdrawal_service.py:79: in create_campaign
-    self._propagate_campaign(campaign)
-app/services/economic_withdrawal_service.py:147: in _propagate_campaign
-    destination_audience=Audience.CELL if campaign.cell_id else Audience.NETWORK,
-                         ^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:147: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-____________________________ test_bulk_buy_creation ____________________________
-tests/test_economic_withdrawal.py:217: in test_bulk_buy_creation
-    bulk_buy = service.create_bulk_buy(
-app/services/economic_withdrawal_service.py:486: in create_bulk_buy
-    self._propagate_bulk_buy(bulk_buy)
-app/services/economic_withdrawal_service.py:552: in _propagate_bulk_buy
-    destination_audience=Audience.CELL,
-                         ^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:147: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-___________________________ test_bulk_buy_commitment ___________________________
-tests/test_economic_withdrawal.py:242: in test_bulk_buy_commitment
-    bulk_buy = service.create_bulk_buy(
-app/services/economic_withdrawal_service.py:486: in create_bulk_buy
-    self._propagate_bulk_buy(bulk_buy)
-app/services/economic_withdrawal_service.py:552: in _propagate_bulk_buy
-    destination_audience=Audience.CELL,
-                         ^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:552: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   AttributeError: type object 'Audience' has no attribute 'CELL'
-_____________________________ test_fork_community ______________________________
-tests/test_fork_rights.py:214: in test_fork_community
-    fork = service.fork_community(
-app/services/fork_rights_service.py:299: in fork_community
-    self.repo.create_fork(fork)
-app/repositories/fork_rights_repository.py:287: in create_fork
-    self.create_fork_invitation(invitation)
-app/repositories/fork_rights_repository.py:298: in create_fork_invitation
-    cursor.execute("""
-E   sqlite3.OperationalError: database is locked
-___________________________ test_local_first_export ____________________________
-tests/test_fork_rights.py:315: in test_local_first_export
-    export_path = service.generate_export_file("maria-pk")
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/services/fork_rights_service.py:168: in generate_export_file
-    export_conn = sqlite3.connect(export_path)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:552: AttributeError: type object 'Audience' has no attribute 'CELL'
 E   sqlite3.OperationalError: unable to open database file
-______ TestSanctuaryVerification.test_verification_requires_min_stewards _______
-tests/test_fraud_abuse_protections.py:187: in test_verification_requires_min_stewards
-    verification = SanctuaryVerification(
+/Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:170: sqlite3.OperationalError: unable to open database file
 E   pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
-E   resource_id
-E     Field required [type=missing, input_value={'space_id': 'space_001',...s_buddy_protocol': True}, input_type=dict]
-E       For further information visit https://errors.pydantic.dev/2.10/v/missing
-_____ TestSanctuaryVerification.test_verification_valid_with_min_stewards ______
-tests/test_fraud_abuse_protections.py:200: in test_verification_valid_with_min_stewards
-    verification = SanctuaryVerification(
+    resource_id
+      Field required [type=missing, input_value={'space_id': 'space_001',...s_buddy_protocol': True}, input_type=dict]
+        For further information visit https://errors.pydantic.dev/2.10/v/missing
+/Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:187: pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
 E   pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
-E   resource_id
-E     Field required [type=missing, input_value={'space_id': 'space_001',... 21, 22, 41, 2, 222014)}, input_type=dict]
-E       For further information visit https://errors.pydantic.dev/2.10/v/missing
-______ TestSanctuaryVerification.test_verification_expires_after_90_days _______
-tests/test_fraud_abuse_protections.py:214: in test_verification_expires_after_90_days
-    old_verification = SanctuaryVerification(
+    resource_id
+      Field required [type=missing, input_value={'space_id': 'space_001',...=datetime.timezone.utc)}, input_type=dict]
+        For further information visit https://errors.pydantic.dev/2.10/v/missing
+/Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:200: pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
 E   pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
-E   resource_id
-E     Field required [type=missing, input_value={'space_id': 'space_001',...s_buddy_protocol': True}, input_type=dict]
-E       For further information visit https://errors.pydantic.dev/2.10/v/missing
-______ TestSanctuaryVerification.test_high_trust_requires_successful_uses ______
-tests/test_fraud_abuse_protections.py:227: in test_high_trust_requires_successful_uses
-    verification = SanctuaryVerification(
+    resource_id
+      Field required [type=missing, input_value={'space_id': 'space_001',...s_buddy_protocol': True}, input_type=dict]
+        For further information visit https://errors.pydantic.dev/2.10/v/missing
+/Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:214: pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
 E   pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
-E   resource_id
-E     Field required [type=missing, input_value={'space_id': 'space_001',...e, 'successful_uses': 2}, input_type=dict]
-E       For further information visit https://errors.pydantic.dev/2.10/v/missing
-___________________ test_in_person_attestation_claim_offline ___________________
-tests/test_network_import_offline.py:158: in test_in_person_attestation_claim_offline
-    assert claim.status == "verified"
+    resource_id
+      Field required [type=missing, input_value={'space_id': 'space_001',...e, 'successful_uses': 2}, input_type=dict]
+        For further information visit https://errors.pydantic.dev/2.10/v/missing
+/Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:227: pydantic_core._pydantic_core.ValidationError: 1 validation error for SanctuaryVerification
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+
+During handling of the above exception, another exception occurred:
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:1603: TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+
+During handling of the above exception, another exception occurred:
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:1603: TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+
+During handling of the above exception, another exception occurred:
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:1603: TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+
+During handling of the above exception, another exception occurred:
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:1603: TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+
+During handling of the above exception, another exception occurred:
+E   TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/unittest/mock.py:1603: TypeError: cannot set 'now' attribute of immutable type 'datetime.datetime'
+E   AssertionError: assert 1.0 == 0.0
+     +  where 1.0 = get_trust('bob')
+     +    where get_trust = <tests.harness.trust_fixtures.TrustGraphFixture object at 0x107696750>.get_trust
+/Users/annhoward/src/solarpunk_utopia/tests/test_harness.py:313: AssertionError: assert 1.0 == 0.0
 E   AssertionError: assert 'pending' == 'verified'
-E     
-E     - verified
-E     + pending
-_________________ test_challenge_response_verification_offline _________________
-tests/test_network_import_offline.py:198: in test_challenge_response_verification_offline
-    assert claim.status == "verified"
+      
+      - verified
+      + pending
+/Users/annhoward/src/solarpunk_utopia/tests/test_network_import_offline.py:158: AssertionError: assert 'pending' == 'verified'
 E   AssertionError: assert 'pending' == 'verified'
-E     
-E     - verified
-E     + pending
-_____________________ test_mesh_vouch_verification_offline _____________________
-tests/test_network_import_offline.py:238: in test_mesh_vouch_verification_offline
-    assert claim1.status == "verified"
+      
+      - verified
+      + pending
+/Users/annhoward/src/solarpunk_utopia/tests/test_network_import_offline.py:198: AssertionError: assert 'pending' == 'verified'
 E   AssertionError: assert 'pending' == 'verified'
-E     
-E     - verified
-E     + pending
-_____________________ test_steward_accountability_offline ______________________
-tests/test_network_import_offline.py:303: in test_steward_accountability_offline
-    assert record.status == "warning"  # 20% triggers warning
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      
+      - verified
+      + pending
+/Users/annhoward/src/solarpunk_utopia/tests/test_network_import_offline.py:238: AssertionError: assert 'pending' == 'verified'
 E   AssertionError: assert 'suspended' == 'warning'
-E     
-E     - warning
-E     + suspended
-________________________ test_quick_wipe_destroys_data _________________________
-tests/test_panic_features.py:122: in test_quick_wipe_destroys_data
-    assert len(wipe_log.data_types_wiped) > 0
+      
+      - warning
+      + suspended
+/Users/annhoward/src/solarpunk_utopia/tests/test_network_import_offline.py:303: AssertionError: assert 'suspended' == 'warning'
 E   AssertionError: assert 0 > 0
-E    +  where 0 = len([])
-E    +    where [] = WipeLog(id='wipe-log-30f46cd9-c1b9-4d42-b5f9-6e5dc76e64d2', user_id='test-user-102', trigger='quick_wipe', wiped_at=datetime.datetime(2025, 12, 21, 22, 41, 4, 946026), data_types_wiped=[], recovery_possible=True).data_types_wiped
+     +  where 0 = len([])
+     +    where [] = WipeLog(id='wipe-log-721594fe-86bd-43e4-9f34-d4c32d062829', user_id='test-user-102', trigger='quick_wipe', wiped_at=da....datetime(2025, 12, 23, 23, 37, 41, 835164, tzinfo=datetime.timezone.utc), data_types_wiped=[], recovery_possible=True).data_types_wiped
 ----------------------------- Captured stdout call -----------------------------
 Error wiping private keys: no such table: user_keys
-____________________ test_seed_phrase_encryption_decryption ____________________
-tests/test_panic_features.py:244: in test_seed_phrase_encryption_decryption
-    encrypted = panic_service.encrypt_seed_phrase(seed_phrase, password)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/annhoward/src/solarpunk_utopia/tests/test_panic_features.py:122: AssertionError: assert 0 > 0
 E   AttributeError: 'PanicService' object has no attribute 'encrypt_seed_phrase'. Did you mean: 'generate_seed_phrase'?
-_ TestSingleStewardVerificationNotEnough.test_single_verification_keeps_status_pending _
-tests/test_sanctuary_multi_steward_verification.py:52: in test_single_verification_keeps_status_pending
-    result = sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_ TestSingleStewardVerificationNotEnough.test_single_verification_not_available_for_matching _
-tests/test_sanctuary_multi_steward_verification.py:69: in test_single_verification_not_available_for_matching
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_ TestTwoStewardVerificationSucceeds.test_two_stewards_changes_status_to_verified _
-tests/test_sanctuary_multi_steward_verification.py:94: in test_two_stewards_changes_status_to_verified
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_ TestTwoStewardVerificationSucceeds.test_two_stewards_makes_resource_available _
-tests/test_sanctuary_multi_steward_verification.py:119: in test_two_stewards_makes_resource_available
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-____ TestTwoStewardVerificationSucceeds.test_verification_metadata_updated _____
-tests/test_sanctuary_multi_steward_verification.py:145: in test_verification_metadata_updated
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_________ TestSameStewardCannotVerifyTwice.test_same_steward_rejected __________
-tests/test_sanctuary_multi_steward_verification.py:176: in test_same_steward_rejected
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_______ TestResourcesNeedingVerification.test_pending_verification_list ________
-tests/test_sanctuary_multi_steward_verification.py:206: in test_pending_verification_list
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_ TestResourcesNeedingVerification.test_pending_excludes_steward_who_verified __
-tests/test_sanctuary_multi_steward_verification.py:234: in test_pending_excludes_steward_who_verified
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-____________ TestSuccessfulUsesTracking.test_record_successful_use _____________
-tests/test_sanctuary_multi_steward_verification.py:257: in test_record_successful_use
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-________ TestSuccessfulUsesTracking.test_failed_use_does_not_increment _________
-tests/test_sanctuary_multi_steward_verification.py:282: in test_failed_use_does_not_increment
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-___________ TestSuccessfulUsesTracking.test_multiple_successful_uses ___________
-tests/test_sanctuary_multi_steward_verification.py:307: in test_multiple_successful_uses
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_____ TestCriticalNeedsFilteringExcluded.test_new_sanctuary_not_high_trust _____
-tests/test_sanctuary_multi_steward_verification.py:337: in test_new_sanctuary_not_high_trust
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-____ TestCriticalNeedsFilteringExcluded.test_proven_sanctuary_is_high_trust ____
-tests/test_sanctuary_multi_steward_verification.py:361: in test_proven_sanctuary_is_high_trust
-    sanctuary_service.add_verification(
-app/services/sanctuary_service.py:257: in add_verification
-    verification_agg = self.repo.get_verification_aggregate(resource_id)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:574: in get_verification_aggregate
-    verifications = self.get_verifications_for_resource(resource_id)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-app/database/sanctuary_repository.py:541: in get_verifications_for_resource
-    cursor.execute("""
-E   sqlite3.OperationalError: no such table: sanctuary_verifications
-_______________ TestBundleReceiving.test_reject_duplicate_bundle _______________
-tests/unit/test_bundle_service.py:271: in test_reject_duplicate_bundle
-    assert success2 is False
-E   assert True is False
+/Users/annhoward/src/solarpunk_utopia/tests/test_panic_features.py:244: AttributeError: 'PanicService' object has no attribute 'encrypt_seed_phrase'. Did you mean: 'generate_seed_phrase'?
+E   NameError: name 'timedelta' is not defined
+/Users/annhoward/src/solarpunk_utopia/app/database/sanctuary_repository.py:800: NameError: name 'timedelta' is not defined
+E   NameError: name 'timedelta' is not defined
+/Users/annhoward/src/solarpunk_utopia/app/database/sanctuary_repository.py:800: NameError: name 'timedelta' is not defined
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
+E   sqlite3.OperationalError: attempt to write a readonly database
+/Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/aiosqlite/core.py:115: sqlite3.OperationalError: attempt to write a readonly database
 =============================== warnings summary ===============================
-venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:295: 32 warnings
-tests/test_api_endpoint_fixes.py: 14 warnings
+venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:295: 39 warnings
+tests/test_api_endpoint_fixes.py: 12 warnings
   /Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:295: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
     warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
 
-tests/test_algorithmic_transparency.py::test_bias_report_generation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_algorithmic_transparency.py:394: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    analysis_start=datetime.utcnow() - timedelta(days=30),
-
-tests/test_algorithmic_transparency.py::test_bias_report_generation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_algorithmic_transparency.py:395: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    analysis_end=datetime.utcnow(),
-
-tests/test_api_endpoint_fixes.py::TestMatchAcceptReject::test_accept_endpoint_exists
-  /Users/annhoward/src/solarpunk_utopia/valueflows_node/app/config.py:99: UserWarning: Using default JWT secret! Set JWT_SECRET environment variable in production.
-    warnings.warn(
+tests/e2e/test_rapid_response_e2e.py: 6 warnings
+tests/test_sanctuary_multi_steward_verification.py: 73 warnings
+  /Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/pydantic/main.py:214: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
 
 tests/test_api_endpoint_fixes.py::TestProposalRejection::test_reject_proposal_has_auth_dependency
 tests/test_api_endpoint_fixes.py::TestProposalRejection::test_reject_proposal_has_auth_dependency
@@ -874,437 +272,27 @@ tests/test_api_endpoint_fixes.py::test_commitments_router_registered
   /Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:297: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.10/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.10/migration/
     warnings.warn(
 
-tests/test_economic_withdrawal.py::test_create_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:56: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    pledge_deadline=datetime.utcnow() + timedelta(days=30),
-
-tests/test_economic_withdrawal.py::test_create_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:57: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_start=datetime.utcnow() + timedelta(days=31),
-
-tests/test_economic_withdrawal.py::test_create_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:58: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_end=datetime.utcnow() + timedelta(days=61),
-
-tests/test_economic_withdrawal.py::test_create_campaign
-tests/test_economic_withdrawal.py::test_pledge_to_campaign
-tests/test_economic_withdrawal.py::test_campaign_activation
-tests/test_economic_withdrawal.py::test_mark_avoided_target
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:71: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_create_campaign
-tests/test_economic_withdrawal.py::test_pledge_to_campaign
-tests/test_economic_withdrawal.py::test_campaign_activation
-tests/test_economic_withdrawal.py::test_mark_avoided_target
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:72: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    updated_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_pledge_to_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    pledge_deadline=datetime.utcnow() + timedelta(days=30),
-
-tests/test_economic_withdrawal.py::test_pledge_to_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:82: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_start=datetime.utcnow() + timedelta(days=31),
-
-tests/test_economic_withdrawal.py::test_pledge_to_campaign
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:83: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_end=datetime.utcnow() + timedelta(days=61),
-
-tests/test_economic_withdrawal.py::test_campaign_activation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:118: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    pledge_deadline=datetime.utcnow() + timedelta(days=30),
-
-tests/test_economic_withdrawal.py::test_campaign_activation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:119: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_start=datetime.utcnow() + timedelta(days=31),
-
-tests/test_economic_withdrawal.py::test_campaign_activation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:120: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_end=datetime.utcnow() + timedelta(days=61),
-
-tests/test_economic_withdrawal.py::test_mark_avoided_target
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:160: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    pledge_deadline=datetime.utcnow() + timedelta(days=30),
-
-tests/test_economic_withdrawal.py::test_mark_avoided_target
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:161: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_start=datetime.utcnow() + timedelta(days=31),
-
-tests/test_economic_withdrawal.py::test_mark_avoided_target
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:162: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    campaign_end=datetime.utcnow() + timedelta(days=61),
-
-tests/test_economic_withdrawal.py::test_create_corporate_alternative
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:360: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_exit_progress_tracking
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:401: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_exit_progress_tracking
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:402: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    updated_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_creation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:226: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    commitment_deadline=datetime.utcnow() + timedelta(days=14),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_creation
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:227: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    delivery_date=datetime.utcnow() + timedelta(days=21),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_creation
-tests/test_economic_withdrawal.py::test_bulk_buy_commitment
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:479: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_creation
-tests/test_economic_withdrawal.py::test_bulk_buy_commitment
-  /Users/annhoward/src/solarpunk_utopia/app/services/economic_withdrawal_service.py:480: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    updated_at=datetime.utcnow(),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_commitment
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:251: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    commitment_deadline=datetime.utcnow() + timedelta(days=14),
-
-tests/test_economic_withdrawal.py::test_bulk_buy_commitment
-  /Users/annhoward/src/solarpunk_utopia/tests/test_economic_withdrawal.py:252: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    delivery_date=datetime.utcnow() + timedelta(days=21),
-
-tests/test_fork_rights.py::test_request_data_export
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:47: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    requested_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_export_user_data
-tests/test_fork_rights.py::test_export_respects_privacy
-tests/test_fork_rights.py::test_no_connection_export_without_consent
-tests/test_fork_rights.py::test_connection_export_with_consent
-tests/test_fork_rights.py::test_local_first_export
-tests/test_fork_rights.py::test_export_works_offline
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:149: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    exported_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_connection_consent_request
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:181: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    asked_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_connection_consent_request
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:182: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow()
-
-tests/test_fork_rights.py::test_respond_to_consent
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:197: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    asked_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_respond_to_consent
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:198: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow()
-
-tests/test_fork_rights.py::test_respond_to_consent
-tests/test_fork_rights.py::test_connection_export_with_consent
-  /Users/annhoward/src/solarpunk_utopia/app/repositories/fork_rights_repository.py:209: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    """, (response, datetime.utcnow().isoformat(), consent_id))
-
-tests/test_fork_rights.py::test_fork_community
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:276: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    """, (new_cell_id, new_cell_name, user_id, datetime.utcnow().isoformat()))
-
-tests/test_fork_rights.py::test_fork_community
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:282: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    """, (new_cell_id, user_id, datetime.utcnow().isoformat()))
-
-tests/test_fork_rights.py::test_fork_community
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:296: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    forked_at=datetime.utcnow()
-
-tests/test_fork_rights.py::test_fork_community
-  /Users/annhoward/src/solarpunk_utopia/app/repositories/fork_rights_repository.py:284: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    invited_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_fork_community
-  /Users/annhoward/src/solarpunk_utopia/app/repositories/fork_rights_repository.py:285: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() + timedelta(days=30)
-
-tests/test_fork_rights.py::test_leave_community
-tests/test_fork_rights.py::test_no_exit_surveillance
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:367: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    left_at=datetime.utcnow()
-
-tests/test_fork_rights.py::test_connection_export_with_consent
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:297: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    asked_at=datetime.utcnow(),
-
-tests/test_fork_rights.py::test_connection_export_with_consent
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fork_rights.py:298: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow()
-
-tests/test_fork_rights.py::test_local_first_export
-  /Users/annhoward/src/solarpunk_utopia/app/services/fork_rights_service.py:167: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    export_path = f"data/exports/{user_id}-{datetime.utcnow().isoformat()}.db"
-
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:35: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    Mock(created_at=datetime.utcnow() - timedelta(days=i))
-
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_allowed_under_limit
-tests/unit/test_web_of_trust.py::test_vouch_eligibility
-tests/unit/test_web_of_trust.py::test_vouch_eligibility
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:284: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_limit_enforced
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:287: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    days_until_reset = 30 - (datetime.utcnow() - recent_vouches[0].created_at).days
-
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_allowed_under_limit
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_allowed_under_limit
-tests/test_fraud_abuse_protections.py::TestMonthlyVouchLimit::test_vouch_allowed_under_limit
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:59: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    Mock(created_at=datetime.utcnow() - timedelta(days=i))
-
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_within_cooloff_no_consequence
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:82: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    vouch.created_at = datetime.utcnow() - timedelta(hours=12)
-
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_within_cooloff_no_consequence
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    hours_since = (datetime.utcnow() - vouch.created_at).total_seconds() / 3600
-
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_after_cooloff_requires_reason
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:93: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    vouch.created_at = datetime.utcnow() - timedelta(days=3)
-
-tests/test_fraud_abuse_protections.py::TestVouchRevocationCooloff::test_revocation_after_cooloff_requires_reason
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:95: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    hours_since = (datetime.utcnow() - vouch.created_at).total_seconds() / 3600
-
-tests/test_fraud_abuse_protections.py::TestBlockList::test_block_user_creates_entry
-tests/test_fraud_abuse_protections.py::TestBlockList::test_is_blocked_bidirectional
-tests/test_fraud_abuse_protections.py::TestBlockList::test_block_prevents_match
-  /Users/annhoward/src/solarpunk_utopia/app/database/block_repository.py:54: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow()
-
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_valid_with_min_stewards
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:205: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    verified_at=datetime.utcnow()
-
-tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_expires_after_90_days
-  /Users/annhoward/src/solarpunk_utopia/tests/test_fraud_abuse_protections.py:217: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    verified_at=datetime.utcnow() - timedelta(days=100),
-
 tests/test_governance_silence_weight.py::TestPrivacyGuarantees::test_silent_voters_computed_not_stored
   tests/test_governance_silence_weight.py:415: PytestWarning: The test <Function test_silent_voters_computed_not_stored> is marked with '@pytest.mark.asyncio' but it is not an async function. Please remove the asyncio mark. If the test is not marked explicitly, check for global marks applied via 'pytestmark'.
     def test_silent_voters_computed_not_stored(self):
 
-tests/test_network_import_offline.py::test_threshold_signature_attestation_offline
-tests/test_network_import_offline.py::test_in_person_attestation_claim_offline
-tests/test_network_import_offline.py::test_challenge_response_verification_offline
-tests/test_network_import_offline.py::test_mesh_vouch_verification_offline
-tests/test_network_import_offline.py::test_trust_bonus_calculation_offline
-  /Users/annhoward/src/solarpunk_utopia/app/database/attestation_repository.py:120: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow()
-
-tests/test_network_import_offline.py: 6 warnings
-tests/unit/test_web_of_trust.py: 17 warnings
-  /Users/annhoward/src/solarpunk_utopia/app/database/vouch_repository.py:207: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    added_at = datetime.utcnow().isoformat()
-
-tests/test_network_import_offline.py: 10 warnings
-tests/unit/test_web_of_trust.py: 24 warnings
-  /Users/annhoward/src/solarpunk_utopia/app/database/vouch_repository.py:71: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow().isoformat()
-
-tests/test_network_import_offline.py::test_in_person_attestation_claim_offline
-tests/test_network_import_offline.py::test_challenge_response_verification_offline
-tests/test_network_import_offline.py::test_mesh_vouch_verification_offline
-tests/test_network_import_offline.py::test_steward_bulk_vouch_offline
-tests/unit/test_web_of_trust.py::test_genesis_node_has_full_trust
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:51: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_computed=datetime.utcnow(),
-
-tests/test_network_import_offline.py::test_in_person_attestation_claim_offline
-tests/test_network_import_offline.py::test_challenge_response_verification_offline
-tests/test_network_import_offline.py::test_mesh_vouch_verification_offline
-tests/test_network_import_offline.py::test_trust_bonus_calculation_offline
-  /Users/annhoward/src/solarpunk_utopia/app/database/attestation_repository.py:222: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    verified_at = datetime.utcnow()
-
-tests/test_network_import_offline.py: 5 warnings
-tests/unit/test_web_of_trust.py: 16 warnings
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_computed=datetime.utcnow(),
-
-tests/test_network_import_offline.py::test_challenge_response_verification_offline
-  /Users/annhoward/src/solarpunk_utopia/app/database/attestation_repository.py:368: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow()
-
-tests/test_network_import_offline.py: 1 warning
-tests/unit/test_web_of_trust.py: 10 warnings
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:73: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_computed=datetime.utcnow(),
-
-tests/test_network_import_offline.py::test_steward_bulk_vouch_offline
-tests/test_network_import_offline.py::test_steward_accountability_offline
-  /Users/annhoward/src/solarpunk_utopia/app/database/attestation_repository.py:460: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_review = datetime.utcnow()
-
-tests/test_network_import_offline.py::test_steward_bulk_vouch_offline
-tests/test_network_import_offline.py::test_steward_accountability_offline
-  /Users/annhoward/src/solarpunk_utopia/app/database/attestation_repository.py:498: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_review = datetime.utcnow()
-
-tests/test_network_import_offline.py::test_steward_accountability_offline
-tests/unit/test_web_of_trust.py::test_revocation_reduces_trust
-tests/unit/test_web_of_trust.py::test_revocation_cascade
-tests/unit/test_web_of_trust.py::test_partial_revocation_cascade
-tests/unit/test_web_of_trust.py::test_vouch_count_and_revocation_count
-  /Users/annhoward/src/solarpunk_utopia/app/database/vouch_repository.py:189: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    revoked_at = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_duress_pin_set_and_verify
-tests/test_panic_features.py::test_duress_pin_creates_burn_notice
-tests/test_panic_features.py::test_panic_status_aggregation
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:132: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_duress_pin_set_and_verify
-tests/test_panic_features.py::test_duress_pin_creates_burn_notice
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:180: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_used = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_duress_pin_set_and_verify
-tests/test_panic_features.py::test_duress_pin_creates_burn_notice
-tests/test_panic_features.py::test_burn_notice_creation
-tests/test_panic_features.py::test_burn_notice_resolution
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:431: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow()
-
-tests/test_panic_features.py::test_duress_pin_set_and_verify
-tests/test_panic_features.py::test_duress_pin_creates_burn_notice
-tests/test_panic_features.py::test_burn_notice_creation
-tests/test_panic_features.py::test_burn_notice_resolution
-tests/test_panic_features.py::test_burn_notice_resolution
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:509: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    now = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_quick_wipe_configuration
-tests/test_panic_features.py::test_quick_wipe_requires_confirmation
-tests/test_panic_features.py::test_quick_wipe_destroys_data
-tests/test_panic_features.py::test_panic_status_aggregation
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:201: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_quick_wipe_destroys_data
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:250: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    last_triggered = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_quick_wipe_destroys_data
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:537: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    wiped_at = datetime.utcnow()
-
-tests/test_panic_features.py::test_dead_mans_switch_configuration
-tests/test_panic_features.py::test_dead_mans_switch_checkin
-tests/test_panic_features.py::test_panic_status_aggregation
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:270: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    now = datetime.utcnow()
-
-tests/test_panic_features.py::test_dead_mans_switch_configuration
-  /Users/annhoward/src/solarpunk_utopia/tests/test_panic_features.py:141: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expected_trigger = datetime.utcnow() + timedelta(hours=48)
-
-tests/test_panic_features.py::test_dead_mans_switch_checkin
-  /Users/annhoward/src/solarpunk_utopia/app/models/panic.py:120: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    self.last_checkin = datetime.utcnow()
-
-tests/test_panic_features.py::test_decoy_mode_configuration
-tests/test_panic_features.py::test_panic_status_aggregation
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:382: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    created_at = datetime.utcnow().isoformat()
-
-tests/test_panic_features.py::test_panic_status_aggregation
-  /Users/annhoward/src/solarpunk_utopia/app/services/panic_service.py:497: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    config.calculate_trigger_time() - datetime.utcnow()
-
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/tests/test_panic_features.py:290: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    past_time = (datetime.utcnow() - timedelta(hours=2)).isoformat()
-
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/tests/test_panic_features.py:291: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    trigger_time = (datetime.utcnow() - timedelta(hours=1)).isoformat()
-
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-tests/test_panic_features.py::test_overdue_dead_mans_switches
-  /Users/annhoward/src/solarpunk_utopia/app/database/panic_repository.py:348: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    now = datetime.utcnow().isoformat()
-
-tests/test_sanctuary_multi_steward_verification.py: 13 warnings
-  /Users/annhoward/src/solarpunk_utopia/app/services/sanctuary_service.py:72: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    available_from=datetime.utcnow()
-
-tests/test_sanctuary_multi_steward_verification.py: 44 warnings
-  /Users/annhoward/src/solarpunk_utopia/venv/lib/python3.12/site-packages/pydantic/main.py:214: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-
-tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_verification_metadata_updated
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:142: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    before = datetime.utcnow()
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_is_valid_property
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:412: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() + timedelta(days=30)
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_is_valid_property
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_invalid_if_expired
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_is_high_trust_requires_three_uses
-  /Users/annhoward/src/solarpunk_utopia/app/models/sanctuary.py:506: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    if self.expires_at and datetime.utcnow() > self.expires_at:
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_invalid_if_too_few
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:430: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() + timedelta(days=30)
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_verification_invalid_if_expired
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:453: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() - timedelta(days=1)  # Expired yesterday
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_is_high_trust_requires_three_uses
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:476: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() + timedelta(days=30),
-
-tests/test_sanctuary_multi_steward_verification.py::TestVerificationModels::test_is_high_trust_false_with_low_uses
-  /Users/annhoward/src/solarpunk_utopia/tests/test_sanctuary_multi_steward_verification.py:500: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    expires_at=datetime.utcnow() + timedelta(days=30),
-
-tests/unit/test_web_of_trust.py::test_revocation_cascade
-tests/unit/test_web_of_trust.py::test_partial_revocation_cascade
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:202: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    "revoked_at": datetime.utcnow().isoformat(),
-
-tests/unit/test_web_of_trust.py::test_trust_threshold_check
-tests/unit/test_web_of_trust.py::test_trust_threshold_check
-tests/unit/test_web_of_trust.py::test_trust_threshold_check
-tests/unit/test_web_of_trust.py::test_trust_threshold_check
-tests/unit/test_web_of_trust.py::test_trust_threshold_check
-tests/unit/test_web_of_trust.py::test_vouch_eligibility
-tests/unit/test_web_of_trust.py::test_cached_trust_score
-  /Users/annhoward/src/solarpunk_utopia/app/services/web_of_trust_service.py:40: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-    if cached and (datetime.utcnow() - cached.last_computed) < timedelta(hours=1):
-
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+FAILED tests/e2e/test_cross_community_discovery_e2e.py::TestCrossCommunityDiscoveryE2E::test_blocking_overrides_visibility
+FAILED tests/e2e/test_cross_community_discovery_e2e.py::TestCrossCommunityDiscoveryE2E::test_public_vs_regional_audience
+FAILED tests/e2e/test_cross_community_discovery_e2e.py::TestCrossCommunityDiscoveryE2E::test_visibility_respects_individual_choice
+FAILED tests/e2e/test_dtn_mesh_sync_e2e.py::TestDTNMeshSyncE2E::test_partial_overlap_sync
+FAILED tests/e2e/test_dtn_mesh_sync_e2e.py::TestDTNMeshSyncE2E::test_emergency_priority_first
+FAILED tests/e2e/test_dtn_mesh_sync_e2e.py::TestDTNMeshSyncE2E::test_audience_enforcement_high_trust
+FAILED tests/e2e/test_dtn_mesh_sync_e2e.py::TestDTNMeshSyncE2E::test_bidirectional_sync
+FAILED tests/e2e/test_dtn_mesh_sync_e2e.py::TestDTNMeshSyncE2E::test_no_duplicate_transfers
+FAILED tests/e2e/test_mycelial_strike_e2e.py::TestMycelialStrikeE2E::test_time_based_alert_expiration
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_full_rapid_response_flow
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_critical_alert_requires_high_trust
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_critical_alert_auto_downgrade_if_unconfirmed
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_alert_propagation_priority
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_alert_purge_after_24_hours
+FAILED tests/e2e/test_rapid_response_e2e.py::TestRapidResponseE2E::test_responder_coordination_flow
 FAILED tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_complete_offer_need_exchange_flow
 FAILED tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_bundle_propagation_across_services
 FAILED tests/integration/test_end_to_end_gift_economy.py::TestGiftEconomyFlow::test_agent_proposals_require_approval
@@ -1319,32 +307,44 @@ FAILED tests/test_economic_withdrawal.py::test_campaign_activation - Attribut...
 FAILED tests/test_economic_withdrawal.py::test_mark_avoided_target - Attribut...
 FAILED tests/test_economic_withdrawal.py::test_bulk_buy_creation - AttributeE...
 FAILED tests/test_economic_withdrawal.py::test_bulk_buy_commitment - Attribut...
-FAILED tests/test_fork_rights.py::test_fork_community - sqlite3.OperationalEr...
 FAILED tests/test_fork_rights.py::test_local_first_export - sqlite3.Operation...
 FAILED tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_requires_min_stewards
 FAILED tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_valid_with_min_stewards
 FAILED tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_verification_expires_after_90_days
 FAILED tests/test_fraud_abuse_protections.py::TestSanctuaryVerification::test_high_trust_requires_successful_uses
+FAILED tests/test_harness.py::TestTimeControl::test_freeze_time - TypeError: ...
+FAILED tests/test_harness.py::TestTimeControl::test_advance_time - TypeError:...
+FAILED tests/test_harness.py::TestTimeControl::test_advance_with_units - Type...
+FAILED tests/test_harness.py::TestTimeControl::test_freeze_time_context_manager
+FAILED tests/test_harness.py::TestTimeControl::test_advance_time_context_manager
+FAILED tests/test_harness.py::TestTrustGraphFixtures::test_revoke_vouch - Ass...
 FAILED tests/test_network_import_offline.py::test_in_person_attestation_claim_offline
 FAILED tests/test_network_import_offline.py::test_challenge_response_verification_offline
 FAILED tests/test_network_import_offline.py::test_mesh_vouch_verification_offline
 FAILED tests/test_network_import_offline.py::test_steward_accountability_offline
 FAILED tests/test_panic_features.py::test_quick_wipe_destroys_data - Assertio...
 FAILED tests/test_panic_features.py::test_seed_phrase_encryption_decryption
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSingleStewardVerificationNotEnough::test_single_verification_keeps_status_pending
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSingleStewardVerificationNotEnough::test_single_verification_not_available_for_matching
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_two_stewards_changes_status_to_verified
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_two_stewards_makes_resource_available
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestTwoStewardVerificationSucceeds::test_verification_metadata_updated
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSameStewardCannotVerifyTwice::test_same_steward_rejected
 FAILED tests/test_sanctuary_multi_steward_verification.py::TestResourcesNeedingVerification::test_pending_verification_list
 FAILED tests/test_sanctuary_multi_steward_verification.py::TestResourcesNeedingVerification::test_pending_excludes_steward_who_verified
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_record_successful_use
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_failed_use_does_not_increment
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestSuccessfulUsesTracking::test_multiple_successful_uses
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestCriticalNeedsFilteringExcluded::test_new_sanctuary_not_high_trust
-FAILED tests/test_sanctuary_multi_steward_verification.py::TestCriticalNeedsFilteringExcluded::test_proven_sanctuary_is_high_trust
+FAILED tests/unit/test_bundle_service.py::TestBundleCreation::test_create_simple_bundle
+FAILED tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_with_ttl_hours
+FAILED tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_auto_ttl
+FAILED tests/unit/test_bundle_service.py::TestBundleCreation::test_create_bundle_with_tags
+FAILED tests/unit/test_bundle_service.py::TestBundleCreation::test_bundle_id_is_content_addressed
+FAILED tests/unit/test_bundle_service.py::TestBundleValidation::test_validate_valid_bundle
+FAILED tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_tampered_payload
+FAILED tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_expired_bundle
+FAILED tests/unit/test_bundle_service.py::TestBundleValidation::test_reject_invalid_signature
+FAILED tests/unit/test_bundle_service.py::TestBundleReceiving::test_receive_valid_bundle
 FAILED tests/unit/test_bundle_service.py::TestBundleReceiving::test_reject_duplicate_bundle
+FAILED tests/unit/test_bundle_service.py::TestBundleReceiving::test_quarantine_invalid_bundle
+FAILED tests/unit/test_bundle_service.py::TestBundleProperties::test_bundle_snake_case_aliases
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_full_sanctuary_flow
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_high_sensitivity_requires_high_trust
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_steward_cannot_verify_twice
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_verification_expires_after_90_days
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_high_trust_resources_for_critical_needs
+ERROR tests/e2e/test_sanctuary_network_e2e.py::TestSanctuaryNetworkE2E::test_needs_second_verification_flag
 ERROR tests/test_care_outreach.py::TestVolunteerManagement::test_register_volunteer
 ERROR tests/test_care_outreach.py::TestVolunteerManagement::test_find_available_volunteer
 ERROR tests/test_care_outreach.py::TestOutreachAssignment::test_flag_for_outreach
@@ -1357,4 +357,4 @@ ERROR tests/test_care_outreach.py::TestSuspectedInfiltrator::test_handle_suspect
 ERROR tests/test_care_outreach.py::TestConversionMetrics::test_get_metrics - ...
 ERROR tests/test_care_outreach.py::TestConversionExperiences::test_suggest_experience_for_new_outreach
 ERROR tests/test_care_outreach.py::TestConversionExperiences::test_get_all_experiences
-=========== 40 failed, 127 passed, 354 warnings, 12 errors in 25.73s ===========
+61 failed, 216 passed, 135 warnings, 18 errors in 6.44s

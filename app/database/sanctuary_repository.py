@@ -208,6 +208,63 @@ class SanctuaryRepository:
         conn.close()
         return resource
 
+    def get_resource(self, resource_id: str) -> Optional[SanctuaryResource]:
+        """Get a sanctuary resource by ID."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, resource_type, sensitivity, offered_by, cell_id, description,
+                   capacity, duration_days, verification_status, verified_by, verified_at,
+                   verification_notes, available, available_from, available_until,
+                   created_at, updated_at, purge_at
+            FROM sanctuary_resources
+            WHERE id = ?
+        """, (resource_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return self._row_to_resource(row)
+        return None
+
+    def update_resource(self, resource: SanctuaryResource) -> SanctuaryResource:
+        """Update a sanctuary resource."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE sanctuary_resources
+            SET resource_type = ?, sensitivity = ?, description = ?,
+                capacity = ?, duration_days = ?, verification_status = ?,
+                verified_by = ?, verified_at = ?, verification_notes = ?,
+                available = ?, available_from = ?, available_until = ?,
+                updated_at = ?, purge_at = ?
+            WHERE id = ?
+        """, (
+            resource.resource_type.value,
+            resource.sensitivity.value,
+            resource.description,
+            resource.capacity,
+            resource.duration_days,
+            resource.verification_status.value,
+            resource.verified_by,
+            resource.verified_at.isoformat() if resource.verified_at else None,
+            resource.verification_notes,
+            int(resource.available),
+            resource.available_from.isoformat(),
+            resource.available_until.isoformat() if resource.available_until else None,
+            resource.updated_at.isoformat(),
+            resource.purge_at.isoformat() if resource.purge_at else None,
+            resource.id
+        ))
+
+        conn.commit()
+        conn.close()
+
+        return resource
+
     def get_resources_by_cell(
         self,
         cell_id: str,
@@ -264,6 +321,26 @@ class SanctuaryRepository:
         conn.close()
 
     # ===== Sanctuary Requests =====
+
+    def get_request(self, request_id: str) -> Optional[SanctuaryRequest]:
+        """Get a sanctuary request by ID."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, request_type, urgency, requested_by, cell_id, verified_by,
+                   description, people_count, duration_needed_days, location_hint,
+                   status, matched_resource_id, completed_at, purge_at, created_at, expires_at
+            FROM sanctuary_requests
+            WHERE id = ?
+        """, (request_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            return self._row_to_request(row)
+        return None
 
     def create_request(self, request: SanctuaryRequest) -> SanctuaryRequest:
         """Create a new sanctuary request."""
@@ -335,6 +412,36 @@ class SanctuaryRepository:
         conn.close()
 
     # ===== Sanctuary Matches =====
+
+    def get_match(self, match_id: str) -> Optional[SanctuaryMatch]:
+        """Get a sanctuary match by ID."""
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, request_id, resource_id, cell_id, coordinated_by,
+                   status, completed_at, purge_at, created_at
+            FROM sanctuary_matches
+            WHERE id = ?
+        """, (match_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            from app.models.sanctuary import SanctuaryMatch
+            return SanctuaryMatch(
+                id=row[0],
+                request_id=row[1],
+                resource_id=row[2],
+                cell_id=row[3],
+                coordinated_by=row[4],
+                status=row[5],
+                completed_at=datetime.fromisoformat(row[6]) if row[6] else None,
+                purge_at=datetime.fromisoformat(row[7]),
+                created_at=datetime.fromisoformat(row[8])
+            )
+        return None
 
     def create_match(self, match: SanctuaryMatch) -> SanctuaryMatch:
         """Create a sanctuary match."""

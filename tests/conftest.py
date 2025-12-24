@@ -5,6 +5,12 @@ This ensures test databases are properly initialized with all migrations.
 import sqlite3
 from pathlib import Path
 import pytest
+import sys
+
+# Add project root to Python path for imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 
 def run_migrations_sync(db_path: str, migrations_dir: Path) -> None:

@@ -185,7 +185,7 @@ class TestSanctuaryVerification:
     def test_verification_requires_min_stewards(self):
         """Verify sanctuary requires minimum steward verifications"""
         verification = SanctuaryVerification(
-            space_id="space_001",
+            resource_id="space_001",
             verified_by=["steward_1"],  # Only 1 steward
             escape_routes=["route_1", "route_2"],
             has_buddy_protocol=True
@@ -198,7 +198,7 @@ class TestSanctuaryVerification:
     def test_verification_valid_with_min_stewards(self):
         """Verify sanctuary is valid with 2+ steward verifications"""
         verification = SanctuaryVerification(
-            space_id="space_001",
+            resource_id="space_001",
             verified_by=["steward_1", "steward_2"],  # 2 stewards
             escape_routes=["route_1", "route_2"],
             has_buddy_protocol=True,
@@ -212,7 +212,7 @@ class TestSanctuaryVerification:
         """Verify verification expires after VERIFICATION_VALIDITY_DAYS"""
         # Verification from 100 days ago
         old_verification = SanctuaryVerification(
-            space_id="space_001",
+            resource_id="space_001",
             verified_by=["steward_1", "steward_2"],
             verified_at=datetime.now(UTC) - timedelta(days=100),
             escape_routes=["route_1"],
@@ -225,7 +225,7 @@ class TestSanctuaryVerification:
     def test_high_trust_requires_successful_uses(self):
         """Verify high-trust spaces require 3+ successful uses"""
         verification = SanctuaryVerification(
-            space_id="space_001",
+            resource_id="space_001",
             verified_by=["steward_1", "steward_2"],
             escape_routes=["route_1", "route_2"],
             has_buddy_protocol=True,

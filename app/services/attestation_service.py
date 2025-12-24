@@ -223,6 +223,7 @@ class AttestationService:
 
         # Update to verified status
         self.attestation_repo.update_claim_status(claim.id, "verified")
+        claim.status = "verified"  # Update local object
 
         # Recompute claimer's trust (they now have attestation bonus)
         self.trust_service.compute_trust_score(claimer_user_id, force_recompute=True)
@@ -284,6 +285,7 @@ class AttestationService:
 
         # Update to verified status
         self.attestation_repo.update_claim_status(claim.id, "verified")
+        claim.status = "verified"  # Update local object
 
         # Recompute claimer's trust
         self.trust_service.compute_trust_score(claimer_user_id, force_recompute=True)
@@ -356,6 +358,7 @@ class AttestationService:
 
         # Update to verified status
         self.attestation_repo.update_claim_status(claim.id, "verified")
+        claim.status = "verified"  # Update local object
 
         # Recompute claimer's trust
         self.trust_service.compute_trust_score(claimer_user_id, force_recompute=True)

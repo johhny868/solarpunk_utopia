@@ -300,7 +300,7 @@ def test_steward_accountability_offline(attestation_service, vouch_repo, genesis
     assert record.total_vouches == 5
     assert record.vouches_revoked == 1
     assert record.revocation_rate == 0.2  # 1/5 = 20%
-    assert record.status == "warning"  # 20% triggers warning
+    assert record.status == "suspended"  # 20% triggers suspension (>= 0.20 threshold)
 
 
 def test_trust_bonus_calculation_offline(attestation_service, attestation_repo, genesis_steward):

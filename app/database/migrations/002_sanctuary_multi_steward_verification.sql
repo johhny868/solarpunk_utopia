@@ -10,11 +10,21 @@ CREATE TABLE IF NOT EXISTS sanctuary_resources (
     resource_type TEXT NOT NULL CHECK(resource_type IN ('safe_space', 'transport', 'legal', 'supplies', 'skills', 'intel')),
     description TEXT NOT NULL,
     offered_by TEXT NOT NULL,
-    sensitivity TEXT NOT NULL CHECK(sensitivity IN ('HIGH', 'MEDIUM', 'LOW')),
-    trust_threshold REAL NOT NULL,  -- Minimum trust score required to see this resource
+    sensitivity TEXT NOT NULL CHECK(sensitivity IN ('high', 'medium', 'low')),
+    trust_threshold REAL,  -- Minimum trust score required to see this resource (optional, can be derived from sensitivity)
     cell_id TEXT,
+    capacity INTEGER,
+    duration_days INTEGER,
+    verification_status TEXT NOT NULL DEFAULT 'unverified',
+    verified_by TEXT,
     verified_at TEXT,  -- When first verified
+    verification_notes TEXT,
+    available INTEGER DEFAULT 1,
+    available_from TEXT,
+    available_until TEXT,
     created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    purge_at TEXT,
     FOREIGN KEY (offered_by) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (cell_id) REFERENCES cells(id) ON DELETE CASCADE
 );
@@ -27,16 +37,22 @@ CREATE INDEX IF NOT EXISTS idx_sanctuary_resources_cell ON sanctuary_resources(c
 CREATE TABLE IF NOT EXISTS sanctuary_requests (
     id TEXT PRIMARY KEY,
     request_type TEXT NOT NULL CHECK(request_type IN ('safe_space', 'transport', 'legal', 'supplies', 'skills', 'intel')),
-    description TEXT NOT NULL,
+    urgency TEXT NOT NULL CHECK(urgency IN ('critical', 'urgent', 'moderate')),
     requested_by TEXT NOT NULL,
-    verified_by_steward TEXT,  -- Steward who verified this is legitimate
-    urgency TEXT NOT NULL CHECK(urgency IN ('CRITICAL', 'URGENT', 'MODERATE')),
-    cell_id TEXT,
-    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'matched', 'completed', 'purged')),
-    created_at TEXT DEFAULT (datetime('now')),
-    purge_at TEXT,  -- Auto-delete time
+    cell_id TEXT NOT NULL,
+    verified_by TEXT NOT NULL,
+    description TEXT NOT NULL,
+    people_count INTEGER DEFAULT 1,
+    duration_needed_days INTEGER,
+    location_hint TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'matched', 'completed', 'purged')),
+    matched_resource_id TEXT,
+    completed_at TEXT,
+    purge_at TEXT NOT NULL,  -- Auto-delete time
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL,
     FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (verified_by_steward) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (cell_id) REFERENCES cells(id) ON DELETE CASCADE
 );
 
