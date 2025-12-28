@@ -9,8 +9,19 @@
 
 ## 🚀 One-Line Install
 
+**Linux/Mac:**
 ```bash
 curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
+```
+
+**Termux (Android):**
+```bash
+pkg install curl -y && curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
+```
+
+**Or using wget:**
+```bash
+wget -qO- https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
 ```
 
 This installs everything and starts all services. Access at `http://localhost:3000` when complete.

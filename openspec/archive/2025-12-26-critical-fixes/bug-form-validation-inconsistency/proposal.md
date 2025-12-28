@@ -2,9 +2,11 @@
 
 **Type:** Bug Report
 **Severity:** High
-**Status:** Identified
+**Status:** Implemented
 **Date:** 2025-12-26
 **Reporter:** UI Tester (Automated)
+**Implemented:** 2025-12-26
+**Solution:** Flexible Validation (Option 2)
 
 ## Summary
 
@@ -153,3 +155,83 @@ This inconsistency may affect:
 - AI matchmaking quality (less structured offer data)
 - Search and filtering (harder to find free-form offers)
 - User expectations and learning curve
+
+---
+
+## Implementation Summary
+
+**Date:** 2025-12-26
+**Approach:** Allow Flexibility for Both (Option 2)
+
+### Changes Made
+
+1. **Updated validation.ts** (`frontend/src/utils/validation.ts:91-150`)
+   - Modified `validateIntentForm` to accept optional `title` parameter
+   - Now validates: title OR resourceSpecificationId (flexible)
+   - Added `validateIntentFormStrict` for cases needing strict validation
+   - Clear documentation of flexible vs strict validation
+
+2. **Updated CreateNeedPage** (`frontend/src/pages/CreateNeedPage.tsx`)
+   - Added `title` state field
+   - Added title input field at top of form
+   - Made category/subcategory/item optional (not required)
+   - Updated validation to use flexible `validateIntentForm`
+   - Added helper text: "Or use the fields below for more specific matching"
+
+3. **Updated CreateOfferPage** (`frontend/src/pages/CreateOfferPage.tsx:65-76,84`)
+   - Replaced custom validation with shared `validateIntentForm`
+   - Now uses same validation logic as CreateNeedPage
+   - Consistent error messaging
+
+### Validation Logic
+
+**Flexible validation (both forms now use this):**
+```typescript
+validateIntentForm({
+  title,                      // Optional
+  resourceSpecificationId,    // Optional
+  quantity,                   // Required
+  unit,                       // Required
+  location,                   // Optional
+})
+
+// Rules:
+// - MUST have title OR resourceSpecificationId (at least one)
+// - MUST have quantity > 0
+// - MUST have unit
+```
+
+### User Experience
+
+Both forms now allow:
+- **Quick posts:** Just enter title + quantity + unit
+- **Detailed posts:** Use category/subcategory/item for better matching
+- **Hybrid:** Provide both for maximum flexibility
+
+### Test Scenarios Met
+
+✅ **WHEN** user creates offer with only title
+   **THEN** validation behaves same as creating need with only title
+
+✅ **WHEN** user creates need with structured data
+   **THEN** validation behaves same as creating offer with structured data
+
+✅ **WHEN** validation fails
+   **THEN** both forms display errors in same style with same helpful messages
+
+✅ **WHEN** user submits valid form
+   **THEN** both offers and needs have equivalent data flexibility for matchmaking
+
+### Files Modified
+
+- `frontend/src/utils/validation.ts:91-150` - Flexible validation function
+- `frontend/src/pages/CreateNeedPage.tsx:36,124-203` - Added title, made fields optional
+- `frontend/src/pages/CreateOfferPage.tsx:65-76,84` - Use shared validation
+
+### Impact
+
+- **Consistency:** Both forms now have identical validation rules
+- **Flexibility:** Users can choose quick OR detailed entry
+- **UX:** Clear helper text explains options
+- **Data Quality:** Structured data encouraged but not forced
+- **Matchmaking:** AI can work with both structured and free-form data

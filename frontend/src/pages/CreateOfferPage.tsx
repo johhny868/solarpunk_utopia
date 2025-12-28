@@ -59,11 +59,19 @@ export function CreateOfferPage() {
     setErrors([]);
 
     // Create resource specification name - prefer item, then title, fallback to category path
-    const resourceName = item || title || `${category}/${subcategory}`;
+    const resourceName = item || `${category}/${subcategory}`;
 
-    // Validate form
-    if (!resourceName || !quantity) {
-      setErrors(['Please provide a resource name and quantity']);
+    // Validate form (flexible validation - allows title OR structured data)
+    const validation = validateIntentForm({
+      title,
+      resourceSpecificationId: resourceName,
+      quantity: parseFloat(quantity),
+      unit,
+      location,
+    });
+
+    if (!validation.valid) {
+      setErrors(validation.errors);
       return;
     }
 
@@ -73,7 +81,7 @@ export function CreateOfferPage() {
         agent_id: anonymous ? undefined : user.id, // No agent for anonymous gifts (GAP-61); user exists due to auth check
         anonymous,  // GAP-61: Emma Goldman - anonymous gifts
         title: title || item,
-        resource_spec_id: resourceName,
+        resource_spec_id: resourceName || title,
         quantity: parseFloat(quantity),
         unit,
         location_id: location || undefined,

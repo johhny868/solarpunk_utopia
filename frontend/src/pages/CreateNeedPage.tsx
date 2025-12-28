@@ -33,6 +33,7 @@ export function CreateNeedPage() {
     return null; // Redirect will handle this
   }
 
+  const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [item, setItem] = useState('');
@@ -55,10 +56,11 @@ export function CreateNeedPage() {
     setErrors([]);
 
     // Create resource specification name
-    const resourceName = item || `${category}/${subcategory}`;
+    const resourceName = item || (category && subcategory ? `${category}/${subcategory}` : '');
 
-    // Validate form
+    // Validate form (flexible validation - allows title OR structured data)
     const validation = validateIntentForm({
+      title,
       resourceSpecificationId: resourceName,
       quantity: parseFloat(quantity),
       unit,
@@ -74,7 +76,8 @@ export function CreateNeedPage() {
       await createNeed.mutateAsync({
         listing_type: 'need',
         agent_id: user.id, // user is guaranteed to exist due to auth check above
-        resource_spec_id: resourceName,
+        title: title || item,
+        resource_spec_id: resourceName || title,
         quantity: parseFloat(quantity),
         unit,
         location_id: location || undefined,
@@ -119,7 +122,24 @@ export function CreateNeedPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
+                Title *
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Gardening Tools, Help Moving Furniture"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Or use the fields below for more specific matching
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category (optional)
               </label>
               <select
                 value={category}
@@ -129,7 +149,6 @@ export function CreateNeedPage() {
                   setItem('');
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
               >
                 <option value="">Select a category...</option>
                 {RESOURCE_CATEGORIES.map((cat) => (
@@ -143,7 +162,7 @@ export function CreateNeedPage() {
             {category && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subcategory *
+                  Subcategory
                 </label>
                 <select
                   value={subcategory}
@@ -152,7 +171,6 @@ export function CreateNeedPage() {
                     setItem('');
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 >
                   <option value="">Select a subcategory...</option>
                   {subcategories.map((sub) => (
@@ -167,13 +185,12 @@ export function CreateNeedPage() {
             {subcategory && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Item *
+                  Item
                 </label>
                 <select
                   value={item}
                   onChange={(e) => setItem(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
                 >
                   <option value="">Select an item...</option>
                   {items.map((itm) => (

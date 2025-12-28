@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNeeds, useDeleteNeed } from '@/hooks/useNeeds';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCommunity } from '@/contexts/CommunityContext';
 import { Loading } from '@/components/Loading';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { NeedCard } from '@/components/NeedCard';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, Users } from 'lucide-react';
 import { RESOURCE_CATEGORIES } from '@/utils/categories';
 import type { Intent } from '@/types/valueflows';
 
@@ -16,6 +17,7 @@ export function NeedsPage() {
   const deleteNeed = useDeleteNeed();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentCommunity } = useCommunity();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -56,6 +58,31 @@ export function NeedsPage() {
 
   // Get unique locations
   const locations = Array.from(new Set(needs?.map(n => n.location).filter(Boolean))) as string[];
+
+  // Check if community is selected
+  if (!currentCommunity) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="inline-block p-6 bg-blue-50 rounded-full mb-4">
+            <Users className="w-16 h-16 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Select a community to view and express needs within your community.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/communities')}>
+              Browse Communities
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/communities/create')}>
+              Create Community
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return <ErrorMessage message="Failed to load needs. Please try again later." />;

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Solarpunk Utopia - Complete Setup Script for GCP VMs
+# Solarpunk Utopia - Complete Setup Script
 # Usage: curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
 
 set -e
@@ -16,6 +16,12 @@ echo -e "${GREEN}Solarpunk Utopia - Setup Script${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
+# Detect Termux
+IS_TERMUX=false
+if [ -n "$TERMUX_VERSION" ] || [ -n "$PREFIX" ] && [[ "$PREFIX" == *"com.termux"* ]]; then
+    IS_TERMUX=true
+fi
+
 # Detect OS
 OS="$(uname -s)"
 case "${OS}" in
@@ -24,13 +30,21 @@ case "${OS}" in
     *)          PLATFORM="UNKNOWN:${OS}"
 esac
 
-echo -e "${BLUE}Detected platform: ${PLATFORM}${NC}"
+if [ "$IS_TERMUX" = true ]; then
+    echo -e "${BLUE}Detected platform: Termux (Android)${NC}"
+else
+    echo -e "${BLUE}Detected platform: ${PLATFORM}${NC}"
+fi
 
 # Install system dependencies
 install_dependencies() {
     echo -e "${BLUE}Installing system dependencies...${NC}"
 
-    if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$IS_TERMUX" = true ]; then
+        # Termux (Android)
+        pkg update -y
+        pkg install -y python git nodejs
+    elif [ "$PLATFORM" = "Linux" ]; then
         # Debian/Ubuntu
         if command -v apt-get &> /dev/null; then
             sudo apt-get update
@@ -120,6 +134,11 @@ print('Database initialized successfully')
 
 # Create systemd service files
 create_systemd_services() {
+    if [ "$IS_TERMUX" = true ]; then
+        echo -e "${YELLOW}Skipping systemd setup (Termux uses background processes)${NC}"
+        return
+    fi
+
     if [ "$PLATFORM" != "Linux" ]; then
         echo -e "${YELLOW}Skipping systemd setup (not on Linux)${NC}"
         return
@@ -172,6 +191,11 @@ EOF
 
 # Configure firewall
 configure_firewall() {
+    if [ "$IS_TERMUX" = true ]; then
+        echo -e "${YELLOW}Skipping firewall setup (not available on Termux)${NC}"
+        return
+    fi
+
     if [ "$PLATFORM" != "Linux" ]; then
         return
     fi
@@ -215,7 +239,13 @@ run_tests() {
 start_services() {
     echo -e "${BLUE}Starting services...${NC}"
 
-    if [ "$PLATFORM" = "Linux" ] && command -v systemctl &> /dev/null; then
+    if [ "$IS_TERMUX" = true ]; then
+        # Termux: use background processes
+        echo -e "${YELLOW}Starting services in background...${NC}"
+        ./run_all_services.sh &
+        echo -e "${GREEN}Services started in background${NC}"
+        echo -e "${YELLOW}Note: Services will stop when terminal closes unless you use 'nohup' or 'termux-wake-lock'${NC}"
+    elif [ "$PLATFORM" = "Linux" ] && command -v systemctl &> /dev/null; then
         sudo systemctl start solarpunk-dtn
         sudo systemctl start solarpunk-frontend
         sudo systemctl enable solarpunk-dtn
@@ -254,7 +284,13 @@ print_summary() {
     echo -e "  View logs:       tail -f logs/dtn_bundle_system.log"
     echo -e "  Run tests:       source venv/bin/activate && pytest tests/ -v"
     echo ""
-    if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$IS_TERMUX" = true ]; then
+        echo -e "${YELLOW}Termux Tips:${NC}"
+        echo -e "  Keep services running: termux-wake-lock"
+        echo -e "  Run in background:     nohup ./run_all_services.sh &"
+        echo -e "  Access locally:        http://localhost:3000"
+        echo ""
+    elif [ "$PLATFORM" = "Linux" ]; then
         echo -e "${YELLOW}Systemd Commands:${NC}"
         echo -e "  sudo systemctl status solarpunk-dtn"
         echo -e "  sudo systemctl restart solarpunk-dtn"
@@ -276,7 +312,7 @@ main() {
     setup_frontend
     init_database
 
-    if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$IS_TERMUX" = false ] && [ "$PLATFORM" = "Linux" ]; then
         create_systemd_services
         configure_firewall
     fi

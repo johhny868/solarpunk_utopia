@@ -88,8 +88,42 @@ export const validateLength = (
   return { valid: true, errors: [] };
 };
 
-// Validate offer/need form
+// Validate offer/need form (flexible validation)
+// Allows either title OR structured data (category/item)
 export const validateIntentForm = (data: {
+  title?: string;
+  resourceSpecificationId?: string;
+  quantity?: number;
+  unit?: string;
+  location?: string;
+}): ValidationResult => {
+  const errors: string[] = [];
+
+  // Require either title or resourceSpecificationId
+  const hasTitle = data.title?.trim();
+  const hasResourceSpec = data.resourceSpecificationId?.trim();
+
+  if (!hasTitle && !hasResourceSpec) {
+    errors.push('Please provide either a title or select a resource type');
+  }
+
+  if (!data.quantity || data.quantity <= 0) {
+    errors.push('Quantity must be greater than 0');
+  }
+
+  if (!data.unit) {
+    errors.push('Unit is required');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+};
+
+// Validate offer/need form (strict - requires structured data)
+// Use this when you want to enforce category/subcategory/item selection
+export const validateIntentFormStrict = (data: {
   resourceSpecificationId?: string;
   quantity?: number;
   unit?: string;

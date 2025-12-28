@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useOffers, useDeleteOffer } from '@/hooks/useOffers';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCommunity } from '@/contexts/CommunityContext';
 import { Loading } from '@/components/Loading';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { OfferCard } from '@/components/OfferCard';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, Users } from 'lucide-react';
 import { RESOURCE_CATEGORIES } from '@/utils/categories';
 import type { Intent } from '@/types/valueflows';
 
@@ -16,6 +17,7 @@ export function OffersPage() {
   const deleteOffer = useDeleteOffer();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentCommunity } = useCommunity();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -81,6 +83,31 @@ export function OffersPage() {
 
   // Get unique locations
   const locations = Array.from(new Set(offers?.map(o => o.location).filter(Boolean))) as string[];
+
+  // Check if community is selected
+  if (!currentCommunity) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="inline-block p-6 bg-blue-50 rounded-full mb-4">
+            <Users className="w-16 h-16 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Select a community to view and share offers with your neighbors.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/communities')}>
+              Browse Communities
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/communities/create')}>
+              Create Community
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return <ErrorMessage message="Failed to load offers. Please try again later." />;
