@@ -7,8 +7,7 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { VisibilitySelector } from '@/components/VisibilitySelector';
-import { RESOURCE_CATEGORIES, COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
-import { validateIntentForm } from '@/utils/validation';
+import { COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
 import { ArrowLeft, Heart } from 'lucide-react';
 
 export function CreateNeedPage() {
@@ -34,44 +33,44 @@ export function CreateNeedPage() {
   }
 
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
-  const [item, setItem] = useState('');
+  const [description, setDescription] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('kg');
   const [location, setLocation] = useState('');
   const [availableFrom, setAvailableFrom] = useState('');
   const [availableUntil, setAvailableUntil] = useState('');
-  const [note, setNote] = useState('');
   const [visibility, setVisibility] = useState<'my_cell' | 'my_community' | 'trusted_network' | 'anyone_local' | 'network_wide'>('trusted_network');
   const [errors, setErrors] = useState<string[]>([]);
 
-  const selectedCategory = RESOURCE_CATEGORIES.find(cat => cat.id === category);
-  const subcategories = selectedCategory?.subcategories || [];
-  const selectedSubcategory = subcategories.find(sub => sub.id === subcategory);
-  const items = selectedSubcategory?.items || [];
-
   // Optional community notice (not blocking)
   const showCommunityNotice = !currentCommunity;
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors([]);
 
-    // Create resource specification name
-    const resourceName = item || (category && subcategory ? `${category}/${subcategory}` : '');
+    // Simple validation
+    if (!title.trim()) {
+      setErrors(['Please provide a title']);
+      return;
+    }
 
-    // Validate form (flexible validation - allows title OR structured data)
-    const validation = validateIntentForm({
-      title,
-      resourceSpecificationId: resourceName,
-      quantity: parseFloat(quantity),
-      unit,
-      location,
-    });
-
-    if (!validation.valid) {
-      setErrors(validation.errors);
+    if (!quantity || parseFloat(quantity) <= 0) {
+      setErrors(['Please provide a valid quantity']);
       return;
     }
 
@@ -87,17 +86,20 @@ export function CreateNeedPage() {
     }
 
     try {
+      // TODO: Handle photo upload properly
+      const photoData = photoPreview ? `\n\n[Photo: ${photoPreview.slice(0, 100)}...]` : '';
+
       await createNeed.mutateAsync({
         listing_type: 'need',
         agent_id: user.id, // user is guaranteed to exist due to auth check above
-        title: title || item,
-        resource_spec_id: resourceName || title,
+        title: title,
+        resource_spec_id: title,
         quantity: parseFloat(quantity),
         unit,
         location_id: location || undefined,
         available_from: availableFrom || undefined,
         available_until: availableUntil || undefined,
-        description: note || undefined,
+        description: description + photoData,
         community_id: currentCommunity?.id,
         visibility,
       });
@@ -161,7 +163,7 @@ export function CreateNeedPage() {
             <ErrorMessage message={errors.join(', ')} />
           )}
 
-          {/* Resource Selection */}
+          {/* Simple Need Entry */}
           <div className="space-y-4">
             <h3 className="font-semibold text-gray-900">What do you need?</h3>
 
@@ -174,78 +176,49 @@ export function CreateNeedPage() {
                 name="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Gardening Tools, Help Moving Furniture"
+                placeholder="e.g., Gardening Tools, Help Moving Furniture, Winter Coat"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Or use the fields below for more specific matching
-              </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category (optional)
+                Description
               </label>
-              <select
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setSubcategory('');
-                  setItem('');
-                }}
+              <textarea
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                placeholder="Tell us more about what you need... why you need it, what it's for, any specific requirements..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select a category...</option>
-                {RESOURCE_CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
-            {category && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subcategory
-                </label>
-                <select
-                  value={subcategory}
-                  onChange={(e) => {
-                    setSubcategory(e.target.value);
-                    setItem('');
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select a subcategory...</option>
-                  {subcategories.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {subcategory && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Item
-                </label>
-                <select
-                  value={item}
-                  onChange={(e) => setItem(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select an item...</option>
-                  {items.map((itm) => (
-                    <option key={itm} value={itm}>
-                      {itm}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Photo (optional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Upload a reference photo if helpful
+              </p>
+              {photoPreview && (
+                <div className="mt-3">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="max-w-xs rounded-lg border-2 border-blue-300"
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Quantity */}
@@ -337,20 +310,6 @@ export function CreateNeedPage() {
             value={visibility}
             onChange={(val) => setVisibility(val as any)}
           />
-
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notes
-            </label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Any additional details about this need..."
-            />
-          </div>
 
           {/* Actions */}
           <div className="flex gap-3">

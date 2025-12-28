@@ -7,8 +7,7 @@ import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { VisibilitySelector } from '@/components/VisibilitySelector';
-import { RESOURCE_CATEGORIES, COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
-import { validateIntentForm } from '@/utils/validation';
+import { COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
 import { ArrowLeft, Gift } from 'lucide-react';
 
 export function CreateOfferPage() {
@@ -35,46 +34,46 @@ export function CreateOfferPage() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
-  const [item, setItem] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('kg');
   const [location, setLocation] = useState('');
   const [availableFrom, setAvailableFrom] = useState('');
   const [availableUntil, setAvailableUntil] = useState('');
-  const [note, setNote] = useState('');
   const [visibility, setVisibility] = useState<'my_cell' | 'my_community' | 'trusted_network' | 'anyone_local' | 'network_wide'>('trusted_network');
   const [anonymous, setAnonymous] = useState(false);  // GAP-61: Emma Goldman
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
 
-  const selectedCategory = RESOURCE_CATEGORIES.find(cat => cat.id === category);
-  const subcategories = selectedCategory?.subcategories || [];
-  const selectedSubcategory = subcategories.find(sub => sub.id === subcategory);
-  const items = selectedSubcategory?.items || [];
-
   // Optional community notice (not blocking)
   const showCommunityNotice = !currentCommunity;
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhoto(file);
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors([]);
 
-    // Create resource specification name - prefer item, then title, fallback to category path
-    const resourceName = item || `${category}/${subcategory}`;
+    // Validate form (simple validation - just need title and quantity)
+    if (!title.trim()) {
+      setErrors(['Please provide a title']);
+      return;
+    }
 
-    // Validate form (flexible validation - allows title OR structured data)
-    const validation = validateIntentForm({
-      title,
-      resourceSpecificationId: resourceName,
-      quantity: parseFloat(quantity),
-      unit,
-      location,
-    });
-
-    if (!validation.valid) {
-      setErrors(validation.errors);
+    if (!quantity || parseFloat(quantity) <= 0) {
+      setErrors(['Please provide a valid quantity']);
       return;
     }
 
@@ -90,18 +89,22 @@ export function CreateOfferPage() {
     }
 
     try {
+      // TODO: Handle photo upload - for now we'll store the base64 in description
+      // In production, this should upload to storage service and store URL
+      const photoData = photoPreview ? `\n\n[Photo: ${photoPreview.slice(0, 100)}...]` : '';
+
       await createOffer.mutateAsync({
         listing_type: 'offer',
         agent_id: anonymous ? undefined : user.id, // No agent for anonymous gifts (GAP-61); user exists due to auth check
         anonymous,  // GAP-61: Emma Goldman - anonymous gifts
-        title: title || item,
-        resource_spec_id: resourceName || title,
+        title: title,
+        resource_spec_id: title, // Use title as resource spec
         quantity: parseFloat(quantity),
         unit,
         location_id: location || undefined,
         available_from: availableFrom || undefined,
         available_until: availableUntil || undefined,
-        description: description || note || undefined,
+        description: description + photoData,
         community_id: currentCommunity?.id,
         visibility,
       });
@@ -217,76 +220,11 @@ export function CreateOfferPage() {
                 name="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Fresh Tomatoes, Bicycle Repair Skills"
+                placeholder="e.g., Fresh Tomatoes, Bicycle Repair Skills, Spare Couch"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
                 required
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category (optional)
-              </label>
-              <select
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setSubcategory('');
-                  setItem('');
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
-              >
-                <option value="">Select a category...</option>
-                {RESOURCE_CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {category && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subcategory
-                </label>
-                <select
-                  value={subcategory}
-                  onChange={(e) => {
-                    setSubcategory(e.target.value);
-                    setItem('');
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
-                >
-                  <option value="">Select a subcategory...</option>
-                  {subcategories.map((sub) => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {subcategory && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Specific Item
-                </label>
-                <select
-                  value={item}
-                  onChange={(e) => setItem(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
-                >
-                  <option value="">Select an item...</option>
-                  {items.map((itm) => (
-                    <option key={itm} value={itm}>
-                      {itm}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -296,10 +234,31 @@ export function CreateOfferPage() {
                 name="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                placeholder="Tell us more about what you're offering..."
+                rows={4}
+                placeholder="Tell us more about what you're offering... condition, how to use it, why you're giving it away..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Photo (optional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
+              />
+              {photoPreview && (
+                <div className="mt-3">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="max-w-xs rounded-lg border-2 border-solarpunk-300"
+                  />
+                </div>
+              )}
             </div>
 
           </div>
