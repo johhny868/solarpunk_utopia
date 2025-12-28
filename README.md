@@ -26,6 +26,32 @@ wget -qO- https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/mai
 
 This installs everything and starts all services. Access at `http://localhost:3000` when complete.
 
+### Running on Android (Termux)
+
+1. **Install Termux** from F-Droid (not Google Play - that version is outdated)
+   - Download: https://f-droid.org/en/packages/com.termux/
+
+2. **Open Termux and run the installer:**
+   ```bash
+   pkg install curl -y && curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
+   ```
+
+3. **Access the app** in your phone's browser:
+   - Open browser and go to `http://localhost:3000`
+
+4. **Keep services running** after closing Termux:
+   ```bash
+   termux-wake-lock
+   nohup ./run_all_services.sh &
+   ```
+
+5. **Check service health:**
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+**Note:** Installation may take several minutes on older Android devices.
+
 ---
 
 ## What is This?
