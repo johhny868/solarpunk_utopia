@@ -74,6 +74,26 @@ start_service "discovery_search" "python -m discovery_search.main" "8001"
 start_service "file_chunking" "python -m file_chunking.main" "8001"
 start_service "bridge_management" "python -m mesh_network.bridge_node.main" "8002"
 
+# Start AI inference node if available
+if [ -f "ai_inference_node/inference_server.py" ] && command -v ollama &> /dev/null; then
+    # Start Ollama if not running
+    if ! curl -s http://localhost:11434 &> /dev/null; then
+        echo -e "${BLUE}Starting Ollama service...${NC}"
+        ollama serve > logs/ollama.log 2>&1 &
+        sleep 2
+    fi
+
+    # Set default model to lightweight version
+    export DEFAULT_MODEL="${DEFAULT_MODEL:-llama3.2:1b}"
+    export ENABLE_PRIORITIES="true"
+    export PORT="8003"
+
+    # Start inference node
+    cd ai_inference_node
+    start_service "ai_inference_node" "python inference_server.py" "8003"
+    cd ..
+fi
+
 echo ""
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}All services started!${NC}"
@@ -88,6 +108,12 @@ echo -e "  Discovery & Search:     http://localhost:8001"
 echo -e "  File Chunking:          http://localhost:8001"
 echo -e "  Bridge Management:      http://localhost:8002"
 echo -e "  Bridge API Docs:        http://localhost:8002/docs"
+
+if [ -f "logs/ai_inference_node.pid" ]; then
+    echo -e "  ${GREEN}AI Inference Node:      http://localhost:8003${NC}"
+    echo -e "  ${GREEN}AI Inference Docs:      http://localhost:8003/docs${NC}"
+    echo -e "  ${GREEN}AI Status:              http://localhost:8003/status${NC}"
+fi
 echo ""
 echo -e "${YELLOW}Logs:${NC}"
 echo -e "  All logs are in: ${SCRIPT_DIR}/logs/"
@@ -120,6 +146,11 @@ check_health() {
 
 check_health "DTN Bundle System" "http://localhost:8000/health"
 check_health "Bridge Management" "http://localhost:8002/bridge/health"
+
+if [ -f "logs/ai_inference_node.pid" ]; then
+    check_health "AI Inference Node" "http://localhost:8003/"
+    echo -e "${GREEN}AI inference available with priority: Local > Community > Network${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}Solarpunk Mesh Network is running!${NC}"

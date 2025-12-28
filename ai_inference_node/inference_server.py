@@ -18,10 +18,12 @@ import asyncio
 import httpx
 from datetime import datetime
 from typing import Optional, Dict, Any, List
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import structlog
+from collections import deque
+from enum import IntEnum
 
 # Configure logging
 logger = structlog.get_logger()
@@ -64,8 +66,27 @@ class InferenceConfig:
         # Gift economy tracking
         self.track_contributions = os.getenv("TRACK_CONTRIBUTIONS", "true").lower() == "true"
 
+        # Priority system
+        self.enable_priorities = os.getenv("ENABLE_PRIORITIES", "true").lower() == "true"
+        self.my_community_id = os.getenv("COMMUNITY_ID", None)  # Set during registration
+
 
 config = InferenceConfig()
+
+# Priority levels (lower = higher priority)
+class Priority(IntEnum):
+    LOCAL = 1         # On-device requests (localhost)
+    COMMUNITY = 2     # Same community members
+    NETWORK = 3       # Everyone else on the mesh
+
+# Request queue with priority
+request_queues = {
+    Priority.LOCAL: deque(),
+    Priority.COMMUNITY: deque(),
+    Priority.NETWORK: deque(),
+}
+active_requests = 0
+queue_lock = asyncio.Lock()
 
 # Request tracking
 inference_stats = {
@@ -73,6 +94,11 @@ inference_stats = {
     "total_tokens": 0,
     "models_served": set(),
     "started_at": datetime.utcnow().isoformat(),
+    "by_priority": {
+        "local": 0,
+        "community": 0,
+        "network": 0,
+    }
 }
 
 
@@ -85,9 +111,10 @@ class InferenceRequest(BaseModel):
     temperature: Optional[float] = 0.7
     system_prompt: Optional[str] = None
 
-    # Requester info (for gift economy tracking)
+    # Requester info (for gift economy tracking and prioritization)
     requester_id: Optional[str] = None
     requester_location: Optional[str] = None
+    requester_community_id: Optional[str] = None
 
 
 class InferenceResponse(BaseModel):
@@ -255,16 +282,78 @@ async def get_status():
     )
 
 
+def determine_priority(request: InferenceRequest, client_host: str) -> Priority:
+    """
+    Determine request priority based on origin and community
+
+    Priority order:
+    1. LOCAL (highest) - Requests from localhost/on-device
+    2. COMMUNITY - Requests from same community members
+    3. NETWORK (lowest) - Everyone else
+    """
+    if not config.enable_priorities:
+        return Priority.NETWORK  # All equal if priorities disabled
+
+    # Check if request is from localhost (on-device)
+    if client_host in ("127.0.0.1", "localhost", "::1"):
+        return Priority.LOCAL
+
+    # Check if requester is in same community
+    if (config.my_community_id and
+        request.requester_community_id and
+        request.requester_community_id == config.my_community_id):
+        return Priority.COMMUNITY
+
+    # Default: network-wide request
+    return Priority.NETWORK
+
+
+async def process_next_request():
+    """Process the next request from priority queues"""
+    global active_requests
+
+    async with queue_lock:
+        # Try queues in priority order
+        for priority in [Priority.LOCAL, Priority.COMMUNITY, Priority.NETWORK]:
+            if request_queues[priority]:
+                # Get next request from this priority level
+                task_future, req_data = request_queues[priority].popleft()
+                active_requests += 1
+
+                # Track by priority
+                priority_name = priority.name.lower()
+                inference_stats["by_priority"][priority_name] += 1
+
+                logger.info(
+                    "processing_request",
+                    priority=priority_name,
+                    queue_size=len(request_queues[priority]),
+                    active=active_requests,
+                )
+
+                return task_future, req_data
+
+    return None, None
+
+
 @app.post("/inference", response_model=InferenceResponse)
-async def run_inference(request: InferenceRequest):
-    """Run inference on a prompt"""
+async def run_inference(request: InferenceRequest, req: Request):
+    """Run inference on a prompt with priority queue"""
+    global active_requests
+
     model = request.model or config.default_model
 
+    # Determine priority based on request origin
+    client_host = req.client.host if req.client else "unknown"
+    priority = determine_priority(request, client_host)
+
     logger.info(
-        "inference_request",
+        "inference_request_received",
         model=model,
         prompt_length=len(request.prompt),
         requester=request.requester_id,
+        priority=priority.name,
+        from_host=client_host,
     )
 
     try:

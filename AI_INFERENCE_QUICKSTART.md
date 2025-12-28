@@ -1,8 +1,24 @@
 # AI Inference on the Mesh - Quick Start
 
-Share your GPU/CPU with the community in **2 commands**! 🚀
+Share your GPU/CPU with the community - **automatically enabled** during setup! 🚀
 
 ## For Providers (Share Your Compute)
+
+### Automatic Setup (Recommended)
+
+When you run `./setup.sh`, AI inference is automatically configured if Ollama is installed:
+
+```bash
+./setup.sh
+```
+
+It will:
+- ✅ Install AI inference dependencies
+- ✅ Download lightweight model (llama3.2:1b - ~1.3GB)
+- ✅ Configure priority system (Local > Community > Network)
+- ✅ Start automatically with other services
+
+### Manual Setup
 
 ```bash
 # 1. Install Ollama (one-time setup)
@@ -15,7 +31,15 @@ cd ai_inference_node
 
 **That's it!** Your node is now providing AI to the mesh network.
 
-The mesh will track your contributions in the gift economy. No payment needed - just sharing! 🎁
+### Priority System (Default)
+
+Your device automatically prioritizes requests:
+
+1. **LOCAL (Highest)** - Your own device/apps get first priority
+2. **COMMUNITY (Medium)** - Your community members get second priority
+3. **NETWORK (Lowest)** - Everyone else gets remaining capacity
+
+This ensures your local use is never blocked by network requests! The mesh will track your contributions in the gift economy. No payment needed - just sharing! 🎁
 
 ### What You're Running
 
