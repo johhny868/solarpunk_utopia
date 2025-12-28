@@ -7,6 +7,21 @@
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 
+## 📱 Android App
+
+[![Download APK](https://img.shields.io/badge/Download-Android%20APK-green?style=for-the-badge&logo=android)](https://github.com/lizTheDeveloper/solarpunk_utopia/releases/latest/download/app-debug.apk)
+
+**Standalone offline app** - runs Python backend directly on your phone. No internet required after install.
+
+- Works 100% offline
+- 67 MB download
+- Android 8.0+ required
+- Mesh sync via WiFi Direct
+
+[View all releases](https://github.com/lizTheDeveloper/solarpunk_utopia/releases)
+
+---
+
 ## 🚀 One-Line Install
 
 **Linux/Mac:**
