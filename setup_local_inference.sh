@@ -40,11 +40,11 @@ echo -e "${GREEN}✓ Sufficient RAM for local inference!${NC}"
 echo ""
 
 # Select model based on RAM
-if [ "$TOTAL_RAM_GB" -ge 16 ]; then
-    RECOMMENDED_MODEL="Qwen3-8B (best reasoning, ~6GB)"
+if [ "$TOTAL_RAM_GB" -ge 8 ]; then
+    RECOMMENDED_MODEL="Qwen3-8B-4bit (best, ~5GB)"
     MODEL_SIZE="8B"
 else
-    RECOMMENDED_MODEL="Qwen3-7B (balanced, ~5GB)"
+    RECOMMENDED_MODEL="Qwen2.5-7B (fallback, ~5GB)"
     MODEL_SIZE="7B"
 fi
 
@@ -113,22 +113,16 @@ mkdir -p models
 # Download model
 if [ "$USE_MLX" = true ]; then
     # MLX uses HuggingFace models directly (no GGUF needed)
-    if [ "$MODEL_SIZE" = "8B" ]; then
-        echo -e "${BLUE}Using Qwen2.5-7B-Instruct (MLX optimized)${NC}"
-        MODEL_NAME="mlx-community/Qwen2.5-7B-Instruct-4bit"
-        MODEL_FILE="mlx-model"  # MLX downloads automatically
-    else
-        echo -e "${BLUE}Using Qwen2.5-7B-Instruct (MLX optimized)${NC}"
-        MODEL_NAME="mlx-community/Qwen2.5-7B-Instruct-4bit"
-        MODEL_FILE="mlx-model"
-    fi
+    echo -e "${BLUE}Using Qwen3-8B-Instruct-4bit (MLX optimized)${NC}"
+    MODEL_NAME="mlx-community/Qwen3-8B-Instruct-4bit"
+    MODEL_FILE="mlx-model"  # MLX downloads automatically
     echo -e "${YELLOW}Model will be downloaded automatically on first run${NC}"
 else
     # GGUF for llama.cpp
     if [ "$MODEL_SIZE" = "8B" ]; then
-        echo -e "${BLUE}Downloading Qwen3-8B Instruct (Q5_K_M quantized, ~6GB)...${NC}"
-        MODEL_URL="https://huggingface.co/Qwen/Qwen3-8B-Instruct-GGUF/resolve/main/qwen3-8b-instruct-q5_k_m.gguf"
-        MODEL_FILE="models/qwen3-8b-instruct-q5.gguf"
+        echo -e "${BLUE}Downloading Qwen3-8B Instruct (Q4_K_M quantized, ~5GB)...${NC}"
+        MODEL_URL="https://huggingface.co/Qwen/Qwen3-8B-Instruct-GGUF/resolve/main/qwen3-8b-instruct-q4_k_m.gguf"
+        MODEL_FILE="models/qwen3-8b-instruct-q4.gguf"
         MODEL_NAME="qwen3-8b-instruct"
     else
         echo -e "${BLUE}Downloading Qwen2.5-7B Instruct (Q4_K_M quantized, ~5GB)...${NC}"
@@ -170,7 +164,7 @@ if USE_MLX:
     # macOS - use MLX
     from mlx_lm import load, generate
     print("Using MLX backend (Apple Silicon optimized)")
-    MODEL_NAME = os.getenv("MODEL_NAME", "mlx-community/Qwen2.5-7B-Instruct-4bit")
+    MODEL_NAME = os.getenv("MODEL_NAME", "mlx-community/Qwen3-8B-Instruct-4bit")
     print(f"Loading model: {MODEL_NAME}...")
     model, tokenizer = load(MODEL_NAME)
     print("MLX model loaded successfully!")
@@ -178,7 +172,7 @@ else:
     # Linux/Termux - use llama.cpp
     from llama_cpp import Llama
     print("Using llama.cpp backend")
-    MODEL_PATH = os.getenv("MODEL_PATH", "models/qwen2.5-7b-instruct-q4.gguf")
+    MODEL_PATH = os.getenv("MODEL_PATH", "models/qwen3-8b-instruct-q4.gguf")
     print(f"Loading model from {MODEL_PATH}...")
     llm = Llama(
         model_path=MODEL_PATH,
