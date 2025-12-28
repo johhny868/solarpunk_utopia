@@ -252,11 +252,16 @@ start_services() {
     echo -e "${BLUE}Starting services...${NC}"
 
     if [ "$IS_TERMUX" = true ]; then
-        # Termux: use background processes
-        echo -e "${YELLOW}Starting services in background...${NC}"
-        ./run_all_services.sh &
+        # Termux: Enable wake lock and start services
+        echo -e "${YELLOW}Enabling wake lock to prevent CPU sleep...${NC}"
+        termux-wake-lock 2>/dev/null || {
+            echo -e "${YELLOW}Note: Install 'Termux:API' from F-Droid for wake-lock support${NC}"
+        }
+
+        echo -e "${YELLOW}Starting services in background with nohup...${NC}"
+        nohup ./run_all_services.sh > /dev/null 2>&1 &
         echo -e "${GREEN}Services started in background${NC}"
-        echo -e "${YELLOW}Note: Services will stop when terminal closes unless you use 'nohup' or 'termux-wake-lock'${NC}"
+
     elif [ "$PLATFORM" = "Linux" ] && command -v systemctl &> /dev/null; then
         sudo systemctl start solarpunk-dtn
         sudo systemctl start solarpunk-frontend
@@ -268,6 +273,40 @@ start_services() {
         ./run_all_services.sh &
         echo -e "${GREEN}Services started in background${NC}"
     fi
+}
+
+# Setup Termux auto-start on boot
+setup_termux_boot() {
+    if [ "$IS_TERMUX" != true ]; then
+        return
+    fi
+
+    echo -e "${BLUE}Setting up auto-start on boot...${NC}"
+
+    # Check if Termux:Boot is installed
+    if [ ! -d "$HOME/.termux/boot" ]; then
+        mkdir -p "$HOME/.termux/boot"
+    fi
+
+    # Create boot startup script
+    cat > "$HOME/.termux/boot/start-solarpunk.sh" << 'BOOTEOF'
+#!/data/data/com.termux/files/usr/bin/sh
+# Auto-start Solarpunk services on phone boot
+
+# Enable wake lock to prevent CPU sleep
+termux-wake-lock 2>/dev/null
+
+# Navigate to project directory
+cd ~/solarpunk_utopia || cd /data/data/com.termux/files/home/solarpunk_utopia
+
+# Start all services in background
+nohup ./run_all_services.sh > /dev/null 2>&1 &
+BOOTEOF
+
+    chmod +x "$HOME/.termux/boot/start-solarpunk.sh"
+
+    echo -e "${GREEN}Boot script created at ~/.termux/boot/start-solarpunk.sh${NC}"
+    echo -e "${YELLOW}Install 'Termux:Boot' from F-Droid to enable auto-start on boot${NC}"
 }
 
 # Print summary
@@ -298,9 +337,14 @@ print_summary() {
     echo ""
     if [ "$IS_TERMUX" = true ]; then
         echo -e "${YELLOW}Termux Tips:${NC}"
-        echo -e "  Keep services running: termux-wake-lock"
-        echo -e "  Run in background:     nohup ./run_all_services.sh &"
+        echo -e "  Services are running with wake-lock enabled"
         echo -e "  Access locally:        http://localhost:3000"
+        echo -e "  Restart services:      ./run_all_services.sh"
+        echo -e "  Stop services:         ./stop_all_services.sh"
+        echo ""
+        echo -e "${YELLOW}IMPORTANT: Prevent Android from killing Termux:${NC}"
+        echo -e "  Settings → Apps → Termux → Battery → Unrestricted"
+        echo -e "  (Otherwise Android will kill services when in background)"
         echo ""
     elif [ "$PLATFORM" = "Linux" ]; then
         echo -e "${YELLOW}Systemd Commands:${NC}"
@@ -327,6 +371,10 @@ main() {
     if [ "$IS_TERMUX" = false ] && [ "$PLATFORM" = "Linux" ]; then
         create_systemd_services
         configure_firewall
+    fi
+
+    if [ "$IS_TERMUX" = true ]; then
+        setup_termux_boot
     fi
 
     run_tests
