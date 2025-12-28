@@ -26,8 +26,8 @@ export function OnboardingPage() {
   const handleSkip = () => {
     // Mark onboarding as complete
     localStorage.setItem('onboarding_completed', 'true')
-    // Navigate to homepage
-    navigate('/')
+    // Navigate to homepage (replace to prevent back button loop)
+    navigate('/', { replace: true })
   }
 
   const stepTitles = [
@@ -61,8 +61,8 @@ export function OnboardingPage() {
       onFinish={() => {
         // Mark onboarding as complete
         localStorage.setItem('onboarding_completed', 'true')
-        // Navigate to homepage
-        navigate('/')
+        // Navigate to homepage (replace to prevent back button loop)
+        navigate('/', { replace: true })
       }}
     />
   ]

@@ -7,6 +7,14 @@
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 
+## 🚀 One-Line Install
+
+```bash
+curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
+```
+
+This installs everything and starts all services. Access at `http://localhost:3000` when complete.
+
 ---
 
 ## What is This?
@@ -25,11 +33,11 @@ A complete **offline-first mesh network system** for Solarpunk communes to:
 
 ## Quick Start
 
-Get running in 5 minutes:
+### Manual Setup (if you prefer not to use the one-liner above)
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/solarpunk_utopia.git
+git clone https://github.com/lizTheDeveloper/solarpunk_utopia.git
 cd solarpunk_utopia
 
 # Setup backend
@@ -46,13 +54,6 @@ npm install
 npm run dev
 
 # Access at http://localhost:3000
-```
-
-Or use Docker:
-
-```bash
-docker-compose up -d
-# Access at http://localhost
 ```
 
 **See [QUICKSTART.md](QUICKSTART.md) for detailed guide.**
@@ -78,7 +79,7 @@ docker-compose up -d
 
 ### Infrastructure
 - ✅ Complete unified frontend (React + TypeScript, 47 files)
-- ✅ Docker Compose orchestration (6 services)
+- ✅ Systemd service management (Linux)
 - ✅ Nginx reverse proxy
 - ✅ End-to-end integration tests
 - ✅ Comprehensive documentation (8,000+ lines)
@@ -173,7 +174,7 @@ docker-compose up -d
 
 ### Getting Started
 - **[QUICKSTART.md](QUICKSTART.md)** - 5-minute setup guide
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment (systemd, Docker, Raspberry Pi)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment (systemd, Raspberry Pi)
 - **[BUILD_STATUS.md](BUILD_STATUS.md)** - Complete build status and statistics
 
 ### System Details
@@ -195,7 +196,7 @@ Auto-generated interactive docs available at:
 
 **Backend:** Python 3.12, FastAPI, SQLite, asyncio, Ed25519 crypto
 **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, React Query
-**Infrastructure:** Docker, Docker Compose, Nginx
+**Infrastructure:** Systemd, Nginx, Python venv
 **Mesh:** BATMAN-adv, hostapd, dnsmasq
 **Testing:** pytest, pytest-asyncio
 
@@ -232,10 +233,9 @@ solarpunk_utopia/
 ├── file_chunking/            # File chunking system
 ├── mesh_network/             # Multi-AP mesh network software
 ├── frontend/                 # Unified frontend application
-├── docker/                   # Docker configuration
 ├── tests/integration/        # End-to-end tests
 ├── openspec/                 # OpenSpec proposals (7 proposals)
-├── docker-compose.yml        # Service orchestration
+├── setup.sh                  # One-line installer
 ├── run_all_services.sh       # Start all services
 └── stop_all_services.sh      # Stop all services
 ```

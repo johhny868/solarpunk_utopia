@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useOffers } from '@/hooks/useOffers';
 import { useNeeds } from '@/hooks/useNeeds';
@@ -17,14 +17,18 @@ import { Gift, Heart, ArrowLeftRight, Package, AlertCircle } from 'lucide-react'
 
 export function HomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // GAP-12: Check if onboarding completed, redirect if not
   useEffect(() => {
+    // Don't redirect if already on onboarding page (prevent redirect loop)
+    if (location.pathname === '/onboarding') return;
+
     const onboardingCompleted = localStorage.getItem('onboarding_completed');
     if (!onboardingCompleted) {
-      navigate('/onboarding');
+      navigate('/onboarding', { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, location.pathname]);
   const { data: offers, isLoading: offersLoading } = useOffers();
   const { data: needs, isLoading: needsLoading } = useNeeds();
   const { data: exchanges, isLoading: exchangesLoading } = useExchanges();

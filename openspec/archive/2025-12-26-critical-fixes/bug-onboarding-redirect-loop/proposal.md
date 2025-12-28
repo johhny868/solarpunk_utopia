@@ -2,9 +2,11 @@
 
 **Type:** Bug Report
 **Severity:** High
-**Status:** Identified
+**Status:** Implemented
 **Date:** 2025-12-26
 **Reporter:** UI Tester (Automated)
+**Implemented:** 2025-12-26
+**Solution:** Improved HomePage Logic (Option 2) - Simplified
 
 ## Summary
 
@@ -161,3 +163,71 @@ OR they SHOULD be redirected to home with a message
 2. Test with new user account to confirm flow works
 3. Test with localStorage disabled/cleared
 4. Verify backend user model includes onboarding tracking
+
+---
+
+## Implementation Summary
+
+**Date:** 2025-12-26
+**Approach:** Improved HomePage Logic (Simplified - No Backend Changes)
+
+### Changes Made
+
+1. **HomePage.tsx** (`frontend/src/pages/HomePage.tsx:1,20,23-31`)
+   - Added `useLocation` import from react-router-dom
+   - Added location.pathname check to prevent redirect loop
+   - Changed navigate to use `{ replace: true }` option
+   - Updated useEffect dependencies to include location.pathname
+
+2. **OnboardingPage.tsx** (`frontend/src/pages/OnboardingPage.tsx:30,65`)
+   - Updated handleSkip() to use `navigate('/', { replace: true })`
+   - Updated onFinish() to use `navigate('/', { replace: true })`
+   - Prevents back button from returning to onboarding
+
+### Implementation Details
+
+**HomePage redirect protection:**
+```typescript
+useEffect(() => {
+  // Don't redirect if already on onboarding page (prevent redirect loop)
+  if (location.pathname === '/onboarding') return;
+
+  const onboardingCompleted = localStorage.getItem('onboarding_completed');
+  if (!onboardingCompleted) {
+    navigate('/onboarding', { replace: true });
+  }
+}, [navigate, location.pathname]);
+```
+
+**OnboardingPage navigation improvements:**
+- Both skip and completion handlers now use `replace: true`
+- Prevents confusing back button behavior after onboarding
+
+### Test Scenarios Met
+
+✅ **WHEN** new user completes onboarding
+   **THEN** flag set in localStorage, navigated to home, no loop
+
+✅ **WHEN** user with completed onboarding navigates to home
+   **THEN** not redirected to onboarding, sees normal home page
+
+✅ **WHEN** user manually navigates to /onboarding after completing it
+   **THEN** can view onboarding page (no redirect away)
+
+✅ **WHEN** back button pressed after onboarding
+   **THEN** does not return to onboarding (history replaced)
+
+### Notes
+
+- Backend onboarding storage not implemented (deferred to future improvement)
+- localStorage still the single source of truth for onboarding status
+- Simple fix addresses the immediate redirect loop risk
+- Future enhancement: sync onboarding_completed to user profile in backend
+
+### Files Modified
+
+- `frontend/src/pages/HomePage.tsx:1` - Added useLocation import
+- `frontend/src/pages/HomePage.tsx:20` - Added location constant
+- `frontend/src/pages/HomePage.tsx:23-31` - Added loop protection logic
+- `frontend/src/pages/OnboardingPage.tsx:30` - Added replace: true to handleSkip
+- `frontend/src/pages/OnboardingPage.tsx:65` - Added replace: true to onFinish
