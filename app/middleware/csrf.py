@@ -61,6 +61,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             "/docs",  # Swagger UI
             "/openapi.json",  # OpenAPI spec
             "/health",  # Health check
+            "/auth/csrf-token",  # CSRF token endpoint (needed to obtain initial token)
         }
         logger.info(f"CSRF Protection enabled. Exempt paths: {self.exempt_paths}")
 
