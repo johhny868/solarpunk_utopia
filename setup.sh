@@ -33,12 +33,26 @@ esac
 if [ "$IS_TERMUX" = true ]; then
     echo -e "${BLUE}Detected platform: Termux (Android)${NC}"
 
-    # Enable wake lock immediately to prevent sleep during installation
-    echo -e "${YELLOW}Enabling wake lock to prevent phone from sleeping during installation...${NC}"
-    termux-wake-lock 2>/dev/null || {
-        echo -e "${YELLOW}Note: Install 'Termux:API' from F-Droid for wake-lock support${NC}"
-        echo -e "${YELLOW}Installation may be interrupted if phone goes to sleep${NC}"
-    }
+    # Try to enable wake lock to prevent sleep during installation
+    echo -e "${YELLOW}Setting up wake lock...${NC}"
+
+    # First, try to install termux-api package
+    pkg install -y termux-api 2>/dev/null || true
+
+    # Try to acquire wake lock
+    if termux-wake-lock 2>/dev/null; then
+        echo -e "${GREEN}✓ Wake lock enabled (phone won't sleep during installation)${NC}"
+    else
+        echo -e "${RED}✗ Wake lock failed${NC}"
+        echo -e "${YELLOW}To prevent installation interruption:${NC}"
+        echo -e "  1. Install 'Termux:API' app from F-Droid:"
+        echo -e "     https://f-droid.org/en/packages/com.termux.api/"
+        echo -e "  2. In Termux, run: pkg install termux-api"
+        echo -e "  3. Keep screen on during installation (Settings → Display → Screen timeout)"
+        echo -e ""
+        echo -e "${YELLOW}Continuing installation in 10 seconds...${NC}"
+        sleep 10
+    fi
 else
     echo -e "${BLUE}Detected platform: ${PLATFORM}${NC}"
 fi
