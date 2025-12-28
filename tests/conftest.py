@@ -5,7 +5,9 @@ This ensures test databases are properly initialized with all migrations.
 import sqlite3
 from pathlib import Path
 import pytest
+import pytest_asyncio
 import sys
+import os
 
 # Add project root to Python path for imports
 project_root = Path(__file__).parent.parent
@@ -62,14 +64,42 @@ def run_migrations_sync(db_path: str, migrations_dir: Path) -> None:
         conn.close()
 
 
-@pytest.fixture(scope="function", autouse=True)
-def ensure_test_db_migrations():
-    """Ensure any test database gets migrations run.
+@pytest_asyncio.fixture(scope="function", autouse=True)
+async def reset_global_db_connection():
+    """Reset the global database connection before each test.
 
-    This fixture runs automatically before each test.
-    After the test completes, it cleans up test databases.
+    This fixture runs automatically before each test to ensure
+    test isolation. Without this, the global _db_connection in
+    app/database/db.py persists across tests, causing state pollution.
     """
+    import app.database.db as db_module
+
+    # Before test: Close any existing connection and reset
+    if db_module._db_connection is not None:
+        try:
+            await db_module._db_connection.close()
+        except:
+            pass
+        db_module._db_connection = None
+
+    # Clear DB_PATH env var to avoid using wrong database
+    old_db_path = os.environ.get('DB_PATH')
+    if 'DB_PATH' in os.environ:
+        del os.environ['DB_PATH']
+
     yield
+
+    # After test: Close connection again and reset
+    if db_module._db_connection is not None:
+        try:
+            await db_module._db_connection.close()
+        except:
+            pass
+        db_module._db_connection = None
+
+    # Restore original DB_PATH if it was set
+    if old_db_path:
+        os.environ['DB_PATH'] = old_db_path
 
     # Cleanup: Remove any test databases
     test_db_patterns = [

@@ -194,17 +194,28 @@ class GovernanceRepository:
 
         return self._row_to_outreach(row)
 
-    async def purge_expired_outreach(self) -> int:
+    async def purge_expired_outreach(self, as_of: Optional[datetime] = None) -> int:
         """
         Delete expired outreach records (privacy protection).
+
+        Args:
+            as_of: Optional datetime to use for comparison (for testing).
+                   Defaults to current time.
 
         Returns: Number of records deleted
         """
         async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.execute(
-                "DELETE FROM vote_outreach WHERE purge_at < ?",
-                (datetime.now().isoformat(),)
-            )
+            if as_of is not None:
+                # Use provided time for comparison (testing)
+                cursor = await db.execute(
+                    "DELETE FROM vote_outreach WHERE datetime(replace(purge_at, 'T', ' ')) < datetime(?)",
+                    (as_of.strftime('%Y-%m-%d %H:%M:%S'),)
+                )
+            else:
+                # Use current local time
+                cursor = await db.execute(
+                    "DELETE FROM vote_outreach WHERE datetime(replace(purge_at, 'T', ' ')) < datetime('now', 'localtime')"
+                )
             await db.commit()
             return cursor.rowcount
 

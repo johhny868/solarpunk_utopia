@@ -49,25 +49,14 @@ class TimeController:
 
         self.frozen_at = at
 
-        # Patch time.time and datetime.now
-        def frozen_time():
-            return self.frozen_at
-
-        def frozen_datetime_now(tz=None):
-            return datetime.fromtimestamp(self.frozen_at, tz=tz)
-
-        # Store original functions
-        self._time_patch = patch('time.time', side_effect=frozen_time)
-        self._datetime_patch = patch('datetime.datetime.now', side_effect=frozen_datetime_now)
-
+        # Patch time.time - use a lambda that returns current frozen_at
+        self._time_patch = patch('time.time', new=lambda: self.frozen_at)
         self._time_patch.start()
-        self._datetime_patch.start()
 
     def unfreeze(self) -> None:
         """Resume normal time"""
         if self.frozen_at is not None:
             self._time_patch.stop()
-            self._datetime_patch.stop()
             self.frozen_at = None
 
     def advance(

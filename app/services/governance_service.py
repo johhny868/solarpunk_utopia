@@ -210,16 +210,20 @@ class GovernanceService:
         """Get a specific vote session"""
         return await self.repo.get_vote_session(session_id)
 
-    async def purge_expired_outreach(self) -> int:
+    async def purge_expired_outreach(self, as_of: Optional[datetime] = None) -> int:
         """
         Delete expired outreach records (privacy protection).
 
         This should be called periodically by a background job.
 
+        Args:
+            as_of: Optional datetime to use for comparison (for testing).
+                   Defaults to current time.
+
         Returns:
             Number of records deleted
         """
-        return await self.repo.purge_expired_outreach()
+        return await self.repo.purge_expired_outreach(as_of=as_of)
 
     # Helper methods
 

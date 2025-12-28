@@ -13,9 +13,27 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy all /api requests to backend, removing /api prefix
+      // DTN Bundle System API
+      '/api/dtn': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/dtn/, '')
+      },
+      // ValueFlows Node API
+      '/api/vf': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/vf/, '')
+      },
+      // Bridge Management API
+      '/api/bridge': {
+        target: 'http://localhost:8002/bridge',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/bridge/, '')
+      },
+      // Fallback for any other /api requests to primary service
       '/api': {
-        target: 'http://localhost:8888',
+        target: 'http://localhost:8001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },

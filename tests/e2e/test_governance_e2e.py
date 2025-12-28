@@ -140,7 +140,8 @@ class TestGovernanceE2E:
         assert metrics.should_pause == False  # Now 6 voted > 4 silent
 
         # Step 9: Fast-forward to after vote closes
-        with freeze_time(extended_session.closes_at + timedelta(hours=1)):
+        purge_time = extended_session.closes_at + timedelta(hours=1)
+        with freeze_time(purge_time):
             final_session = await self.service.get_session(session.id)
 
             assert final_session.is_closed == True
@@ -148,7 +149,8 @@ class TestGovernanceE2E:
             assert final_session.has_quorum == True
 
             # Step 10: Outreach record should be purged
-            purged = await self.service.purge_expired_outreach()
+            # Pass as_of since SQLite's datetime() doesn't respect freezegun
+            purged = await self.service.purge_expired_outreach(as_of=purge_time)
             assert purged >= 1  # At least our outreach
 
             retrieved_outreach = await self.repo.get_outreach(outreach.id)

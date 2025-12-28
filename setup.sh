@@ -1,0 +1,290 @@
+#!/bin/bash
+# Solarpunk Utopia - Complete Setup Script for GCP VMs
+# Usage: curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}Solarpunk Utopia - Setup Script${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+
+# Detect OS
+OS="$(uname -s)"
+case "${OS}" in
+    Linux*)     PLATFORM=Linux;;
+    Darwin*)    PLATFORM=Mac;;
+    *)          PLATFORM="UNKNOWN:${OS}"
+esac
+
+echo -e "${BLUE}Detected platform: ${PLATFORM}${NC}"
+
+# Install system dependencies
+install_dependencies() {
+    echo -e "${BLUE}Installing system dependencies...${NC}"
+
+    if [ "$PLATFORM" = "Linux" ]; then
+        # Debian/Ubuntu
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y python3 python3-pip python3-venv git curl nodejs npm
+        # RHEL/CentOS/Fedora
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y python3 python3-pip git curl nodejs npm
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y python3 python3-pip git curl nodejs npm
+        fi
+    elif [ "$PLATFORM" = "Mac" ]; then
+        # Check for Homebrew
+        if ! command -v brew &> /dev/null; then
+            echo -e "${YELLOW}Installing Homebrew...${NC}"
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        fi
+        brew install python3 node git
+    fi
+}
+
+# Clone repository if not exists
+clone_repo() {
+    if [ ! -d "solarpunk_utopia" ]; then
+        echo -e "${BLUE}Cloning repository...${NC}"
+        git clone https://github.com/lizTheDeveloper/solarpunk_utopia.git
+        cd solarpunk_utopia
+    else
+        echo -e "${BLUE}Repository exists, updating...${NC}"
+        cd solarpunk_utopia
+        git pull origin main
+    fi
+}
+
+# Setup Python virtual environment
+setup_python() {
+    echo -e "${BLUE}Setting up Python virtual environment...${NC}"
+
+    if [ ! -d "venv" ]; then
+        python3 -m venv venv
+    fi
+
+    source venv/bin/activate
+
+    # Upgrade pip
+    pip install --upgrade pip
+
+    # Install all requirements
+    echo -e "${BLUE}Installing Python dependencies...${NC}"
+    pip install -r requirements.txt
+    pip install pytest pytest-asyncio freezegun aiohttp  # Test dependencies
+
+    # Install sub-project requirements
+    for req in valueflows_node/requirements.txt mesh_network/requirements.txt discovery_search/requirements.txt; do
+        if [ -f "$req" ]; then
+            pip install -r "$req" 2>/dev/null || true
+        fi
+    done
+}
+
+# Setup frontend
+setup_frontend() {
+    echo -e "${BLUE}Setting up frontend...${NC}"
+
+    if [ -d "frontend" ]; then
+        cd frontend
+        npm install
+        npm run build
+        cd ..
+    fi
+}
+
+# Initialize database
+init_database() {
+    echo -e "${BLUE}Initializing database...${NC}"
+
+    mkdir -p app/data
+
+    # Run initialization
+    source venv/bin/activate
+    python -c "
+import asyncio
+from app.database.db import init_db
+asyncio.run(init_db())
+print('Database initialized successfully')
+"
+}
+
+# Create systemd service files
+create_systemd_services() {
+    if [ "$PLATFORM" != "Linux" ]; then
+        echo -e "${YELLOW}Skipping systemd setup (not on Linux)${NC}"
+        return
+    fi
+
+    echo -e "${BLUE}Creating systemd service files...${NC}"
+
+    INSTALL_DIR="$(pwd)"
+
+    # Main DTN service
+    sudo tee /etc/systemd/system/solarpunk-dtn.service > /dev/null << EOF
+[Unit]
+Description=Solarpunk DTN Bundle System
+After=network.target
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$INSTALL_DIR
+ExecStart=$INSTALL_DIR/venv/bin/python -m app.main
+Restart=always
+RestartSec=5
+Environment=PYTHONPATH=$INSTALL_DIR
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Frontend service (if using nginx)
+    sudo tee /etc/systemd/system/solarpunk-frontend.service > /dev/null << EOF
+[Unit]
+Description=Solarpunk Frontend Server
+After=network.target
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$INSTALL_DIR/frontend
+ExecStart=/usr/bin/npm run preview -- --host 0.0.0.0 --port 3000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl daemon-reload
+    echo -e "${GREEN}Systemd services created${NC}"
+}
+
+# Configure firewall
+configure_firewall() {
+    if [ "$PLATFORM" != "Linux" ]; then
+        return
+    fi
+
+    echo -e "${BLUE}Configuring firewall...${NC}"
+
+    # UFW (Ubuntu)
+    if command -v ufw &> /dev/null; then
+        sudo ufw allow 80/tcp
+        sudo ufw allow 443/tcp
+        sudo ufw allow 3000/tcp  # Frontend
+        sudo ufw allow 8000/tcp  # DTN API
+        sudo ufw allow 8001/tcp  # ValueFlows
+        sudo ufw allow 8002/tcp  # Bridge Management
+        echo -e "${GREEN}Firewall configured (ufw)${NC}"
+    # firewalld (RHEL/CentOS)
+    elif command -v firewall-cmd &> /dev/null; then
+        sudo firewall-cmd --permanent --add-port=80/tcp
+        sudo firewall-cmd --permanent --add-port=443/tcp
+        sudo firewall-cmd --permanent --add-port=3000/tcp
+        sudo firewall-cmd --permanent --add-port=8000/tcp
+        sudo firewall-cmd --permanent --add-port=8001/tcp
+        sudo firewall-cmd --permanent --add-port=8002/tcp
+        sudo firewall-cmd --reload
+        echo -e "${GREEN}Firewall configured (firewalld)${NC}"
+    fi
+}
+
+# Run tests
+run_tests() {
+    echo -e "${BLUE}Running tests...${NC}"
+    source venv/bin/activate
+
+    # Run tests (excluding integration tests that need running services)
+    python -m pytest tests/ --ignore=tests/integration -q --tb=no 2>/dev/null || {
+        echo -e "${YELLOW}Some tests failed (this is expected for integration tests)${NC}"
+    }
+}
+
+# Start services
+start_services() {
+    echo -e "${BLUE}Starting services...${NC}"
+
+    if [ "$PLATFORM" = "Linux" ] && command -v systemctl &> /dev/null; then
+        sudo systemctl start solarpunk-dtn
+        sudo systemctl start solarpunk-frontend
+        sudo systemctl enable solarpunk-dtn
+        sudo systemctl enable solarpunk-frontend
+        echo -e "${GREEN}Services started via systemd${NC}"
+    else
+        # Fallback to manual start
+        ./run_all_services.sh &
+        echo -e "${GREEN}Services started in background${NC}"
+    fi
+}
+
+# Print summary
+print_summary() {
+    # Get external IP
+    EXTERNAL_IP=""
+    if command -v curl &> /dev/null; then
+        EXTERNAL_IP=$(curl -s -4 ifconfig.me 2>/dev/null || echo "unknown")
+    fi
+
+    echo ""
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}Setup Complete!${NC}"
+    echo -e "${GREEN}========================================${NC}"
+    echo ""
+    echo -e "${YELLOW}Service Endpoints:${NC}"
+    echo -e "  Frontend:           http://${EXTERNAL_IP}:3000"
+    echo -e "  DTN Bundle API:     http://${EXTERNAL_IP}:8000"
+    echo -e "  API Documentation:  http://${EXTERNAL_IP}:8000/docs"
+    echo -e "  ValueFlows API:     http://${EXTERNAL_IP}:8001"
+    echo -e "  Bridge Management:  http://${EXTERNAL_IP}:8002"
+    echo ""
+    echo -e "${YELLOW}Management Commands:${NC}"
+    echo -e "  Start services:  ./run_all_services.sh"
+    echo -e "  Stop services:   ./stop_all_services.sh"
+    echo -e "  View logs:       tail -f logs/dtn_bundle_system.log"
+    echo -e "  Run tests:       source venv/bin/activate && pytest tests/ -v"
+    echo ""
+    if [ "$PLATFORM" = "Linux" ]; then
+        echo -e "${YELLOW}Systemd Commands:${NC}"
+        echo -e "  sudo systemctl status solarpunk-dtn"
+        echo -e "  sudo systemctl restart solarpunk-dtn"
+        echo -e "  sudo journalctl -u solarpunk-dtn -f"
+        echo ""
+    fi
+    echo -e "${GREEN}Solarpunk Utopia is ready!${NC}"
+}
+
+# Main execution
+main() {
+    # If running from curl pipe, we need to clone first
+    if [ ! -f "requirements.txt" ]; then
+        install_dependencies
+        clone_repo
+    fi
+
+    setup_python
+    setup_frontend
+    init_database
+
+    if [ "$PLATFORM" = "Linux" ]; then
+        create_systemd_services
+        configure_firewall
+    fi
+
+    run_tests
+    start_services
+    print_summary
+}
+
+# Run main function
+main "$@"

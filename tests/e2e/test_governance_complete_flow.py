@@ -113,7 +113,8 @@ async def test_complete_governance_flow():
         assert metrics.should_pause == False  # More voted than silent
 
         # Step 7: Fast-forward to vote close
-        with freeze_time(extended_session.closes_at + timedelta(hours=1)):
+        purge_time = extended_session.closes_at + timedelta(hours=1)
+        with freeze_time(purge_time):
             final_session = await service.get_session(session.id)
 
             assert final_session.is_closed == True
@@ -121,7 +122,8 @@ async def test_complete_governance_flow():
             assert final_session.has_quorum == True
 
             # Step 8: Privacy guarantee - outreach record purged
-            purged = await service.purge_expired_outreach()
+            # Pass as_of since SQLite's datetime() doesn't respect freezegun
+            purged = await service.purge_expired_outreach(as_of=purge_time)
             assert purged >= 1
 
             retrieved_outreach = await repo.get_outreach(outreach.id)

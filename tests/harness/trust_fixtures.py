@@ -59,9 +59,16 @@ class TrustGraphFixture:
         self.nodes: Dict[str, TrustNode] = {}
         self.vouches: List[TrustVouch] = []
         self.trust_decay = trust_decay
+        self.genesis_nodes: Set[str] = set()  # Track explicit genesis nodes
 
-    def create_node(self, node_id: str, name: Optional[str] = None) -> TrustNode:
-        """Create a new node in the trust graph"""
+    def create_node(self, node_id: str, name: Optional[str] = None, is_genesis: bool = False) -> TrustNode:
+        """Create a new node in the trust graph
+
+        Args:
+            node_id: Unique identifier for the node
+            name: Display name (defaults to node_id)
+            is_genesis: If True, mark as a genesis node with trust 1.0
+        """
         if node_id in self.nodes:
             raise ValueError(f"Node {node_id} already exists")
 
@@ -70,6 +77,12 @@ class TrustGraphFixture:
 
         node = TrustNode(node_id=node_id, name=name)
         self.nodes[node_id] = node
+
+        # Only explicitly marked genesis nodes get trust 1.0
+        if is_genesis:
+            self.genesis_nodes.add(node_id)
+            node.trust_score = 1.0
+
         return node
 
     def create_vouch(
@@ -138,12 +151,13 @@ class TrustGraphFixture:
         for node in self.nodes.values():
             node.trust_score = 0.0
 
-        # Find genesis nodes (nodes with trust explicitly set to 1.0 or no vouchers)
-        genesis_nodes = [nid for nid, node in self.nodes.items() if len(node.vouched_by) == 0]
+        # Use explicitly tracked genesis nodes (not detected by absence of vouches)
+        genesis_nodes = list(self.genesis_nodes)
 
         # Set genesis nodes to 1.0
         for nid in genesis_nodes:
-            self.nodes[nid].trust_score = 1.0
+            if nid in self.nodes:
+                self.nodes[nid].trust_score = 1.0
 
         # Propagate trust using BFS
         visited = set(genesis_nodes)
@@ -225,9 +239,9 @@ def create_trust_chain(names: List[str], decay: float = 0.85) -> TrustGraphFixtu
     """
     fixture = TrustGraphFixture(trust_decay=decay)
 
-    # Create nodes
-    for name in names:
-        fixture.create_node(name, name)
+    # Create nodes (first node is genesis)
+    for i, name in enumerate(names):
+        fixture.create_node(name, name, is_genesis=(i == 0))
 
     # Create vouches
     for i in range(len(names) - 1):
@@ -252,12 +266,10 @@ def create_disjoint_communities(
     """
     fixture = TrustGraphFixture(trust_decay=decay)
 
-    node_counter = 0
-
     for comm_idx, size in enumerate(community_sizes):
         # Create genesis for this community
         genesis_id = f"Community{comm_idx}_Genesis"
-        fixture.create_node(genesis_id, genesis_id)
+        fixture.create_node(genesis_id, genesis_id, is_genesis=True)
 
         # Create members
         for i in range(size - 1):
@@ -273,7 +285,7 @@ def create_ring_topology(names: List[str], decay: float = 0.85) -> TrustGraphFix
     Create a ring topology: A → B → C → D → A
 
     Args:
-        names: List of node names
+        names: List of node names (first is genesis)
         decay: Trust decay factor
 
     Returns:
@@ -281,9 +293,9 @@ def create_ring_topology(names: List[str], decay: float = 0.85) -> TrustGraphFix
     """
     fixture = TrustGraphFixture(trust_decay=decay)
 
-    # Create nodes
-    for name in names:
-        fixture.create_node(name, name)
+    # Create nodes (first node is genesis)
+    for i, name in enumerate(names):
+        fixture.create_node(name, name, is_genesis=(i == 0))
 
     # Create ring
     for i in range(len(names)):
@@ -312,8 +324,8 @@ def create_star_topology(
     """
     fixture = TrustGraphFixture(trust_decay=decay)
 
-    # Create center
-    fixture.create_node(center_name, center_name)
+    # Create center (as genesis)
+    fixture.create_node(center_name, center_name, is_genesis=True)
 
     # Create spokes and vouch for them
     for spoke in spoke_names:

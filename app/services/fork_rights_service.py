@@ -2,6 +2,7 @@
 
 Business logic for data export and community forking.
 """
+import os
 import uuid
 import sqlite3
 import json
@@ -167,6 +168,7 @@ class ForkRightsService:
 
         # Create export-specific SQLite database
         export_path = f"data/exports/{user_id}-{datetime.now(UTC).isoformat()}.db"
+        os.makedirs(os.path.dirname(export_path), exist_ok=True)
         export_conn = sqlite3.connect(export_path)
         export_cursor = export_conn.cursor()
 

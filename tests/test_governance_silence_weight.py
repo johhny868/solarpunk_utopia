@@ -378,14 +378,14 @@ class TestGovernanceRepository:
         retrieved = await repo.get_outreach("outreach-1")
         assert retrieved is not None
 
-        # Fast-forward past purge_at
-        with freeze_time(datetime.now() + timedelta(hours=2)):
-            deleted = await repo.purge_expired_outreach()
-            assert deleted == 1
+        # Simulate time past purge_at by providing as_of parameter
+        future_time = datetime.now() + timedelta(hours=2)
+        deleted = await repo.purge_expired_outreach(as_of=future_time)
+        assert deleted == 1
 
-            # Verify deleted
-            retrieved = await repo.get_outreach("outreach-1")
-            assert retrieved is None
+        # Verify deleted
+        retrieved = await repo.get_outreach("outreach-1")
+        assert retrieved is None
 
         await self.teardown_db()
 

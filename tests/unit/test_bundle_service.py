@@ -5,6 +5,8 @@ Tests bundle creation, validation, signing, and content-addressing.
 """
 
 import pytest
+import pytest_asyncio
+import os
 from datetime import datetime, timedelta, timezone
 import asyncio
 
@@ -12,6 +14,7 @@ from app.models.bundle import Bundle, BundleCreate
 from app.models.priority import Priority, Audience, Topic, ReceiptPolicy
 from app.services.bundle_service import BundleService
 from app.services.crypto_service import CryptoService
+from tests.conftest import init_test_db
 
 
 @pytest.fixture
@@ -27,10 +30,41 @@ def crypto_service():
     shutil.rmtree(temp_dir)
 
 
-@pytest.fixture
-def bundle_service(crypto_service):
-    """Create a bundle service"""
-    return BundleService(crypto_service)
+@pytest_asyncio.fixture
+async def bundle_service(crypto_service):
+    """Create a bundle service with isolated test database"""
+    import tempfile
+    from pathlib import Path
+    from app.database.db import close_db, _db_connection
+    import app.database.db as db_module
+
+    # Create temp database
+    temp_dir = Path(tempfile.mkdtemp())
+    db_path = str(temp_dir / "test_bundles.db")
+
+    # Initialize the test database with schema
+    init_test_db(db_path)
+
+    # Set environment variable for db.py to use
+    old_db_path = os.environ.get('DB_PATH')
+    os.environ['DB_PATH'] = db_path
+
+    # Reset the global connection to force reconnection to test db
+    db_module._db_connection = None
+
+    yield BundleService(crypto_service)
+
+    # Cleanup
+    await close_db()
+    db_module._db_connection = None
+
+    if old_db_path:
+        os.environ['DB_PATH'] = old_db_path
+    elif 'DB_PATH' in os.environ:
+        del os.environ['DB_PATH']
+
+    import shutil
+    shutil.rmtree(temp_dir)
 
 
 class TestBundleCreation:

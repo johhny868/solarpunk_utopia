@@ -51,11 +51,12 @@ CREATE INDEX IF NOT EXISTS idx_vote_outreach_session
 
 -- Trigger to auto-delete expired outreach records
 -- Runs on INSERT to vote_outreach (cleanup old records)
+-- Note: Uses datetime() for proper comparison of ISO format timestamps
 CREATE TRIGGER IF NOT EXISTS cleanup_expired_outreach
 AFTER INSERT ON vote_outreach
 BEGIN
     DELETE FROM vote_outreach
-    WHERE purge_at < CURRENT_TIMESTAMP;
+    WHERE datetime(replace(purge_at, 'T', ' ')) < datetime('now', 'localtime');
 END;
 
 -- Note: We deliberately do NOT create tables to track:

@@ -275,7 +275,7 @@ class TestTrustGraphFixtures:
         """Trust propagates through vouches"""
         fixture = TrustGraphFixture(trust_decay=0.85)
 
-        fixture.create_node("genesis", "Genesis")
+        fixture.create_node("genesis", "Genesis", is_genesis=True)
         fixture.create_node("alice", "Alice")
         fixture.create_node("bob", "Bob")
 
@@ -296,7 +296,7 @@ class TestTrustGraphFixtures:
         """Revoking vouch recalculates trust"""
         fixture = TrustGraphFixture(trust_decay=0.85)
 
-        fixture.create_node("genesis", "Genesis")
+        fixture.create_node("genesis", "Genesis", is_genesis=True)
         fixture.create_node("alice", "Alice")
         fixture.create_node("bob", "Bob")
 
