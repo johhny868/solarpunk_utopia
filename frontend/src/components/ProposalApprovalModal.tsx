@@ -8,7 +8,7 @@ interface Proposal {
   agent_name: string;
   title: string;
   description?: string;
-  priority: string;
+  priority?: string;
   created_at: string;
   rationale?: string;
 }

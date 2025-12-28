@@ -8,7 +8,7 @@ export function useNotifications() {
   const { data: pendingProposals = [], isLoading } = useProposals('pending');
   const { data: pendingCountData } = usePendingCount();
 
-  const pendingCount = pendingCountData?.count ?? pendingProposals.length;
+  const pendingCount = pendingCountData ?? pendingProposals.length;
 
   return {
     proposals: pendingProposals,

@@ -4,7 +4,7 @@ interface Proposal {
   id: string;
   agent_name: string;
   title: string;
-  priority: 'low' | 'medium' | 'high' | 'critical' | 'emergency';
+  priority?: 'low' | 'medium' | 'high' | 'critical' | 'emergency';
   created_at: string;
 }
 
@@ -34,22 +34,23 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export function NotificationItem({ proposal, onClick }: NotificationItemProps) {
-  const priorityColor = priorityColors[proposal.priority] || priorityColors.medium;
+  const priority = proposal.priority || 'medium';
+  const priorityColor = priorityColors[priority] || priorityColors.medium;
 
   return (
     <button
       onClick={onClick}
       className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-left ${
-        proposal.priority === 'emergency' || proposal.priority === 'critical'
+        priority === 'emergency' || priority === 'critical'
           ? 'border-l-4 border-l-red-500'
-          : proposal.priority === 'high'
+          : priority === 'high'
           ? 'border-l-4 border-l-orange-500'
           : ''
       }`}
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-1">
-          {proposal.priority === 'emergency' || proposal.priority === 'critical' ? (
+          {priority === 'emergency' || priority === 'critical' ? (
             <AlertCircle className="w-5 h-5 text-red-600" />
           ) : (
             <Bot className="w-5 h-5 text-blue-600" />
@@ -59,7 +60,7 @@ export function NotificationItem({ proposal, onClick }: NotificationItemProps) {
           <div className="flex items-center gap-2 mb-1">
             <p className="font-medium text-gray-900 text-sm">{proposal.agent_name}</p>
             <span className={`px-2 py-0.5 rounded text-xs font-medium ${priorityColor}`}>
-              {proposal.priority}
+              {priority}
             </span>
           </div>
           <p className="text-gray-700 text-sm mb-1 truncate">{proposal.title}</p>

@@ -6,7 +6,7 @@ interface Proposal {
   id: string;
   agent_name: string;
   title: string;
-  priority: 'low' | 'medium' | 'high' | 'critical' | 'emergency';
+  priority?: 'low' | 'medium' | 'high' | 'critical' | 'emergency';
   created_at: string;
   status: string;
 }
