@@ -36,9 +36,11 @@ data/
 *.sqlite
 *.sqlite3
 
-# Storage
-storage/
+# Storage (data directories)
+/storage/
 chunks/
+# Allow frontend source storage utilities
+!frontend/src/storage/
 
 # Environment variables
 .env
