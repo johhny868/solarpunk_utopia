@@ -9,7 +9,7 @@ import { ErrorMessage } from '@/components/ErrorMessage';
 import { VisibilitySelector } from '@/components/VisibilitySelector';
 import { RESOURCE_CATEGORIES, COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
 import { validateIntentForm } from '@/utils/validation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Gift } from 'lucide-react';
 
 export function CreateOfferPage() {
   const navigate = useNavigate();
@@ -53,6 +53,31 @@ export function CreateOfferPage() {
   const subcategories = selectedCategory?.subcategories || [];
   const selectedSubcategory = subcategories.find(sub => sub.id === subcategory);
   const items = selectedSubcategory?.items || [];
+
+  // Check if community is selected
+  if (!currentCommunity) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="text-center py-12">
+          <div className="inline-block p-6 bg-solarpunk-50 rounded-full mb-4">
+            <Gift className="w-16 h-16 text-solarpunk-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Select a community to share your offers with neighbors.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/communities')}>
+              Browse Communities
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/communities/create')}>
+              Create Community
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,23 +216,68 @@ export function CreateOfferPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Resource Type
+                Category (optional)
               </label>
               <select
-                name="resource_spec"
-                value={item}
-                onChange={(e) => setItem(e.target.value)}
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setSubcategory('');
+                  setItem('');
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
               >
-                <option value="">Select type (optional)...</option>
-                <option value="Tomatoes">Tomatoes</option>
-                <option value="Tools">Tools</option>
-                <option value="Skills">Skills</option>
-                <option value="Seeds">Seeds</option>
-                <option value="Materials">Materials</option>
-                <option value="Other">Other</option>
+                <option value="">Select a category...</option>
+                {RESOURCE_CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
             </div>
+
+            {category && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subcategory
+                </label>
+                <select
+                  value={subcategory}
+                  onChange={(e) => {
+                    setSubcategory(e.target.value);
+                    setItem('');
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
+                >
+                  <option value="">Select a subcategory...</option>
+                  {subcategories.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {subcategory && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Specific Item
+                </label>
+                <select
+                  value={item}
+                  onChange={(e) => setItem(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-solarpunk-500 focus:border-solarpunk-500"
+                >
+                  <option value="">Select an item...</option>
+                  {items.map((itm) => (
+                    <option key={itm} value={itm}>
+                      {itm}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

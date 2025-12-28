@@ -9,7 +9,7 @@ import { ErrorMessage } from '@/components/ErrorMessage';
 import { VisibilitySelector } from '@/components/VisibilitySelector';
 import { RESOURCE_CATEGORIES, COMMON_UNITS, COMMON_LOCATIONS } from '@/utils/categories';
 import { validateIntentForm } from '@/utils/validation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Heart } from 'lucide-react';
 
 export function CreateNeedPage() {
   const navigate = useNavigate();
@@ -50,6 +50,31 @@ export function CreateNeedPage() {
   const subcategories = selectedCategory?.subcategories || [];
   const selectedSubcategory = subcategories.find(sub => sub.id === subcategory);
   const items = selectedSubcategory?.items || [];
+
+  // Check if community is selected
+  if (!currentCommunity) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="text-center py-12">
+          <div className="inline-block p-6 bg-blue-50 rounded-full mb-4">
+            <Heart className="w-16 h-16 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            Select a community to express your needs with neighbors.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate('/communities')}>
+              Browse Communities
+            </Button>
+            <Button variant="secondary" onClick={() => navigate('/communities/create')}>
+              Create Community
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
