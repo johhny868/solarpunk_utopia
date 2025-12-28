@@ -145,30 +145,36 @@ export function Navigation() {
         </div>
 
         {/* Mobile navigation */}
-        <div className="md:hidden flex overflow-x-auto pb-3 gap-1 scrollbar-hide">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              title={item.tooltip}
-              className={({ isActive }) =>
-                clsx(
-                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap relative',
-                  isActive
-                    ? 'bg-solarpunk-100 text-solarpunk-800'
-                    : 'text-gray-700 hover:bg-gray-100'
-                )
-              }
-            >
-              <item.icon className="w-4 h-4" />
-              <span>{item.label}</span>
-              {item.showBadge && count > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {count > 9 ? '9+' : count}
-                </span>
-              )}
-            </NavLink>
-          ))}
+        <div className="md:hidden relative">
+          {/* Fade gradient indicators for scroll */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
+
+          <div className="flex overflow-x-auto pb-3 gap-1 scrollbar-hide px-2 snap-x snap-mandatory">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                title={item.tooltip}
+                className={({ isActive }) =>
+                  clsx(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap relative flex-shrink-0 snap-start',
+                    isActive
+                      ? 'bg-solarpunk-100 text-solarpunk-800'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  )
+                }
+              >
+                <item.icon className="w-4 h-4" />
+                <span>{item.label}</span>
+                {item.showBadge && count > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {count > 9 ? '9+' : count}
+                  </span>
+                )}
+              </NavLink>
+            ))}
+          </div>
         </div>
       </div>
 
