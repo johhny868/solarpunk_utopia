@@ -72,6 +72,17 @@ export function CreateNeedPage() {
       return;
     }
 
+    // Validate date range
+    if (availableFrom && availableUntil) {
+      const fromDate = new Date(availableFrom);
+      const untilDate = new Date(availableUntil);
+
+      if (untilDate <= fromDate) {
+        setErrors(['"Needed Until" must be after "Needed From"']);
+        return;
+      }
+    }
+
     try {
       await createNeed.mutateAsync({
         listing_type: 'need',

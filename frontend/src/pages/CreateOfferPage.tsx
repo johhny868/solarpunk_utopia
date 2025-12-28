@@ -75,6 +75,17 @@ export function CreateOfferPage() {
       return;
     }
 
+    // Validate date range
+    if (availableFrom && availableUntil) {
+      const fromDate = new Date(availableFrom);
+      const untilDate = new Date(availableUntil);
+
+      if (untilDate <= fromDate) {
+        setErrors(['"Available Until" must be after "Available From"']);
+        return;
+      }
+    }
+
     try {
       await createOffer.mutateAsync({
         listing_type: 'offer',
