@@ -2,9 +2,11 @@
 
 **Type:** Bug Report
 **Severity:** High
-**Status:** Identified
+**Status:** Implemented
 **Date:** 2025-12-26
 **Reporter:** UI Tester (Automated)
+**Implemented:** 2025-12-26
+**Solution:** Community Check in Pages (Option 1)
 
 ## Summary
 
@@ -180,3 +182,67 @@ AND the onboarding flow SHOULD include community selection
 - Include community selection in onboarding flow
 - Consider having a "global" or "all communities" view option
 - Add community context to page titles (e.g., "Offers in Sunset District Community")
+
+---
+
+## Implementation Summary
+
+**Date:** 2025-12-26
+**Approach:** Community Check in Pages (Option 1)
+
+### Changes Made
+
+1. **OffersPage** (`frontend/src/pages/OffersPage.tsx:5,11,20,87-110`)
+   - Added `useCommunity` import
+   - Added `Users` icon import
+   - Check for `!currentCommunity` before rendering content
+   - Show helpful empty state with clear messaging and actions
+
+2. **NeedsPage** (`frontend/src/pages/NeedsPage.tsx:5,11,20,62-85`)
+   - Added `useCommunity` import
+   - Added `Users` icon import
+   - Check for `!currentCommunity` before rendering content
+   - Show helpful empty state with clear messaging and actions
+
+### Empty State Design
+
+Both pages now show when no community is selected:
+- **Icon:** Large community icon in blue circle
+- **Title:** "No Community Selected"
+- **Description:** Context-specific explanation
+- **Actions:**
+  - Primary: "Browse Communities" button
+  - Secondary: "Create Community" button
+
+### Test Scenarios Met
+
+✅ **WHEN** user has no community selected AND navigates to /offers
+   **THEN** sees message indicating no community selected with browse/join options
+
+✅ **WHEN** user selects a community
+   **THEN** offers page automatically refreshes and shows offers for that community
+
+✅ **WHEN** user is in a community with no offers
+   **THEN** sees "No offers in this community yet" (existing behavior)
+
+✅ **WHEN** new user logs in for first time (no community)
+   **THEN** prompted to browse or create community from offers/needs pages
+
+### Files Modified
+
+- `frontend/src/pages/OffersPage.tsx:5,11,20,87-110` - Community check and empty state
+- `frontend/src/pages/NeedsPage.tsx:5,11,20,62-85` - Community check and empty state
+
+### Impact
+
+- **Clarity:** Users now understand WHY they see no data
+- **Guidance:** Clear next steps provided (browse or create community)
+- **Consistency:** Both offers and needs pages have identical behavior
+- **UX:** No more confusion between "no community" and "no data"
+
+### Notes
+
+- Empty state appears BEFORE error state (proper priority)
+- Community check happens client-side (no backend call needed)
+- Future enhancement: Add community switcher to navigation bar
+- Future enhancement: Include community selection in onboarding flow
