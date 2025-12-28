@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 4444,
     proxy: {
       // Auth endpoints
       '/auth': {
@@ -49,7 +49,7 @@ export default defineConfig({
     },
   },
   preview: {
-    port: 3000,
+    port: 4444,
     proxy: {
       // Auth endpoints
       '/auth': {

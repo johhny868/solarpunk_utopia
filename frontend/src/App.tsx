@@ -5,7 +5,9 @@ import { AuthProvider } from './contexts/AuthContext'
 import { CommunityProvider } from './contexts/CommunityContext'
 import { Layout } from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
+import NodeConfigGuard from './components/NodeConfigGuard'
 import LoginPage from './pages/LoginPage'
+import NodeConfigPage from './pages/NodeConfigPage'
 import { HomePage } from './pages/HomePage'
 import { OffersPage } from './pages/OffersPage'
 import { NeedsPage } from './pages/NeedsPage'
@@ -76,9 +78,13 @@ function App() {
   return (
     <>
       <Toaster position="top-right" richColors />
-      <AuthProvider>
-        <CommunityProvider>
-          <Routes>
+      <NodeConfigGuard>
+        <AuthProvider>
+          <CommunityProvider>
+            <Routes>
+          {/* Node configuration - must be accessible before anything else */}
+          <Route path="/node-config" element={<NodeConfigPage />} />
+
           {/* Public route - no auth needed */}
           <Route path="/login" element={<LoginPage />} />
 
@@ -128,9 +134,10 @@ function App() {
               </ProtectedRoute>
             }
           />
-          </Routes>
-        </CommunityProvider>
-      </AuthProvider>
+            </Routes>
+          </CommunityProvider>
+        </AuthProvider>
+      </NodeConfigGuard>
     </>
   )
 }

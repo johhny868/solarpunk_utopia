@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.chaquo.python'
 
 android {
     namespace = "org.solarpunk.mesh"
@@ -14,6 +15,36 @@ android {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+
+        // Chaquopy Python configuration
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+
+        python {
+            // Use Python 3.8 for better Chaquopy package availability
+            version "3.8"
+
+            // Use Python 3.11 for build (3.14 removed cgi module)
+            buildPython "/opt/homebrew/bin/python3.11"
+
+            // Python packages - use versions with pre-built wheels for Android
+            // See https://chaquo.com/pypi-13.1/ for available packages
+            pip {
+                // FastAPI 0.99.x is the last version compatible with Pydantic v1
+                install "fastapi==0.99.1"
+                install "uvicorn==0.22.0"
+                install "pydantic==1.10.13"
+                install "aiosqlite==0.19.0"
+                install "python-multipart==0.0.6"
+                install "mnemonic==0.20"
+                install "structlog==23.1.0"
+                // Pre-built Android wheels available for these
+                install "pynacl==1.5.0"
+                install "cffi"
+                // Skip cryptography for now - use nacl for crypto
+            }
         }
     }
     buildTypes {
@@ -51,4 +82,52 @@ try {
     }
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
+
+// Task to sync Python backend source - uses Sync task for proper Gradle caching
+task copyPythonBackend(type: Sync) {
+    description = 'Copies Python backend source files for Chaquopy'
+
+    // Define the project root (two levels up from frontend/android/app)
+    def projectRoot = file('../../..')
+
+    // Copy app/ directory (DTN backend)
+    from("${projectRoot}/app") {
+        into 'app'
+        exclude '**/__pycache__/**'
+        exclude '**/*.pyc'
+        exclude '**/data/**'
+        exclude '**/venv/**'
+        exclude '**/.venv/**'
+    }
+
+    // Copy valueflows_node/ directory
+    from("${projectRoot}/valueflows_node") {
+        into 'valueflows_node'
+        exclude '**/__pycache__/**'
+        exclude '**/*.pyc'
+        exclude '**/venv/**'
+        exclude '**/.venv/**'
+        exclude '**/tests/**'
+        exclude '**/*.db'
+    }
+
+    // Use Sync to properly declare outputs
+    into 'src/main/python'
+
+    // Preserve the android_main.py that's already there
+    preserve {
+        include 'android_main.py'
+    }
+}
+
+// Ensure Python source is copied BEFORE any Python-related Gradle configuration
+preBuild.dependsOn copyPythonBackend
+
+// Make Chaquopy's merge task explicitly depend on copy task using afterEvaluate
+afterEvaluate {
+    tasks.matching { it.name.matches('.*[Mm]erge.*[Pp]ython[Ss]ources.*') }.configureEach {
+        dependsOn copyPythonBackend
+        mustRunAfter copyPythonBackend
+    }
 }

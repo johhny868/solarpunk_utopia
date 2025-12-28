@@ -46,8 +46,8 @@ export function NetworkStatus({ status }: NetworkStatusProps) {
               <Map className="w-4 h-4 text-blue-700" />
               <p className="text-sm font-medium text-gray-700">Island</p>
             </div>
-            <p className="text-lg font-bold text-blue-800 truncate" title={status.current_island_id}>
-              {status.current_island_id.slice(0, 8)}...
+            <p className="text-lg font-bold text-blue-800 truncate" title={status.current_island_id || 'N/A'}>
+              {status.current_island_id?.slice(0, 8) || 'N/A'}
             </p>
           </div>
 
@@ -72,8 +72,8 @@ export function NetworkStatus({ status }: NetworkStatusProps) {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-gray-600">Node ID</p>
-            <p className="font-mono text-gray-900 truncate" title={status.node_id}>
-              {status.node_id.slice(0, 16)}...
+            <p className="font-mono text-gray-900 truncate" title={status.node_id || 'N/A'}>
+              {status.node_id?.slice(0, 16) || 'N/A'}
             </p>
           </div>
           <div>

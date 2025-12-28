@@ -86,7 +86,8 @@ export const truncate = (text: string, maxLength: number): string => {
 };
 
 // Bundle ID formatting (show first 8 chars)
-export const formatBundleId = (id: string): string => {
+export const formatBundleId = (id: string | undefined): string => {
+  if (!id) return 'N/A';
   return id.slice(0, 8);
 };
 
