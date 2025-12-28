@@ -54,30 +54,8 @@ export function CreateOfferPage() {
   const selectedSubcategory = subcategories.find(sub => sub.id === subcategory);
   const items = selectedSubcategory?.items || [];
 
-  // Check if community is selected
-  if (!currentCommunity) {
-    return (
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="text-center py-12">
-          <div className="inline-block p-6 bg-solarpunk-50 rounded-full mb-4">
-            <Gift className="w-16 h-16 text-solarpunk-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Select a community to share your offers with neighbors.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={() => navigate('/communities')}>
-              Browse Communities
-            </Button>
-            <Button variant="secondary" onClick={() => navigate('/communities/create')}>
-              Create Community
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Optional community notice (not blocking)
+  const showCommunityNotice = !currentCommunity;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,6 +169,37 @@ export function CreateOfferPage() {
       {/* Form */}
       <Card>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {showCommunityNotice && (
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <div className="flex items-start gap-3">
+                <Gift className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">Posting as a Singleton</h3>
+                  <p className="text-sm text-blue-800 mb-2">
+                    You're not in a community yet. Your offer will be visible to everyone on the network.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/communities')}
+                      className="text-sm text-blue-700 hover:text-blue-900 underline"
+                    >
+                      Browse communities
+                    </button>
+                    <span className="text-blue-400">•</span>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/communities/create')}
+                      className="text-sm text-blue-700 hover:text-blue-900 underline"
+                    >
+                      Create a community
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {errors.length > 0 && (
             <ErrorMessage message={errors.join(', ')} />
           )}

@@ -86,37 +86,8 @@ export function OffersPage() {
   // Get unique locations
   const locations = Array.from(new Set(offers?.map(o => o.location).filter(Boolean))) as string[];
 
-  // Check if community is selected
-  if (!currentCommunity) {
-    return (
-      <div className="space-y-6">
-        <div className="text-center py-12">
-          <div className="inline-block p-6 bg-blue-50 rounded-full mb-4">
-            <Users className="w-16 h-16 text-blue-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No Community Selected</h2>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Select a community to view and share offers with your neighbors.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button
-              onClick={() => navigate('/communities')}
-              aria-label="Browse available communities to join"
-            >
-              Browse Communities
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => navigate('/communities/create')}
-              aria-label="Create a new community"
-            >
-              Create Community
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Show network-wide offers if no community selected
+  const showCommunityNotice = !currentCommunity;
 
   if (error) {
     return <ErrorMessage message="Failed to load offers. Please try again later." />;
@@ -124,6 +95,36 @@ export function OffersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Singleton Mode Notice */}
+      {showCommunityNotice && (
+        <Card className="bg-blue-50 border-blue-200">
+          <div className="flex items-start gap-3">
+            <Gift className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-1">Browsing Network-Wide Offers</h3>
+              <p className="text-sm text-blue-800 mb-2">
+                You're viewing offers from across the entire network. Join a community to see local offers prioritized.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate('/communities')}
+                  className="text-sm text-blue-700 hover:text-blue-900 underline"
+                >
+                  Browse communities
+                </button>
+                <span className="text-blue-400">•</span>
+                <button
+                  onClick={() => navigate('/communities/create')}
+                  className="text-sm text-blue-700 hover:text-blue-900 underline"
+                >
+                  Create a community
+                </button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
