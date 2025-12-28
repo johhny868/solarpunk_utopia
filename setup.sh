@@ -116,12 +116,16 @@ setup_python() {
 
     pip install pytest pytest-asyncio freezegun aiohttp  # Test dependencies
 
-    # Install sub-project requirements
-    for req in valueflows_node/requirements.txt mesh_network/requirements.txt discovery_search/requirements.txt; do
-        if [ -f "$req" ]; then
-            pip install -r "$req" 2>/dev/null || true
-        fi
-    done
+    # Install sub-project requirements (skip on Termux to avoid recompiling packages)
+    if [ "$IS_TERMUX" != true ]; then
+        for req in valueflows_node/requirements.txt mesh_network/requirements.txt discovery_search/requirements.txt; do
+            if [ -f "$req" ]; then
+                pip install -r "$req" 2>/dev/null || true
+            fi
+        done
+    else
+        echo -e "${YELLOW}Skipping sub-project requirements on Termux (already installed from main requirements)${NC}"
+    fi
 }
 
 # Setup frontend
