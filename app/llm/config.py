@@ -14,7 +14,7 @@ class LLMConfig:
     """Configuration for LLM backend"""
 
     # Backend selection
-    backend: str = "ollama"  # ollama, mlx, remote, mock
+    backend: str = "ollama"  # ollama, mlx, remote, huggingface, mock
 
     # Model selection
     model: str = "qwen2.5:1.5b"  # Default to small model for testing

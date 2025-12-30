@@ -387,6 +387,139 @@ class RemoteBackend(LLMClient):
             return False
 
 
+class HuggingFaceBackend(LLMClient):
+    """
+    Hugging Face Inference API backend (OpenAI-compatible endpoint).
+
+    Best for: Cloud-hosted inference without running local models
+    Requires: HF_TOKEN environment variable or api_key config
+    Models: Qwen/Qwen2.5-3B-Instruct, meta-llama/Llama-3.2-3B-Instruct, etc.
+    """
+
+    def __init__(self, config: LLMConfig):
+        super().__init__(config)
+        self.client = httpx.AsyncClient(timeout=config.timeout_seconds)
+        # Use api_key from config or fall back to HF_TOKEN env var
+        import os
+        self.api_key = config.api_key or os.getenv("HF_TOKEN")
+        # Default model for HF - use a model available on serverless inference
+        self.model = config.model or "meta-llama/Llama-3.2-1B-Instruct"
+        # Use new HuggingFace router endpoint (OpenAI-compatible)
+        self.base_url = "https://router.huggingface.co/v1"
+
+    async def generate(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> LLMResponse:
+        """Generate text using HuggingFace Inference API (OpenAI-compatible)"""
+        cache_key = self._get_cache_key(prompt, system_prompt)
+        cached = self._check_cache(cache_key)
+        if cached:
+            return cached
+
+        try:
+            # Build messages
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
+
+            response = await self.client.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                json={
+                    "model": self.model,
+                    "messages": messages,
+                    "temperature": temperature or self.config.temperature,
+                    "max_tokens": max_tokens or self.config.max_tokens,
+                    "top_p": self.config.top_p,
+                },
+            )
+
+            response.raise_for_status()
+            data = response.json()
+
+            # OpenAI-compatible response format
+            content = data["choices"][0]["message"]["content"]
+            tokens_used = data.get("usage", {}).get("total_tokens", len(content.split()))
+
+            result = LLMResponse(
+                content=content,
+                model=self.model,
+                tokens_used=tokens_used,
+                cached=False,
+            )
+
+            self._store_cache(cache_key, result)
+            logger.info(f"HuggingFace generated response (model: {self.model})")
+            return result
+
+        except Exception as e:
+            logger.error(f"HuggingFace generation failed: {e}")
+            raise
+
+    async def chat(
+        self,
+        messages: List[LLMMessage],
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> LLMResponse:
+        """Multi-turn chat via HuggingFace (OpenAI-compatible)"""
+        try:
+            api_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
+
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
+
+            response = await self.client.post(
+                f"{self.base_url}/chat/completions",
+                headers=headers,
+                json={
+                    "model": self.model,
+                    "messages": api_messages,
+                    "temperature": temperature or self.config.temperature,
+                    "max_tokens": max_tokens or self.config.max_tokens,
+                },
+            )
+
+            response.raise_for_status()
+            data = response.json()
+
+            return LLMResponse(
+                content=data["choices"][0]["message"]["content"],
+                model=self.model,
+                tokens_used=data.get("usage", {}).get("total_tokens", 0),
+            )
+
+        except Exception as e:
+            logger.error(f"HuggingFace chat failed: {e}")
+            raise
+
+    async def health_check(self) -> bool:
+        """Check if HuggingFace API is reachable"""
+        try:
+            headers = {"Authorization": f"Bearer {self.api_key}"}
+            # Just check if we can reach the endpoint
+            response = await self.client.get(
+                f"{self.base_url}/models",
+                headers=headers,
+            )
+            return response.status_code in [200, 401, 403]  # Any response means API is up
+        except Exception as e:
+            logger.debug(f"HuggingFace API check failed: {e}")
+            return False
+
+
 class MockBackend(LLMClient):
     """
     Mock backend for testing.
@@ -465,11 +598,13 @@ def get_llm_client(config: Optional[LLMConfig] = None) -> LLMClient:
         return MLXBackend(config)
     elif backend == "remote":
         return RemoteBackend(config)
+    elif backend == "huggingface":
+        return HuggingFaceBackend(config)
     elif backend == "mock":
         return MockBackend(config)
     else:
         logger.warning(
             f"Unknown backend '{backend}', falling back to mock. "
-            f"Valid options: ollama, mlx, remote, mock"
+            f"Valid options: ollama, mlx, remote, huggingface, mock"
         )
         return MockBackend(config)
